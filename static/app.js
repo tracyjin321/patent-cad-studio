@@ -41,11 +41,10 @@ const modelViewer = new CadModelViewer($("#model-canvas"));
 function selectedParts(){return Object.keys(labels).filter(part=>(state.recommended.has(part)||state.manualSelected.has(part))&&!state.manualDeselected.has(part));}
 function renderParts(){
   const selected=new Set(selectedParts());
-  $$("#parts button").forEach(button=>{const part=button.dataset.part;button.classList.toggle("active",selected.has(part));button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",selected.has(part));button.textContent=labels[part];if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="推荐";button.appendChild(badge);}});
-  const recommended=[...state.recommended].map(part=>labels[part]);const summary=$("#recommendation-summary"),status=$("#recommendation-status");summary.className="recommendation-summary";status.className="";
-  if(state.recommendationSource==="loading"){status.classList.add("recognizing");status.innerHTML='<i></i>正在智能识别核心图元<span class="status-dots"><b>.</b><b>.</b><b>.</b></span>';summary.hidden=true;}
-  else if(recommended.length){status.textContent="自动推荐，可人工补充";summary.hidden=false;summary.classList.add("detected");const source=state.recommendationSource==="moonshot"?"Kimi 智能推荐":"已识别";summary.innerHTML=`<span class="summary-check">✓</span><span><strong>${source}</strong><em>${recommended.join("、")}</em></span><small>已自动勾选，可手动调整</small>`;}
-  else{status.textContent="自动推荐，可人工补充";summary.hidden=false;summary.textContent="输入技术描述后自动识别核心图元，也可手动选择";}
+  $$("#parts button").forEach(button=>{const part=button.dataset.part;button.classList.toggle("active",selected.has(part));button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",selected.has(part));button.textContent=labels[part];if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="✦";badge.title="智能推荐";badge.setAttribute("aria-label","智能推荐");button.appendChild(badge);}});
+  const status=$("#recommendation-status");status.className="";
+  if(state.recommendationSource==="loading"){status.classList.add("recognizing");status.innerHTML='<i></i>正在智能识别核心图元<span class="status-dots"><b>.</b><b>.</b><b>.</b></span>';}
+  else{status.textContent="自动推荐，可人工补充";}
 }
 async function fetchModelRecommendations(description){
   state.recommendationController?.abort();const controller=new AbortController();state.recommendationController=controller;state.recommendationSource="loading";renderParts();

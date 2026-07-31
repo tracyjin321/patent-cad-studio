@@ -42,14 +42,17 @@ function selectedParts(){return Object.keys(labels).filter(part=>(state.recommen
 function renderParts(){
   const selected=new Set(selectedParts());
   $$("#parts button").forEach(button=>{const part=button.dataset.part;button.classList.toggle("active",selected.has(part));button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",selected.has(part));button.textContent=labels[part];if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="✦";badge.title="智能推荐";badge.setAttribute("aria-label","智能推荐");button.appendChild(badge);}});
-  const status=$("#recommendation-status");status.className="";
+  const status=$("#recommendation-status"),recommendedNames=[...state.recommended].map(part=>labels[part]);status.className="";
   if(state.recommendationSource==="loading"){status.classList.add("recognizing");status.innerHTML='<i></i>正在智能识别核心图元<span class="status-dots"><b>.</b><b>.</b><b>.</b></span>';}
+  else if(recommendedNames.length){status.classList.add("recognized");status.textContent=`✓ 已推荐：${recommendedNames.join("、")}`;status.title=`已自动推荐 ${recommendedNames.join("、")}，可人工调整`;}
+  else if($("#description").value.trim()){status.textContent="未识别到图元，请手动选择";}
   else{status.textContent="自动推荐，可人工补充";}
 }
 async function fetchModelRecommendations(description){
-  state.recommendationController?.abort();const controller=new AbortController();state.recommendationController=controller;state.recommendationSource="loading";renderParts();
-  try{const response=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,use_ai:true}),signal:controller.signal});if(!response.ok)throw new Error(`推荐接口返回 ${response.status}`);const data=await response.json();if($("#description").value!==description)return;state.recommended=new Set(data.elements);state.recommendationSource=data.parser;state.recommendationDetail=data.parser_detail;if(state.recommended.size)state.part=[...state.recommended][0];renderParts();}
-  catch(error){if(error.name==="AbortError")return;state.recommendationSource="local-fallback";state.recommendationDetail=error.message;renderParts();}
+  state.recommendationController?.abort();const controller=new AbortController(),startedAt=Date.now();state.recommendationController=controller;state.recommendationSource="loading";renderParts();
+  const holdLoading=()=>new Promise(resolve=>setTimeout(resolve,Math.max(0,2000-(Date.now()-startedAt))));
+  try{const response=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,use_ai:true}),signal:controller.signal});if(!response.ok)throw new Error(`推荐接口返回 ${response.status}`);const data=await response.json();await holdLoading();if(controller.signal.aborted||$("#description").value!==description)return;state.recommended=new Set(data.elements);state.recommendationSource=data.parser;state.recommendationDetail=data.parser_detail;if(state.recommended.size)state.part=[...state.recommended][0];renderParts();}
+  catch(error){if(error.name==="AbortError")return;await holdLoading();if(controller.signal.aborted)return;state.recommendationSource="local-fallback";state.recommendationDetail=error.message;renderParts();}
 }
 function extractCoreElements(description){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderParts();if(description.trim().length>=2&&$("#use-ai").checked)state.recommendationTimer=setTimeout(()=>fetchModelRecommendations(description),500);}
 

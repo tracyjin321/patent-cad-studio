@@ -1,6 +1,6 @@
 # 开发机部署教程
 
-本文以 Ubuntu 22.04/24.04、域名或开发机 IP、Nginx、systemd 为例。应用由
+本文覆盖 Ubuntu 22.04/24.04 和 Alibaba Cloud Linux 3，使用域名或开发机 IP、Nginx、systemd。应用由
 FastAPI 提供 API 和静态页面，OpenCascade 负责 STEP 几何生成，Three.js
 负责浏览器 3D 渲染。
 
@@ -20,6 +20,24 @@ FastAPI 提供 API 和静态页面，OpenCascade 负责 STEP 几何生成，Thre
 ```bash
 sudo apt update
 sudo apt install -y git nginx python3 python3-venv python3-pip curl
+```
+
+Alibaba Cloud Linux 3/RHEL 系执行：
+
+```bash
+sudo yum install -y git nginx python3.11 python3.11-pip python3.11-devel \
+  mesa-libGL mesa-libGLU libXrender libXext libSM libgomp
+```
+
+`cadquery-ocp` 虽然在服务端无窗口运行，但其预编译模块仍动态链接
+`libGL.so.1`。缺少 `mesa-libGL` 时，服务可以启动，但第一次生成 STEP
+会报 `ImportError: libGL.so.1: cannot open shared object file`。
+
+如果系统找不到上述包名，用以下命令定位实际提供者：
+
+```bash
+sudo yum provides '*/libGL.so.1'
+sudo yum provides '*/libGLU.so.1'
 ```
 
 安装 Node.js 22：
@@ -328,6 +346,14 @@ uname -m
 
 优先使用 Python 3.11/3.12 的 64 位 Linux 环境，不要从源码编译
 OpenCascade。
+
+如果错误是缺少 `libGL.so.1`，Alibaba Cloud Linux/RHEL 系执行：
+
+```bash
+sudo yum install -y mesa-libGL mesa-libGLU libXrender libXext libSM libgomp
+sudo ldconfig
+./.venv/bin/python -c "from OCP.STEPControl import STEPControl_Writer; print('OpenCascade OK')"
+```
 
 ### STEP 生成后无法下载
 

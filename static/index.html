@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>专图灵境 · 智能附图生成工作区</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/model-viewer.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark">⌬</span><strong>专图灵境</strong><span class="divider">|</span><span>智能附图生成工作区</span></div>
+    <div class="status"><i></i> 参数化生成引擎就绪</div>
+  </header>
+  <main>
+    <aside>
+      <section>
+        <div class="section-title"><strong>技术描述</strong><span id="counter">0/5000</span></div>
+        <textarea id="description" maxlength="5000" placeholder="请输入零件用途、结构和关键尺寸。例如：生成深沟球轴承，外径100mm，内径45mm，宽25mm，10个滚珠。"></textarea>
+        <div class="hint-row"><button id="example" class="text-button">⟳ 刷新示例</button><button id="clear" class="text-button">清空</button></div>
+      </section>
+      <section>
+        <div class="section-title"><strong>文档上传</strong><span>TXT/MD，≤2MB</span></div>
+        <label class="upload">⇧ 点击导入技术描述<input id="document" type="file" accept=".txt,.md,text/plain"></label>
+      </section>
+      <section>
+        <div class="section-title"><strong>工程领域</strong></div>
+        <select id="field"><option>机械结构</option><option>能源装备</option><option>化工装置</option><option>纺织机械</option></select>
+      </section>
+      <section>
+        <div class="section-title"><strong>核心图元</strong><span>选择一种单零件</span></div>
+        <div id="parts" class="parts">
+          <button data-part="bearing" class="active">轴承</button><button data-part="flange">法兰</button>
+          <button data-part="valve">阀门</button><button data-part="shaft">轴系</button>
+          <button data-part="gear">齿轮</button><button data-part="screw">丝杠</button>
+          <button data-part="coupling">联轴器</button><button data-part="seal">密封件</button>
+        </div>
+      </section>
+      <label class="ai-toggle"><input id="use-ai" type="checkbox" checked><span>使用 Moonshot 智能提取参数</span><small>不可用时自动回退本地解析</small></label>
+      <button id="generate" class="primary"><span>⌁</span> 生成附图</button>
+      <section class="history-section">
+        <div class="section-title"><strong>历史记录</strong><button id="clear-history" class="text-button">清空</button></div>
+        <div id="history" class="history"><p class="empty-small">暂无生成记录</p></div>
+      </section>
+    </aside>
+    <article>
+      <nav class="tabs"><button data-tab="model">3D 预览</button><button data-tab="preview" class="active">附图预览</button><button data-tab="params">参数文档</button></nav>
+      <div class="toolbar">
+        <div><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
+        <div><a id="step" class="toolbar-link disabled" download>下载 STEP</a><button id="compliance" disabled>合规校验</button><button id="png" disabled>导出 PNG</button><button id="svg" disabled>导出 SVG</button></div>
+      </div>
+      <div id="model" class="panel">
+        <div class="model-stage"><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
+      </div>
+      <div id="preview" class="panel active">
+        <div id="canvas" class="canvas empty">
+          <div class="placeholder"><span>▧</span><p>在左侧描述零件并点击“生成附图”</p><small>系统将在此展示参数化技术附图</small></div>
+        </div>
+      </div>
+      <div id="params" class="panel"><div id="parameter-content" class="parameter-content"></div></div>
+      <div id="generation-progress" class="progress-overlay" aria-live="polite">
+        <div class="progress-card"><div class="cad-loader"><i></i><i></i><i></i></div><strong id="progress-title">正在解析结构参数</strong><p id="progress-detail">准备参数化生成任务…</p><div class="progress-track"><span id="progress-bar"></span></div><small id="progress-percent">0%</small></div>
+      </div>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </article>
+  </main>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

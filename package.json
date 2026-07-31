@@ -1,0 +1,7 @@
+{
+  "name": "patent-cad-studio",
+  "private": true,
+  "dependencies": {
+    "three": "0.160.0"
+  }
+}

@@ -11,6 +11,7 @@ class GenerateRequest(BaseModel):
     part_type: PartType
     field: str = "机械结构"
     use_ai: bool = True
+    core_elements: list[PartType] = Field(default_factory=list)
 
 
 class GenerateResponse(BaseModel):
@@ -24,3 +25,4 @@ class GenerateResponse(BaseModel):
     parser_detail: str | None = None
     model: list[dict[str, Any]]
     step_url: str
+    core_elements: list[PartType] = Field(default_factory=list)

@@ -49,6 +49,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         parser_detail=parser_detail,
         model=model,
         step_url=f"/api/models/{result_id}/step",
+        core_elements=request.core_elements or [request.part_type],
     )
 
 

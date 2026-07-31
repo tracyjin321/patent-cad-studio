@@ -15,6 +15,7 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
         response = await client.post("/api/generate", json={
             "description": "生成一个用于专利附图的标准机械零件，外径100，内径45，长度200。",
             "part_type": part_type,
+            "core_elements": [part_type],
             "use_ai": False,
         })
         step = await client.get(response.json()["step_url"])
@@ -24,6 +25,7 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
     assert data["svg"].endswith("</svg>")
     assert data["parameters"]
     assert data["model"]
+    assert data["core_elements"] == [part_type]
     assert data["step_url"].endswith("/step")
     assert all(item["passed"] for item in data["compliance"])
     assert step.status_code == 200

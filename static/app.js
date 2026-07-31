@@ -2,7 +2,7 @@ import { CadModelViewer } from "/static/model-viewer.js";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { part: "bearing", result: null, zoom: 1, exampleIndex: {}, history: JSON.parse(localStorage.getItem("cad-history") || "[]") };
+const state = { part: "bearing", result: null, zoom: 1, exampleIndex: {}, recommended: new Set(), manualSelected: new Set(), manualDeselected: new Set(), history: JSON.parse(localStorage.getItem("cad-history") || "[]") };
 const useCases = ["高速电机转子","矿山输送机","食品包装设备","海上风电机组","数控机床主轴","农业灌溉泵","化工反应釜","仓储机器人","船舶推进系统","轨道交通设备","光伏跟踪支架","医疗检测仪器","航空地面设备","冶金轧制产线","半导体搬运模组","污水处理装置","印刷机械","注塑机","实验室试验台","自动化装配线"];
 const examples = {
   bearing: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["深沟球","圆柱滚子","角接触球","调心滚子","推力球"][i%5]}轴承，外径${62+i*8}mm，内径${24+i*4}mm，宽度${14+i}mm，包含${8+(i%5)*2}个滚动体，用于${useCases[i]}。`),
@@ -15,7 +15,25 @@ const examples = {
   seal: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["双唇油封","单唇旋转密封件","耐压轴端密封件","防尘密封件","耐高温密封件"][i%5]}，外径${42+i*7}mm，内径${22+i*5}mm，宽度${7+i%10}mm，${i%3===0?"双唇":"单唇"}结构，用于${useCases[i]}。`)
 };
 const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件" };
+const elementPatterns = {
+  bearing: /轴承|滚珠|滚子|轴瓦|支承座|bearing/i,
+  flange: /法兰|法兰盘|连接盘|突缘|flange/i,
+  valve: /阀门|阀体|闸阀|截止阀|蝶阀|球阀|止回阀|调节阀|valve/i,
+  shaft: /轴系|主轴|传动轴|输入轴|输出轴|阶梯轴|转轴|轴肩|shaft/i,
+  gear: /齿轮|齿圈|轮齿|齿数|模数|gear/i,
+  screw: /丝杠|丝杆|螺杆|导程|滚珠丝杠|screw/i,
+  coupling: /联轴器|联轴节|轴联接|coupling/i,
+  seal: /密封件|密封圈|油封|密封环|密封唇|seal/i
+};
 const modelViewer = new CadModelViewer($("#model-canvas"));
+
+function selectedParts(){return Object.keys(labels).filter(part=>(state.recommended.has(part)||state.manualSelected.has(part))&&!state.manualDeselected.has(part));}
+function renderParts(){
+  const selected=new Set(selectedParts());
+  $$("#parts button").forEach(button=>{const part=button.dataset.part;button.classList.toggle("active",selected.has(part));button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",selected.has(part));button.textContent=labels[part];if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="推荐";button.appendChild(badge);}});
+  const recommended=[...state.recommended].map(part=>labels[part]);const summary=$("#recommendation-summary");summary.classList.toggle("detected",recommended.length>0);summary.textContent=recommended.length?`已从描述识别：${recommended.join("、")}；可继续补选或取消`:`未识别到明确图元，请人工选择`;
+}
+function extractCoreElements(description){state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderParts();}
 
 function toast(message) { const el=$("#toast"); el.textContent=message; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2200); }
 function setTab(name) { $$(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name)); $$(".panel").forEach(p=>p.classList.toggle("active",p.id===name)); }
@@ -28,7 +46,8 @@ function renderHistory() {
 }
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":result.parser==="local-fallback"?`本地确定性解析（${result.parser_detail||"智能解析暂不可用"}）`:"本地确定性解析";
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  const coreText=(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、");
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
@@ -40,23 +59,24 @@ function download(blob,name){ const url=URL.createObjectURL(blob); const a=docum
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
+  const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=[...state.recommended].find(part=>coreElements.includes(part))||coreElements[0];state.part=primaryPart;
   const button=$("#generate");button.disabled=true;button.innerHTML='<span class="spinner"></span>';
   const progress=$("#generation-progress"), stages=[[12,"正在解析结构参数","识别零件类型、尺寸与工程约束…"],[38,"正在生成二维附图","构建轮廓、中心线和尺寸标注…"],[68,"正在构建 3D 几何","生成参数化实体与可视化网格…"],[88,"正在封装 STEP","写入 ISO 10303 交换格式…"]];
   progress.classList.add("show");let stage=0;const update=()=>{const [value,title,detail]=stages[stage];$("#progress-bar").style.width=`${value}%`;$("#progress-percent").textContent=`${value}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;stage=Math.min(stage+1,stages.length-1)};update();const timer=setInterval(update,650);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
-    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:state.part,field:$("#field").value,use_ai:$("#use-ai").checked})});
+    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,field:$("#field").value,use_ai:$("#use-ai").checked})});
     if(!response.ok) throw new Error(`生成失败 (${response.status})`);
     const result=await response.json();clearInterval(timer);$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="3D 模型与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,350));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
-    state.history.unshift(result);state.history=state.history.slice(0,12);localStorage.setItem("cad-history",JSON.stringify(state.history));renderHistory();showResult(result);toast(`${labels[state.part]}附图已生成`);
+    state.history.unshift(result);state.history=state.history.slice(0,12);localStorage.setItem("cad-history",JSON.stringify(state.history));renderHistory();showResult(result);toast(`${labels[primaryPart]}附图已生成`);
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请检查后端服务后重试</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.innerHTML="<span>⌁</span> 生成附图";}
 }
 
-$("#description").oninput=e=>$("#counter").textContent=`${e.target.value.length}/5000`;
+$("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length}/5000`;extractCoreElements(e.target.value);};
 $("#example").onclick=()=>{const list=examples[state.part],index=state.exampleIndex[state.part]||0;$("#description").value=list[index];state.exampleIndex[state.part]=(index+1)%list.length;$("#description").dispatchEvent(new Event("input"));};
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
-$("#parts").onclick=e=>{const button=e.target.closest("button");if(!button)return;state.part=button.dataset.part;$$(".parts button").forEach(b=>b.classList.toggle("active",b===button));};
+$("#parts").onclick=e=>{const button=e.target.closest("button");if(!button)return;const part=button.dataset.part;const selected=selectedParts().includes(part);if(selected){state.manualSelected.delete(part);if(state.recommended.has(part))state.manualDeselected.add(part);}else{state.manualDeselected.delete(part);state.manualSelected.add(part);state.part=part;}renderParts();};
 $("#document").onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024){toast("文件不能超过 2MB");return;}$("#description").value=await file.text();$("#description").dispatchEvent(new Event("input"));toast("文档已导入");};
 $("#generate").onclick=generate;
 $$(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -68,3 +88,4 @@ $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"
 $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=1800;canvas.height=1240;canvas.getContext("2d").drawImage(image,0,0,1800,1240);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
 $("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem("cad-history");renderHistory();toast("历史记录已清空");};
 renderHistory();
+renderParts();

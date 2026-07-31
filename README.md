@@ -20,6 +20,9 @@ cp .env.example .env
 
 打开 <http://127.0.0.1:8000>。
 
+开发机上的 systemd、Nginx、HTTPS、更新和故障排查步骤见
+[DEPLOYMENT.md](DEPLOYMENT.md)。
+
 ## 测试
 
 ```bash

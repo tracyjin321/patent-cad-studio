@@ -14,6 +14,17 @@ class GenerateRequest(BaseModel):
     core_elements: list[PartType] = Field(default_factory=list)
 
 
+class RecommendRequest(BaseModel):
+    description: str = Field(min_length=2, max_length=5000)
+    use_ai: bool = True
+
+
+class RecommendResponse(BaseModel):
+    elements: list[PartType]
+    parser: str
+    parser_detail: str | None = None
+
+
 class GenerateResponse(BaseModel):
     id: str
     title: str

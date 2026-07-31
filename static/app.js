@@ -2,18 +2,29 @@ import { CadModelViewer } from "/static/model-viewer.js";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { part: "bearing", result: null, zoom: 1, exampleIndex: {}, recommended: new Set(), manualSelected: new Set(), manualDeselected: new Set(), history: JSON.parse(localStorage.getItem("cad-history") || "[]") };
-const useCases = ["高速电机转子","矿山输送机","食品包装设备","海上风电机组","数控机床主轴","农业灌溉泵","化工反应釜","仓储机器人","船舶推进系统","轨道交通设备","光伏跟踪支架","医疗检测仪器","航空地面设备","冶金轧制产线","半导体搬运模组","污水处理装置","印刷机械","注塑机","实验室试验台","自动化装配线"];
-const examples = {
-  bearing: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["深沟球","圆柱滚子","角接触球","调心滚子","推力球"][i%5]}轴承，外径${62+i*8}mm，内径${24+i*4}mm，宽度${14+i}mm，包含${8+(i%5)*2}个滚动体，用于${useCases[i]}。`),
-  flange: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["平焊","高压对焊","真空","设备连接","带颈"][i%5]}法兰，外径${110+i*12}mm，内径${42+i*6}mm，厚度${12+i*2}mm，均布${[4,6,8,10,12][i%5]}个螺栓孔，用于${useCases[i]}。`),
-  valve: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["截止阀","闸阀","调节阀","蝶阀","止回阀"][i%5]}，公称直径${32+i*6}mm，阀体长度${120+i*11}mm，总高度${160+i*13}mm，双端法兰连接，应用于${useCases[i]}。`),
-  shaft: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["阶梯轴","输入轴","输出轴","空心传动轴","支承轴"][i%5]}，总长${160+i*24}mm，最大直径${38+i*5}mm，包含${3+i%4}段轴肩，键槽宽${8+i%7}mm，用于${useCases[i]}。`),
-  gear: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["直齿圆柱齿轮","精密小齿轮","重载传动齿轮","减速机齿轮","仪表齿轮"][i%5]}，模数${[1.5,2,2.5,3,4][i%5]}，齿数${16+i*2}，中心孔${12+i*3}mm，齿宽${10+i*2}mm，用于${useCases[i]}。`),
-  screw: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["精密滚珠丝杠","梯形传动丝杠","重载升降丝杠","定位丝杠","微型执行器丝杠"][i%5]}，长度${160+i*32}mm，直径${16+i*2}mm，导程${[4,5,8,10,12][i%5]}mm，${i%3===0?"双头":"单头"}结构，用于${useCases[i]}。`),
-  coupling: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["法兰联轴器","刚性联轴器","弹性法兰联轴器","重载联轴器","伺服联轴器"][i%5]}，外径${58+i*7}mm，总长${70+i*8}mm，轴孔${16+i*3}mm，配置${[4,6,8,10][i%4]}个连接螺栓，用于${useCases[i]}。`),
-  seal: Array.from({length:20},(_,i)=>`${["生成","设计","构造","绘制"][i%4]}${["双唇油封","单唇旋转密封件","耐压轴端密封件","防尘密封件","耐高温密封件"][i%5]}，外径${42+i*7}mm，内径${22+i*5}mm，宽度${7+i%10}mm，${i%3===0?"双唇":"单唇"}结构，用于${useCases[i]}。`)
-};
+const state = { part: "bearing", result: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: JSON.parse(localStorage.getItem("cad-history") || "[]") };
+const refreshExamples = [
+  "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
+  "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
+  "生成平焊法兰，外径160mm，内径76mm，厚度18mm，均布8个直径18mm螺栓孔。",
+  "设计高压对焊法兰，公称直径DN100，外径220mm，带颈结构，配置8个连接孔。",
+  "构造真空设备连接法兰，外径120mm，内径50mm，密封槽宽6mm，均布6孔。",
+  "生成DN50截止阀，阀体长度230mm，总高度310mm，双端法兰连接并包含手轮。",
+  "设计电动蝶阀，公称直径DN150，阀板厚度12mm，阀杆直径24mm，法兰式安装。",
+  "构造止回阀，公称直径DN80，阀体长度260mm，采用旋启式阀瓣和双端连接。",
+  "生成四段阶梯轴，总长360mm，最大直径68mm，包含轴肩、键槽和两端倒角。",
+  "设计空心传动轴，总长520mm，外径80mm，内径42mm，两端设置花键连接段。",
+  "生成直齿圆柱齿轮，模数3，齿数36，齿宽28mm，中心孔直径32mm并设键槽。",
+  "设计重载斜齿轮，模数4，齿数42，螺旋角15度，齿宽45mm，用于减速机。",
+  "构造行星齿轮组中的太阳轮，模数2，齿数24，齿宽20mm，中心为花键孔。",
+  "生成精密滚珠丝杠，长度600mm，公称直径32mm，导程10mm，两端包含支承轴颈。",
+  "设计梯形传动丝杠，长度420mm，直径28mm，导程6mm，单头右旋螺纹。",
+  "生成刚性法兰联轴器，外径120mm，总长100mm，轴孔35mm，均布6个连接螺栓。",
+  "设计弹性联轴器，外径95mm，总长130mm，两端轴孔分别为28mm和32mm。",
+  "构造伺服电机膜片联轴器，外径68mm，总长82mm，轴孔20mm，包含双膜片组。",
+  "生成双唇骨架油封，外径72mm，内径40mm，宽度10mm，包含主密封唇和防尘唇。",
+  "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。"
+];
 const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件" };
 const elementPatterns = {
   bearing: /轴承|滚珠|滚子|轴瓦|支承座|bearing/i,
@@ -31,9 +42,17 @@ function selectedParts(){return Object.keys(labels).filter(part=>(state.recommen
 function renderParts(){
   const selected=new Set(selectedParts());
   $$("#parts button").forEach(button=>{const part=button.dataset.part;button.classList.toggle("active",selected.has(part));button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",selected.has(part));button.textContent=labels[part];if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="推荐";button.appendChild(badge);}});
-  const recommended=[...state.recommended].map(part=>labels[part]);const summary=$("#recommendation-summary");summary.classList.toggle("detected",recommended.length>0);summary.textContent=recommended.length?`已从描述识别：${recommended.join("、")}；可继续补选或取消`:`未识别到明确图元，请人工选择`;
+  const recommended=[...state.recommended].map(part=>labels[part]);const summary=$("#recommendation-summary");summary.className="recommendation-summary";
+  if(state.recommendationSource==="loading"){summary.classList.add("loading");summary.innerHTML='<span class="summary-spinner"></span><span>正在智能识别核心图元</span>';}
+  else if(recommended.length){summary.classList.add("detected");const source=state.recommendationSource==="moonshot"?"Kimi 智能推荐":"已识别";summary.innerHTML=`<span class="summary-check">✓</span><span><strong>${source}</strong><em>${recommended.join("、")}</em></span><small>已自动勾选，可手动调整</small>`;}
+  else{summary.textContent="输入技术描述后自动识别核心图元，也可手动选择";}
 }
-function extractCoreElements(description){state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderParts();}
+async function fetchModelRecommendations(description){
+  state.recommendationController?.abort();const controller=new AbortController();state.recommendationController=controller;state.recommendationSource="loading";renderParts();
+  try{const response=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,use_ai:true}),signal:controller.signal});if(!response.ok)throw new Error(`推荐接口返回 ${response.status}`);const data=await response.json();if($("#description").value!==description)return;state.recommended=new Set(data.elements);state.recommendationSource=data.parser;state.recommendationDetail=data.parser_detail;if(state.recommended.size)state.part=[...state.recommended][0];renderParts();}
+  catch(error){if(error.name==="AbortError")return;state.recommendationSource="local-fallback";state.recommendationDetail=error.message;renderParts();}
+}
+function extractCoreElements(description){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderParts();if(description.trim().length>=2&&$("#use-ai").checked)state.recommendationTimer=setTimeout(()=>fetchModelRecommendations(description),500);}
 
 function toast(message) { const el=$("#toast"); el.textContent=message; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2200); }
 function setTab(name) { $$(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name)); $$(".panel").forEach(p=>p.classList.toggle("active",p.id===name)); }
@@ -74,10 +93,11 @@ async function generate() {
 }
 
 $("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length}/5000`;extractCoreElements(e.target.value);};
-$("#example").onclick=()=>{const list=examples[state.part],index=state.exampleIndex[state.part]||0;$("#description").value=list[index];state.exampleIndex[state.part]=(index+1)%list.length;$("#description").dispatchEvent(new Event("input"));};
+$("#example").onclick=()=>{const index=state.exampleIndex%refreshExamples.length;$("#description").value=refreshExamples[index];state.exampleIndex=(index+1)%refreshExamples.length;$("#description").dispatchEvent(new Event("input"));};
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
 $("#parts").onclick=e=>{const button=e.target.closest("button");if(!button)return;const part=button.dataset.part;const selected=selectedParts().includes(part);if(selected){state.manualSelected.delete(part);if(state.recommended.has(part))state.manualDeselected.add(part);}else{state.manualDeselected.delete(part);state.manualSelected.add(part);state.part=part;}renderParts();};
 $("#document").onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024){toast("文件不能超过 2MB");return;}$("#description").value=await file.text();$("#description").dispatchEvent(new Event("input"));toast("文档已导入");};
+$("#use-ai").onchange=()=>extractCoreElements($("#description").value);
 $("#generate").onclick=generate;
 $$(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#zoom-in").onclick=()=>{state.zoom=Math.min(1.8,state.zoom+.1);applyZoom();};

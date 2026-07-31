@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .cad import generate_svg
-from .llm import LABELS, parse_parameters
-from .models import GenerateRequest, GenerateResponse
+from .llm import LABELS, parse_parameters, recommend_core_elements
+from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse
 from .model3d import write_step
 
 
@@ -24,6 +24,12 @@ app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/recommend", response_model=RecommendResponse)
+async def recommend(request: RecommendRequest) -> RecommendResponse:
+    elements, parser, detail = await recommend_core_elements(request.description, request.use_ai)
+    return RecommendResponse(elements=elements, parser=parser, parser_detail=detail)
 
 
 @app.post("/api/generate", response_model=GenerateResponse)

@@ -40,6 +40,18 @@ async def test_health():
 
 
 @pytest.mark.asyncio
+async def test_core_element_recommendation_local_fallback():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/recommend", json={
+            "description": "主轴由滚动轴承支撑，并通过联轴器与齿轮传动机构连接。",
+            "use_ai": False,
+        })
+    assert response.status_code == 200
+    assert response.json()["elements"] == ["bearing", "shaft", "gear", "coupling"]
+    assert response.json()["parser"] == "local"
+
+
+@pytest.mark.asyncio
 async def test_timeout_fallback_reports_reason(monkeypatch):
     class TimeoutClient:
         async def __aenter__(self): return self

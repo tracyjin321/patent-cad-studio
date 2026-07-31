@@ -31,6 +31,52 @@ DEFAULTS: dict[str, dict[str, float | int | str]] = {
     "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2},
 }
 
+ELEMENT_PATTERNS = {
+    "bearing": r"轴承|滚珠|滚子|轴瓦|支承座|bearing",
+    "flange": r"法兰|法兰盘|连接盘|突缘|flange",
+    "valve": r"阀门|阀体|闸阀|截止阀|蝶阀|球阀|止回阀|调节阀|valve",
+    "shaft": r"轴系|主轴|传动轴|输入轴|输出轴|阶梯轴|转轴|轴肩|shaft",
+    "gear": r"齿轮|齿圈|轮齿|齿数|模数|gear",
+    "screw": r"丝杠|丝杆|螺杆|导程|滚珠丝杠|screw",
+    "coupling": r"联轴器|联轴节|轴联接|coupling",
+    "seal": r"密封件|密封圈|油封|密封环|密封唇|seal",
+}
+
+
+def local_recommend(description: str) -> list[str]:
+    return [key for key, pattern in ELEMENT_PATTERNS.items() if re.search(pattern, description, re.I)]
+
+
+async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[str], str, str | None]:
+    fallback = local_recommend(description)
+    api_key = os.getenv("MOONSHOT_API_KEY")
+    if not use_ai or not api_key:
+        return fallback, "local", "用户关闭智能识别" if not use_ai else "未配置 API Key"
+    prompt = (
+        "你是机械专利方案的核心图元分类器。根据技术描述，从下列类别中选择所有明确出现或结构上必要的类别："
+        + json.dumps(LABELS, ensure_ascii=False)
+        + "。只返回JSON对象，格式为 {\"elements\":[\"bearing\"]}。不得返回列表外的值；不确定时宁缺毋滥。描述：\n"
+        + description
+    )
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(40, connect=10)) as client:
+            response = await client.post(
+                f"{os.getenv('MOONSHOT_BASE_URL', 'https://api.moonshot.cn/v1').rstrip('/')}/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={"model": os.getenv("MOONSHOT_MODEL", "kimi-k2.6"), "messages": [{"role": "user", "content": prompt}], "response_format": {"type": "json_object"}},
+            )
+            response.raise_for_status()
+            parsed = json.loads(response.json()["choices"][0]["message"]["content"])
+            allowed = set(LABELS)
+            elements = [item for item in parsed.get("elements", []) if item in allowed]
+            return list(dict.fromkeys(elements)), "moonshot", None
+    except httpx.TimeoutException:
+        return fallback, "local-fallback", "Kimi 分类请求超时"
+    except httpx.HTTPStatusError as exc:
+        return fallback, "local-fallback", f"Kimi API 返回 {exc.response.status_code}"
+    except (httpx.HTTPError, KeyError, ValueError, TypeError) as exc:
+        return fallback, "local-fallback", f"分类响应解析失败（{type(exc).__name__}）"
+
 
 def local_parse(description: str, part_type: str) -> dict[str, Any]:
     params = dict(DEFAULTS[part_type])

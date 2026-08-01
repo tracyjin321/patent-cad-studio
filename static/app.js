@@ -82,7 +82,7 @@ async function generate() {
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
   const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=[...state.recommended].find(part=>coreElements.includes(part))||coreElements[0];state.part=primaryPart;
   const button=$("#generate");button.disabled=true;button.innerHTML='<span class="spinner"></span>';
-  const progress=$("#generation-progress"), stages=[[12,"正在解析结构参数","识别零件类型、尺寸与工程约束…"],[38,"正在生成二维附图","构建轮廓、中心线和尺寸标注…"],[68,"正在构建 3D 几何","生成参数化实体与可视化网格…"],[88,"正在封装 STEP","写入 ISO 10303 交换格式…"]];
+  const progress=$("#generation-progress"), stages=[[12,"正在解析结构参数","识别零件类型、尺寸与工程约束…"],[38,"正在生成轴侧附图","构建等轴测轮廓、中心线和尺寸标注…"],[68,"正在构建 3D 几何","生成参数化实体与可视化网格…"],[88,"正在封装 STEP","写入 ISO 10303 交换格式…"]];
   progress.classList.add("show");let stage=0;const update=()=>{const [value,title,detail]=stages[stage];$("#progress-bar").style.width=`${value}%`;$("#progress-percent").textContent=`${value}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;stage=Math.min(stage+1,stages.length-1)};update();const timer=setInterval(update,650);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {

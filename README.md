@@ -34,7 +34,7 @@ API Key 只从环境变量读取，不会发送给浏览器，也不应提交到
 ## STEP / ComponentSpec YAML
 
 `component_library` 是正式图元库，每个图元目录包含 `component.yaml` 和
-`reference.step`。`graphic_element` 只保存截图、选型参数图等来源资料。导入模型采用
+`reference.step`。导入模型采用
 `reference_brep` 表示：参数、坐标系、装配端口和实测拓扑写入 YAML，原始 STEP 作为
 几何真值，因此未变换的 YAML → STEP 是字节级无损的。
 

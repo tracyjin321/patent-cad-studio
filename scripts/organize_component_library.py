@@ -66,7 +66,7 @@ def migrate(source_root: Path, library_root: Path) -> list[dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=Path, default=ROOT / "graphic_element")
+    parser.add_argument("--source", type=Path, default=ROOT / "component_library")
     parser.add_argument("--output", type=Path, default=ROOT / "component_library")
     args = parser.parse_args()
     catalog_path = args.output / "catalog.yaml"

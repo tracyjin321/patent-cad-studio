@@ -1,0 +1,198 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: linear-bearing-lm6uu-straight-simple
+  name: Linear bushings and housings, straight
+  name_en: null
+  type: bearing
+  subtype: linear_bearing
+  family: linear-bearing
+  standard: null
+  description: '由 linear_bearing_lm6uu_straight_simple.step 转换的固定几何图元。 来源: https://www.step.parts/parts/linear_bearing_lm6uu_straight_simple'
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-08-01'
+  updated_at: '2026-08-01'
+  status: draft
+  tags:
+  - linear_bearing_lm6uu_straight_simple
+  - linear-motion
+  - metric
+  - step.parts
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - 0.0
+  - 0.0
+  - 0.0
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 原始 STEP +Z
+  zero_rotation_definition: 原始 STEP +X
+parameters: []
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: end_a
+  name: 轴向端口 A
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - -9.5
+    - 0.0
+    - 0.0
+    axis:
+    - -1.0
+    - -0.0
+    - -0.0
+    up: &id001
+    - 0.0
+    - 1.0
+    - 0.0
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+- id: end_b
+  name: 轴向端口 B
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 9.5
+    - 0.0
+    - 0.0
+    axis:
+    - 1.0
+    - 0.0
+    - 0.0
+    up: *id001
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: reference.step
+  output:
+    format: STEP
+    application_protocol: AP242
+    preserve_names: true
+    preserve_colors: true
+    filename_template: linear-bearing-lm6uu-straight-simple.step
+presets:
+- name: reference
+  source_ref: linear_bearing_lm6uu_straight_simple.step
+  verification_status: geometry_measured
+  params: {}
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 1
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -9.5
+        - -6.0
+        - -6.0
+        max:
+        - 9.5
+        - 6.0
+        - 6.0
+        size:
+        - 19.0
+        - 12.0
+        - 12.0
+      topology:
+        solids: 1
+        shells: 1
+        faces: 4
+        edges: 12
+        vertices: 24
+        compounds: 0
+      volume_mm3: 1611.637031
+      center_of_mass:
+      - 0.0
+      - 0.0
+      - 0.0
+      valid_solid: true
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: AP242
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+artifacts:
+  reference_step:
+    file: reference.step
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: source_preserved
+    length_unit: mm
+    sha256: 293692b0d9dfaa347baef3fc901b6ba85167a939a2e61c965737ac6e8d46ae79
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: null
+    required: false
+    sha256: null
+provenance:
+  source_type: imported_step
+  standard_refs: []
+  data_entry_method: imported
+  verified_by: null
+  verified_at: null

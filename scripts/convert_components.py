@@ -113,7 +113,7 @@ def make_spec(path: Path) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("root", nargs="?", type=Path, default=ROOT / "graphic_element")
+    parser.add_argument("root", nargs="?", type=Path, default=ROOT / "component_library")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     paths = sorted([*args.root.rglob("*.step"), *args.root.rglob("*.stp")])

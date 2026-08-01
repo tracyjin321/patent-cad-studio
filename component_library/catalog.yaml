@@ -1,5 +1,14 @@
 schema_version: '1.0'
 components:
+- id: angle-equal-en10056-20x20x3
+  name: EN 10056 equal angle bar, 20 x 20 x 3
+  type: stock
+  subtype: angle_bar
+  version: 1.0.0
+  status: draft
+  spec: angle-equal-en10056-20x20x3/component.yaml
+  reference_step: angle-equal-en10056-20x20x3/reference.step
+  source_material_directory: null
 - id: ball-screw-lcs49-20-5-l500-f30-p12
   name: 滚珠丝杆
   type: screw
@@ -8,7 +17,61 @@ components:
   status: draft
   spec: ball-screw-lcs49-20-5-l500-f30-p12/component.yaml
   reference_step: ball-screw-lcs49-20-5-l500-f30-p12/reference.step
-  source_material_directory: graphic_element/丝杆
+  source_material_directory: null
+- id: bearing-6001-open-simple
+  name: Radial ball bearings, 6001 open
+  type: bearing
+  subtype: deep_groove_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-6001-open-simple/component.yaml
+  reference_step: bearing-6001-open-simple/reference.step
+  source_material_directory: null
+- id: bearing-608-2rs-sealed-simple
+  name: Radial ball bearings, 608 2RS_sealed
+  type: bearing
+  subtype: deep_groove_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-608-2rs-sealed-simple/component.yaml
+  reference_step: bearing-608-2rs-sealed-simple/reference.step
+  source_material_directory: null
+- id: bearing-608-open-simple
+  name: Radial ball bearings, 608 open
+  type: bearing
+  subtype: deep_groove_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-608-open-simple/component.yaml
+  reference_step: bearing-608-open-simple/reference.step
+  source_material_directory: null
+- id: bearing-6201-open-simple
+  name: Radial ball bearings, 6201 open
+  type: bearing
+  subtype: deep_groove_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-6201-open-simple/component.yaml
+  reference_step: bearing-6201-open-simple/reference.step
+  source_material_directory: null
+- id: bearing-flanged-f6001-simple
+  name: Flanged ball bearings, F6001
+  type: bearing
+  subtype: flanged_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-flanged-f6001-simple/component.yaml
+  reference_step: bearing-flanged-f6001-simple/reference.step
+  source_material_directory: null
+- id: bearing-flanged-f608-simple
+  name: Flanged ball bearings, F608
+  type: bearing
+  subtype: flanged_ball
+  version: 1.0.0
+  status: draft
+  spec: bearing-flanged-f608-simple/component.yaml
+  reference_step: bearing-flanged-f608-simple/reference.step
+  source_material_directory: null
 - id: belt-pulley-bau6201z
   name: 带轮
   type: pulley
@@ -17,7 +80,52 @@ components:
   status: draft
   spec: belt-pulley-bau6201z/component.yaml
   reference_step: belt-pulley-bau6201z/reference.step
-  source_material_directory: graphic_element/带轮
+  source_material_directory: null
+- id: bevel-gear-45deg-m0-8-16t
+  name: bevel gear 45deg M0.8 16t
+  type: gear
+  subtype: bevel_gear
+  version: 1.0.0
+  status: draft
+  spec: bevel-gear-45deg-m0-8-16t/component.yaml
+  reference_step: bevel-gear-45deg-m0-8-16t/reference.step
+  source_material_directory: null
+- id: button-head-screw-m3-l0008-simple
+  name: ISO 7380 button head socket screw, M3 x 8 mm
+  type: fastener
+  subtype: button_head_screw
+  version: 1.0.0
+  status: draft
+  spec: button-head-screw-m3-l0008-simple/component.yaml
+  reference_step: button-head-screw-m3-l0008-simple/reference.step
+  source_material_directory: null
+- id: clamp-hub-bore5-bc16
+  name: clamp hub bore5 bc16
+  type: hub
+  subtype: shaft_hub
+  version: 1.0.0
+  status: draft
+  spec: clamp-hub-bore5-bc16/component.yaml
+  reference_step: clamp-hub-bore5-bc16/reference.step
+  source_material_directory: null
+- id: clamp-hub-bore5-bc20
+  name: clamp hub bore5 bc20
+  type: hub
+  subtype: shaft_hub
+  version: 1.0.0
+  status: draft
+  spec: clamp-hub-bore5-bc20/component.yaml
+  reference_step: clamp-hub-bore5-bc20/reference.step
+  source_material_directory: null
+- id: countersunk-socket-screw-m3-l0008-simple
+  name: ISO 10642 countersunk socket screw, M3 x 8 mm
+  type: fastener
+  subtype: countersunk_screw
+  version: 1.0.0
+  status: draft
+  spec: countersunk-socket-screw-m3-l0008-simple/component.yaml
+  reference_step: countersunk-socket-screw-m3-l0008-simple/reference.step
+  source_material_directory: null
 - id: deep-groove-ball-bau6201z
   name: 深沟球轴承
   type: bearing
@@ -26,7 +134,232 @@ components:
   status: draft
   spec: deep-groove-ball-bau6201z/component.yaml
   reference_step: deep-groove-ball-bau6201z/reference.step
-  source_material_directory: graphic_element/轴承
+  source_material_directory: null
+- id: din127-spring-washer-m4
+  name: DIN 127 class B spring washer, M4
+  type: fastener
+  subtype: spring_washer
+  version: 1.0.0
+  status: draft
+  spec: din127-spring-washer-m4/component.yaml
+  reference_step: din127-spring-washer-m4/reference.step
+  source_material_directory: null
+- id: dowel-pin-4mm-l4mm-m3-setscrew
+  name: Dowel pin, 4 mm x 4 mm, M3 set-screw
+  type: pin
+  subtype: dowel_pin
+  version: 1.0.0
+  status: draft
+  spec: dowel-pin-4mm-l4mm-m3-setscrew/component.yaml
+  reference_step: dowel-pin-4mm-l4mm-m3-setscrew/reference.step
+  source_material_directory: null
+- id: extrusion-slot5-hammer-nut-m3-simple
+  name: Hammer nuts for extrusion, slot=5 mm, thread=M3
+  type: fastener
+  subtype: extrusion_nut
+  version: 1.0.0
+  status: draft
+  spec: extrusion-slot5-hammer-nut-m3-simple/component.yaml
+  reference_step: extrusion-slot5-hammer-nut-m3-simple/reference.step
+  source_material_directory: null
+- id: extrusion-slot5-hammer-nut-m4-simple
+  name: Hammer nuts for extrusion, slot=5 mm, thread=M4
+  type: fastener
+  subtype: extrusion_nut
+  version: 1.0.0
+  status: draft
+  spec: extrusion-slot5-hammer-nut-m4-simple/component.yaml
+  reference_step: extrusion-slot5-hammer-nut-m4-simple/reference.step
+  source_material_directory: null
+- id: flat-washer-normal-m3-simple
+  name: ISO 7089 flat washer, M3
+  type: fastener
+  subtype: flat_washer
+  version: 1.0.0
+  status: draft
+  spec: flat-washer-normal-m3-simple/component.yaml
+  reference_step: flat-washer-normal-m3-simple/reference.step
+  source_material_directory: null
+- id: flat-washer-normal-m4-simple
+  name: ISO 7089 flat washer, M4
+  type: fastener
+  subtype: flat_washer
+  version: 1.0.0
+  status: draft
+  spec: flat-washer-normal-m4-simple/component.yaml
+  reference_step: flat-washer-normal-m4-simple/reference.step
+  source_material_directory: null
+- id: gear-rack-m0-8-l0100
+  name: gear rack M0.8 L0100
+  type: gear
+  subtype: gear_rack
+  version: 1.0.0
+  status: draft
+  spec: gear-rack-m0-8-l0100/component.yaml
+  reference_step: gear-rack-m0-8-l0100/reference.step
+  source_material_directory: null
+- id: gt2-pulley-20t-bore5-w6
+  name: gt2 pulley 20t bore5 w6
+  type: pulley
+  subtype: timing_pulley
+  version: 1.0.0
+  status: draft
+  spec: gt2-pulley-20t-bore5-w6/component.yaml
+  reference_step: gt2-pulley-20t-bore5-w6/reference.step
+  source_material_directory: null
+- id: gt2-pulley-20t-bore8-w6
+  name: gt2 pulley 20t bore8 w6
+  type: pulley
+  subtype: timing_pulley
+  version: 1.0.0
+  status: draft
+  spec: gt2-pulley-20t-bore8-w6/component.yaml
+  reference_step: gt2-pulley-20t-bore8-w6/reference.step
+  source_material_directory: null
+- id: gt2-pulley-36t-bore8-w6
+  name: gt2 pulley 36t bore8 w6
+  type: pulley
+  subtype: timing_pulley
+  version: 1.0.0
+  status: draft
+  spec: gt2-pulley-36t-bore8-w6/component.yaml
+  reference_step: gt2-pulley-36t-bore8-w6/reference.step
+  source_material_directory: null
+- id: gt2-pulley-40t-bore8-w6
+  name: gt2 pulley 40t bore8 w6
+  type: pulley
+  subtype: timing_pulley
+  version: 1.0.0
+  status: draft
+  spec: gt2-pulley-40t-bore8-w6/component.yaml
+  reference_step: gt2-pulley-40t-bore8-w6/reference.step
+  source_material_directory: null
+- id: gt2-smooth-idler-bore5-w6
+  name: gt2 smooth idler bore5 w6
+  type: pulley
+  subtype: timing_idler
+  version: 1.0.0
+  status: draft
+  spec: gt2-smooth-idler-bore5-w6/component.yaml
+  reference_step: gt2-smooth-idler-bore5-w6/reference.step
+  source_material_directory: null
+- id: gt2-smooth-idler-bore5-w9
+  name: gt2 smooth idler bore5 w9
+  type: pulley
+  subtype: timing_idler
+  version: 1.0.0
+  status: draft
+  spec: gt2-smooth-idler-bore5-w9/component.yaml
+  reference_step: gt2-smooth-idler-bore5-w9/reference.step
+  source_material_directory: null
+- id: hex-head-bolt-m3-l0010-simple
+  name: ISO 4017 hex-head bolt, M3 x 10 mm
+  type: fastener
+  subtype: hex_head_cap_screw
+  version: 1.0.0
+  status: draft
+  spec: hex-head-bolt-m3-l0010-simple/component.yaml
+  reference_step: hex-head-bolt-m3-l0010-simple/reference.step
+  source_material_directory: null
+- id: iso-2338-dowel-pin-d002-l006
+  name: ISO 2338 dowel pin, D2 x 6 mm
+  type: pin
+  subtype: dowel_pin
+  version: 1.0.0
+  status: draft
+  spec: iso-2338-dowel-pin-d002-l006/component.yaml
+  reference_step: iso-2338-dowel-pin-d002-l006/reference.step
+  source_material_directory: null
+- id: iso-2338-dowel-pin-d002-l008
+  name: ISO 2338 dowel pin, D2 x 8 mm
+  type: pin
+  subtype: dowel_pin
+  version: 1.0.0
+  status: draft
+  spec: iso-2338-dowel-pin-d002-l008/component.yaml
+  reference_step: iso-2338-dowel-pin-d002-l008/reference.step
+  source_material_directory: null
+- id: iso4032-hex-nut-m3
+  name: ISO 4032 hex nut, M3
+  type: fastener
+  subtype: hex_nut
+  version: 1.0.0
+  status: draft
+  spec: iso4032-hex-nut-m3/component.yaml
+  reference_step: iso4032-hex-nut-m3/reference.step
+  source_material_directory: null
+- id: iso4032-hex-nut-m4
+  name: ISO 4032 hex nut, M4
+  type: fastener
+  subtype: hex_nut
+  version: 1.0.0
+  status: draft
+  spec: iso4032-hex-nut-m4/component.yaml
+  reference_step: iso4032-hex-nut-m4/reference.step
+  source_material_directory: null
+- id: linear-bearing-lm16uu-straight-simple
+  name: Linear bushings and housings, straight
+  type: bearing
+  subtype: linear_bearing
+  version: 1.0.0
+  status: draft
+  spec: linear-bearing-lm16uu-straight-simple/component.yaml
+  reference_step: linear-bearing-lm16uu-straight-simple/reference.step
+  source_material_directory: null
+- id: linear-bearing-lm6uu-pillow-block-simple
+  name: Linear bushings and housings, pillow_block
+  type: bearing
+  subtype: linear_bearing_housing
+  version: 1.0.0
+  status: draft
+  spec: linear-bearing-lm6uu-pillow-block-simple/component.yaml
+  reference_step: linear-bearing-lm6uu-pillow-block-simple/reference.step
+  source_material_directory: null
+- id: linear-bearing-lm6uu-straight-simple
+  name: Linear bushings and housings, straight
+  type: bearing
+  subtype: linear_bearing
+  version: 1.0.0
+  status: draft
+  spec: linear-bearing-lm6uu-straight-simple/component.yaml
+  reference_step: linear-bearing-lm6uu-straight-simple/reference.step
+  source_material_directory: null
+- id: linear-bearing-lm8uu-pillow-block-simple
+  name: Linear bushings and housings, pillow_block
+  type: bearing
+  subtype: linear_bearing_housing
+  version: 1.0.0
+  status: draft
+  spec: linear-bearing-lm8uu-pillow-block-simple/component.yaml
+  reference_step: linear-bearing-lm8uu-pillow-block-simple/reference.step
+  source_material_directory: null
+- id: mgn7-linear-rail-l0100
+  name: mgn7 linear rail L0100
+  type: motion
+  subtype: linear_rail
+  version: 1.0.0
+  status: draft
+  spec: mgn7-linear-rail-l0100/component.yaml
+  reference_step: mgn7-linear-rail-l0100/reference.step
+  source_material_directory: null
+- id: motor-mount-plate-nema17-to-2020-simple
+  name: Extrusion brackets and joining plates, nema17_to_2020
+  type: hardware
+  subtype: extrusion_bracket
+  version: 1.0.0
+  status: draft
+  spec: motor-mount-plate-nema17-to-2020-simple/component.yaml
+  reference_step: motor-mount-plate-nema17-to-2020-simple/reference.step
+  source_material_directory: null
+- id: motor-mount-plate-nema23-to-2040-simple
+  name: Extrusion brackets and joining plates, nema23_to_2040
+  type: hardware
+  subtype: extrusion_bracket
+  version: 1.0.0
+  status: draft
+  spec: motor-mount-plate-nema23-to-2040-simple/component.yaml
+  reference_step: motor-mount-plate-nema23-to-2040-simple/reference.step
+  source_material_directory: null
 - id: oldham-dbu03-d55-d20-e20
   name: 十字环联轴器
   type: coupling
@@ -35,7 +368,43 @@ components:
   status: draft
   spec: oldham-dbu03-d55-d20-e20/component.yaml
   reference_step: oldham-dbu03-d55-d20-e20/reference.step
-  source_material_directory: graphic_element/联轴器
+  source_material_directory: null
+- id: plate-blank-50x50x2
+  name: Plate blank, 50 x 50 x 2 mm
+  type: stock
+  subtype: plate_blank
+  version: 1.0.0
+  status: draft
+  spec: plate-blank-50x50x2/component.yaml
+  reference_step: plate-blank-50x50x2/reference.step
+  source_material_directory: null
+- id: precision-shaft-d03-l0025-chamfered
+  name: Precision shaft, D3 x 25 mm
+  type: shaft
+  subtype: ground_shaft
+  version: 1.0.0
+  status: draft
+  spec: precision-shaft-d03-l0025-chamfered/component.yaml
+  reference_step: precision-shaft-d03-l0025-chamfered/reference.step
+  source_material_directory: null
+- id: precision-shaft-d03-l0050-chamfered
+  name: Precision shaft, D3 x 50 mm
+  type: shaft
+  subtype: ground_shaft
+  version: 1.0.0
+  status: draft
+  spec: precision-shaft-d03-l0050-chamfered/component.yaml
+  reference_step: precision-shaft-d03-l0050-chamfered/reference.step
+  source_material_directory: null
+- id: profile-2020-i-slot5-l100
+  name: 20 x 20 I-type slot-5 aluminum extrusion profile, 100 mm length
+  type: profile
+  subtype: t_slot_extrusion
+  version: 1.0.0
+  status: draft
+  spec: profile-2020-i-slot5-l100/component.yaml
+  reference_step: profile-2020-i-slot5-l100/reference.step
+  source_material_directory: null
 - id: roller-chain-drive-vlk02-60-28-d35
   name: 链轮
   type: sprocket
@@ -44,7 +413,223 @@ components:
   status: draft
   spec: roller-chain-drive-vlk02-60-28-d35/component.yaml
   reference_step: roller-chain-drive-vlk02-60-28-d35/reference.step
-  source_material_directory: graphic_element/链轮链条
+  source_material_directory: null
+- id: sc10-linear-bearing-block
+  name: sc10 linear bearing block
+  type: bearing
+  subtype: linear_bearing_block
+  version: 1.0.0
+  status: draft
+  spec: sc10-linear-bearing-block/component.yaml
+  reference_step: sc10-linear-bearing-block/reference.step
+  source_material_directory: null
+- id: sc8-linear-bearing-block
+  name: sc8 linear bearing block
+  type: bearing
+  subtype: linear_bearing_block
+  version: 1.0.0
+  status: draft
+  spec: sc8-linear-bearing-block/component.yaml
+  reference_step: sc8-linear-bearing-block/reference.step
+  source_material_directory: null
+- id: set-screw-m3-l0008-cup-point-simple
+  name: Metric set screws, M3 x 8 mm cup point
+  type: fastener
+  subtype: set_screw
+  version: 1.0.0
+  status: draft
+  spec: set-screw-m3-l0008-cup-point-simple/component.yaml
+  reference_step: set-screw-m3-l0008-cup-point-simple/reference.step
+  source_material_directory: null
+- id: sfu1204-ball-screw-l0200-simple
+  name: sfu1204 ball screw L0200 simple
+  type: screw
+  subtype: ball_screw
+  version: 1.0.0
+  status: draft
+  spec: sfu1204-ball-screw-l0200-simple/component.yaml
+  reference_step: sfu1204-ball-screw-l0200-simple/reference.step
+  source_material_directory: null
+- id: sfu1605-ball-screw-l0200-simple
+  name: sfu1605 ball screw L0200 simple
+  type: screw
+  subtype: ball_screw
+  version: 1.0.0
+  status: draft
+  spec: sfu1605-ball-screw-l0200-simple/component.yaml
+  reference_step: sfu1605-ball-screw-l0200-simple/reference.step
+  source_material_directory: null
+- id: shaft-collar-set-screw-bore-d03-simple
+  name: Shaft collars, Ø3 mm bore
+  type: shaft
+  subtype: shaft_collar
+  version: 1.0.0
+  status: draft
+  spec: shaft-collar-set-screw-bore-d03-simple/component.yaml
+  reference_step: shaft-collar-set-screw-bore-d03-simple/reference.step
+  source_material_directory: null
+- id: shaft-collar-set-screw-bore-d04-simple
+  name: Shaft collars, Ø4 mm bore
+  type: shaft
+  subtype: shaft_collar
+  version: 1.0.0
+  status: draft
+  spec: shaft-collar-set-screw-bore-d04-simple/component.yaml
+  reference_step: shaft-collar-set-screw-bore-d04-simple/reference.step
+  source_material_directory: null
+- id: shaft-coupler-rigid-clamp-d03-d03-simple
+  name: Shaft couplers, 3 mm to 3 mm
+  type: coupling
+  subtype: shaft_coupling
+  version: 1.0.0
+  status: draft
+  spec: shaft-coupler-rigid-clamp-d03-d03-simple/component.yaml
+  reference_step: shaft-coupler-rigid-clamp-d03-d03-simple/reference.step
+  source_material_directory: null
+- id: shaft-coupler-rigid-clamp-d03-d05-simple
+  name: Shaft couplers, 3 mm to 5 mm
+  type: coupling
+  subtype: shaft_coupling
+  version: 1.0.0
+  status: draft
+  spec: shaft-coupler-rigid-clamp-d03-d05-simple/component.yaml
+  reference_step: shaft-coupler-rigid-clamp-d03-d05-simple/reference.step
+  source_material_directory: null
+- id: shaft-coupler-rigid-clamp-d04-d04-simple
+  name: Shaft couplers, 4 mm to 4 mm
+  type: coupling
+  subtype: shaft_coupling
+  version: 1.0.0
+  status: draft
+  spec: shaft-coupler-rigid-clamp-d04-d04-simple/component.yaml
+  reference_step: shaft-coupler-rigid-clamp-d04-d04-simple/reference.step
+  source_material_directory: null
+- id: shaft-coupler-rigid-clamp-d05-d05-simple
+  name: Shaft couplers, 5 mm to 5 mm
+  type: coupling
+  subtype: shaft_coupling
+  version: 1.0.0
+  status: draft
+  spec: shaft-coupler-rigid-clamp-d05-d05-simple/component.yaml
+  reference_step: shaft-coupler-rigid-clamp-d05-d05-simple/reference.step
+  source_material_directory: null
+- id: socket-head-cap-screw-m2-l0025-simple
+  name: ISO 4762 socket head cap screw, M2 x 25 mm
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: draft
+  spec: socket-head-cap-screw-m2-l0025-simple/component.yaml
+  reference_step: socket-head-cap-screw-m2-l0025-simple/reference.step
+  source_material_directory: null
+- id: socket-head-cap-screw-m3-l0005-simple
+  name: ISO 4762 socket head cap screw, M3 x 5 mm
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: draft
+  spec: socket-head-cap-screw-m3-l0005-simple/component.yaml
+  reference_step: socket-head-cap-screw-m3-l0005-simple/reference.step
+  source_material_directory: null
+- id: socket-head-cap-screw-m3-l0050-simple
+  name: ISO 4762 socket head cap screw, M3 x 50 mm
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: draft
+  spec: socket-head-cap-screw-m3-l0050-simple/component.yaml
+  reference_step: socket-head-cap-screw-m3-l0050-simple/reference.step
+  source_material_directory: null
+- id: spacer-round-clearance-m3-l0005
+  name: Unthreaded spacers, M3 clearance, 5 mm
+  type: spacer
+  subtype: round_spacer
+  version: 1.0.0
+  status: draft
+  spec: spacer-round-clearance-m3-l0005/component.yaml
+  reference_step: spacer-round-clearance-m3-l0005/reference.step
+  source_material_directory: null
+- id: spacer-round-clearance-m3-l0006
+  name: Unthreaded spacers, M3 clearance, 6 mm
+  type: spacer
+  subtype: round_spacer
+  version: 1.0.0
+  status: draft
+  spec: spacer-round-clearance-m3-l0006/component.yaml
+  reference_step: spacer-round-clearance-m3-l0006/reference.step
+  source_material_directory: null
+- id: sprocket-25-12t-bore5
+  name: sprocket 25 12t bore5
+  type: sprocket
+  subtype: roller_chain
+  version: 1.0.0
+  status: draft
+  spec: sprocket-25-12t-bore5/component.yaml
+  reference_step: sprocket-25-12t-bore5/reference.step
+  source_material_directory: null
+- id: sprocket-25-12t-bore8
+  name: sprocket 25 12t bore8
+  type: sprocket
+  subtype: roller_chain
+  version: 1.0.0
+  status: draft
+  spec: sprocket-25-12t-bore8/component.yaml
+  reference_step: sprocket-25-12t-bore8/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-0-20t-bore5
+  name: spur gear M1.0 20t bore5
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-0-20t-bore5/component.yaml
+  reference_step: spur-gear-m1-0-20t-bore5/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-0-20t-bore8
+  name: spur gear M1.0 20t bore8
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-0-20t-bore8/component.yaml
+  reference_step: spur-gear-m1-0-20t-bore8/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-0-30t-bore8
+  name: spur gear M1.0 30t bore8
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-0-30t-bore8/component.yaml
+  reference_step: spur-gear-m1-0-30t-bore8/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-0-40t-bore8
+  name: spur gear M1.0 40t bore8
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-0-40t-bore8/component.yaml
+  reference_step: spur-gear-m1-0-40t-bore8/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-5-20t-bore8
+  name: spur gear M1.5 20t bore8
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-5-20t-bore8/component.yaml
+  reference_step: spur-gear-m1-5-20t-bore8/reference.step
+  source_material_directory: null
+- id: spur-gear-m1-5-30t-bore8
+  name: spur gear M1.5 30t bore8
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: draft
+  spec: spur-gear-m1-5-30t-bore8/component.yaml
+  reference_step: spur-gear-m1-5-30t-bore8/reference.step
+  source_material_directory: null
 - id: spur-gear-vnr41-3-0-48-b30-a-p35n-a
   name: 直齿圆柱齿轮
   type: gear
@@ -53,7 +638,7 @@ components:
   status: draft
   spec: spur-gear-vnr41-3-0-48-b30-a-p35n-a/component.yaml
   reference_step: spur-gear-vnr41-3-0-48-b30-a-p35n-a/reference.step
-  source_material_directory: graphic_element/直齿轮
+  source_material_directory: null
 - id: spur-gear-vnr41-3-0-48-b30-a-p35n-b
   name: 直齿圆柱齿轮
   type: gear
@@ -62,7 +647,43 @@ components:
   status: draft
   spec: spur-gear-vnr41-3-0-48-b30-a-p35n-b/component.yaml
   reference_step: spur-gear-vnr41-3-0-48-b30-a-p35n-b/reference.step
-  source_material_directory: graphic_element/直齿轮
+  source_material_directory: null
+- id: standoff-hex-male-female-m3-l0005-simple
+  name: Standoffs and spacers, M3, 5 mm body
+  type: spacer
+  subtype: threaded_standoff
+  version: 1.0.0
+  status: draft
+  spec: standoff-hex-male-female-m3-l0005-simple/component.yaml
+  reference_step: standoff-hex-male-female-m3-l0005-simple/reference.step
+  source_material_directory: null
+- id: standoff-hex-male-female-m3-l0006-simple
+  name: Standoffs and spacers, M3, 6 mm body
+  type: spacer
+  subtype: threaded_standoff
+  version: 1.0.0
+  status: draft
+  spec: standoff-hex-male-female-m3-l0006-simple/component.yaml
+  reference_step: standoff-hex-male-female-m3-l0006-simple/reference.step
+  source_material_directory: null
+- id: standoff-hex-male-female-m3-l0008-simple
+  name: Standoffs and spacers, M3, 8 mm body
+  type: spacer
+  subtype: threaded_standoff
+  version: 1.0.0
+  status: draft
+  spec: standoff-hex-male-female-m3-l0008-simple/component.yaml
+  reference_step: standoff-hex-male-female-m3-l0008-simple/reference.step
+  source_material_directory: null
+- id: star-knob-m3-d16
+  name: star knob M3 d16
+  type: hardware
+  subtype: control_knob
+  version: 1.0.0
+  status: draft
+  spec: star-knob-m3-d16/component.yaml
+  reference_step: star-knob-m3-d16/reference.step
+  source_material_directory: null
 - id: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12
   name: 二阶形轴
   type: shaft
@@ -71,4 +692,103 @@ components:
   status: draft
   spec: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12/component.yaml
   reference_step: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12/reference.step
-  source_material_directory: graphic_element/传动轴
+  source_material_directory: null
+- id: stepper-motor-nema17-l0020-single-shaft
+  name: NEMA stepper motors, body length 20 mm
+  type: actuator
+  subtype: nema_stepper
+  version: 1.0.0
+  status: draft
+  spec: stepper-motor-nema17-l0020-single-shaft/component.yaml
+  reference_step: stepper-motor-nema17-l0020-single-shaft/reference.step
+  source_material_directory: null
+- id: stepper-motor-nema17-l0028-single-shaft
+  name: NEMA stepper motors, body length 28 mm
+  type: actuator
+  subtype: nema_stepper
+  version: 1.0.0
+  status: draft
+  spec: stepper-motor-nema17-l0028-single-shaft/component.yaml
+  reference_step: stepper-motor-nema17-l0028-single-shaft/reference.step
+  source_material_directory: null
+- id: stepper-motor-nema17-l0034-single-shaft
+  name: NEMA stepper motors, body length 34 mm
+  type: actuator
+  subtype: nema_stepper
+  version: 1.0.0
+  status: draft
+  spec: stepper-motor-nema17-l0034-single-shaft/component.yaml
+  reference_step: stepper-motor-nema17-l0034-single-shaft/reference.step
+  source_material_directory: null
+- id: t8-p2-lead-screw-l0100-simple
+  name: t8 p2 lead screw L0100 simple
+  type: screw
+  subtype: lead_screw
+  version: 1.0.0
+  status: draft
+  spec: t8-p2-lead-screw-l0100-simple/component.yaml
+  reference_step: t8-p2-lead-screw-l0100-simple/reference.step
+  source_material_directory: null
+- id: t8-p2-lead-screw-l0150-simple
+  name: t8 p2 lead screw L0150 simple
+  type: screw
+  subtype: lead_screw
+  version: 1.0.0
+  status: draft
+  spec: t8-p2-lead-screw-l0150-simple/component.yaml
+  reference_step: t8-p2-lead-screw-l0150-simple/reference.step
+  source_material_directory: null
+- id: t8-p2-round-nut
+  name: t8 p2 round nut
+  type: nut
+  subtype: lead_screw_nut
+  version: 1.0.0
+  status: draft
+  spec: t8-p2-round-nut/component.yaml
+  reference_step: t8-p2-round-nut/reference.step
+  source_material_directory: null
+- id: t8-p4-round-nut
+  name: t8 p4 round nut
+  type: nut
+  subtype: lead_screw_nut
+  version: 1.0.0
+  status: draft
+  spec: t8-p4-round-nut/component.yaml
+  reference_step: t8-p4-round-nut/reference.step
+  source_material_directory: null
+- id: v-belt-a-pulley-d20-bore5
+  name: v belt A pulley d20 bore5
+  type: pulley
+  subtype: belt_pulley
+  version: 1.0.0
+  status: draft
+  spec: v-belt-a-pulley-d20-bore5/component.yaml
+  reference_step: v-belt-a-pulley-d20-bore5/reference.step
+  source_material_directory: null
+- id: v-belt-a-pulley-d20-bore8
+  name: v belt A pulley d20 bore8
+  type: pulley
+  subtype: belt_pulley
+  version: 1.0.0
+  status: draft
+  spec: v-belt-a-pulley-d20-bore8/component.yaml
+  reference_step: v-belt-a-pulley-d20-bore8/reference.step
+  source_material_directory: null
+- id: vslot-2020-l0100
+  name: Aluminum extrusions, 100 mm
+  type: profile
+  subtype: v_slot_extrusion
+  version: 1.0.0
+  status: draft
+  spec: vslot-2020-l0100/component.yaml
+  reference_step: vslot-2020-l0100/reference.step
+  source_material_directory: null
+- id: vslot-2020-l0150
+  name: Aluminum extrusions, 150 mm
+  type: profile
+  subtype: v_slot_extrusion
+  version: 1.0.0
+  status: draft
+  spec: vslot-2020-l0150/component.yaml
+  reference_step: vslot-2020-l0150/reference.step
+  source_material_directory: null

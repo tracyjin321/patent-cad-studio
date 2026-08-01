@@ -1,0 +1,816 @@
+{
+  "date": "2026-08-01",
+  "source": "https://www.step.parts / github.com/earthtojake/step.parts",
+  "selection_policy": {
+    "prefer": "simple metric mechanical primitives for assembly reuse",
+    "exclude": "electronics boards, complex branded actuators, imperial variants, large multi-body models",
+    "filters": "file size <<1MB; valid solid STEP; diverse families"
+  },
+  "counts": {
+    "selected": 80,
+    "imported": 80,
+    "catalog_total_including_legacy": 88
+  },
+  "components": [
+    {
+      "component_id": "bearing-608-open-simple",
+      "source_id": "bearing_608_open_simple",
+      "name": "Radial ball bearings, 608 open",
+      "type": "bearing",
+      "subtype": "deep_groove_ball",
+      "family": "deep-groove-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_608_open_simple",
+      "local_dir": "component_library/bearing-608-open-simple"
+    },
+    {
+      "component_id": "bearing-6001-open-simple",
+      "source_id": "bearing_6001_open_simple",
+      "name": "Radial ball bearings, 6001 open",
+      "type": "bearing",
+      "subtype": "deep_groove_ball",
+      "family": "deep-groove-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_6001_open_simple",
+      "local_dir": "component_library/bearing-6001-open-simple"
+    },
+    {
+      "component_id": "bearing-6201-open-simple",
+      "source_id": "bearing_6201_open_simple",
+      "name": "Radial ball bearings, 6201 open",
+      "type": "bearing",
+      "subtype": "deep_groove_ball",
+      "family": "deep-groove-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_6201_open_simple",
+      "local_dir": "component_library/bearing-6201-open-simple"
+    },
+    {
+      "component_id": "bearing-608-2rs-sealed-simple",
+      "source_id": "bearing_608_2rs_sealed_simple",
+      "name": "Radial ball bearings, 608 2RS_sealed",
+      "type": "bearing",
+      "subtype": "deep_groove_ball",
+      "family": "deep-groove-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_608_2rs_sealed_simple",
+      "local_dir": "component_library/bearing-608-2rs-sealed-simple"
+    },
+    {
+      "component_id": "bearing-flanged-f608-simple",
+      "source_id": "bearing_flanged_f608_simple",
+      "name": "Flanged ball bearings, F608",
+      "type": "bearing",
+      "subtype": "flanged_ball",
+      "family": "flanged-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_flanged_f608_simple",
+      "local_dir": "component_library/bearing-flanged-f608-simple"
+    },
+    {
+      "component_id": "bearing-flanged-f6001-simple",
+      "source_id": "bearing_flanged_f6001_simple",
+      "name": "Flanged ball bearings, F6001",
+      "type": "bearing",
+      "subtype": "flanged_ball",
+      "family": "flanged-ball-bearing",
+      "source_url": "https://www.step.parts/parts/bearing_flanged_f6001_simple",
+      "local_dir": "component_library/bearing-flanged-f6001-simple"
+    },
+    {
+      "component_id": "linear-bearing-lm6uu-straight-simple",
+      "source_id": "linear_bearing_lm6uu_straight_simple",
+      "name": "Linear bushings and housings, straight",
+      "type": "bearing",
+      "subtype": "linear_bearing",
+      "family": "linear-bearing",
+      "source_url": "https://www.step.parts/parts/linear_bearing_lm6uu_straight_simple",
+      "local_dir": "component_library/linear-bearing-lm6uu-straight-simple"
+    },
+    {
+      "component_id": "linear-bearing-lm16uu-straight-simple",
+      "source_id": "linear_bearing_lm16uu_straight_simple",
+      "name": "Linear bushings and housings, straight",
+      "type": "bearing",
+      "subtype": "linear_bearing",
+      "family": "linear-bearing",
+      "source_url": "https://www.step.parts/parts/linear_bearing_lm16uu_straight_simple",
+      "local_dir": "component_library/linear-bearing-lm16uu-straight-simple"
+    },
+    {
+      "component_id": "linear-bearing-lm6uu-pillow-block-simple",
+      "source_id": "linear_bearing_lm6uu_pillow_block_simple",
+      "name": "Linear bushings and housings, pillow_block",
+      "type": "bearing",
+      "subtype": "linear_bearing_housing",
+      "family": "linear-bearing-housing",
+      "source_url": "https://www.step.parts/parts/linear_bearing_lm6uu_pillow_block_simple",
+      "local_dir": "component_library/linear-bearing-lm6uu-pillow-block-simple"
+    },
+    {
+      "component_id": "linear-bearing-lm8uu-pillow-block-simple",
+      "source_id": "linear_bearing_lm8uu_pillow_block_simple",
+      "name": "Linear bushings and housings, pillow_block",
+      "type": "bearing",
+      "subtype": "linear_bearing_housing",
+      "family": "linear-bearing-housing",
+      "source_url": "https://www.step.parts/parts/linear_bearing_lm8uu_pillow_block_simple",
+      "local_dir": "component_library/linear-bearing-lm8uu-pillow-block-simple"
+    },
+    {
+      "component_id": "sc8-linear-bearing-block",
+      "source_id": "sc8_linear_bearing_block",
+      "name": "sc8 linear bearing block",
+      "type": "bearing",
+      "subtype": "linear_bearing_block",
+      "family": "linear-bearing-block",
+      "source_url": "https://www.step.parts/parts/sc8_linear_bearing_block",
+      "local_dir": "component_library/sc8-linear-bearing-block"
+    },
+    {
+      "component_id": "sc10-linear-bearing-block",
+      "source_id": "sc10_linear_bearing_block",
+      "name": "sc10 linear bearing block",
+      "type": "bearing",
+      "subtype": "linear_bearing_block",
+      "family": "linear-bearing-block",
+      "source_url": "https://www.step.parts/parts/sc10_linear_bearing_block",
+      "local_dir": "component_library/sc10-linear-bearing-block"
+    },
+    {
+      "component_id": "spur-gear-m1-0-20t-bore5",
+      "source_id": "spur_gear_m1_0_20t_bore5",
+      "name": "spur gear M1.0 20t bore5",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_0_20t_bore5",
+      "local_dir": "component_library/spur-gear-m1-0-20t-bore5"
+    },
+    {
+      "component_id": "spur-gear-m1-0-20t-bore8",
+      "source_id": "spur_gear_m1_0_20t_bore8",
+      "name": "spur gear M1.0 20t bore8",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_0_20t_bore8",
+      "local_dir": "component_library/spur-gear-m1-0-20t-bore8"
+    },
+    {
+      "component_id": "spur-gear-m1-0-30t-bore8",
+      "source_id": "spur_gear_m1_0_30t_bore8",
+      "name": "spur gear M1.0 30t bore8",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_0_30t_bore8",
+      "local_dir": "component_library/spur-gear-m1-0-30t-bore8"
+    },
+    {
+      "component_id": "spur-gear-m1-0-40t-bore8",
+      "source_id": "spur_gear_m1_0_40t_bore8",
+      "name": "spur gear M1.0 40t bore8",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_0_40t_bore8",
+      "local_dir": "component_library/spur-gear-m1-0-40t-bore8"
+    },
+    {
+      "component_id": "spur-gear-m1-5-20t-bore8",
+      "source_id": "spur_gear_m1_5_20t_bore8",
+      "name": "spur gear M1.5 20t bore8",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_5_20t_bore8",
+      "local_dir": "component_library/spur-gear-m1-5-20t-bore8"
+    },
+    {
+      "component_id": "spur-gear-m1-5-30t-bore8",
+      "source_id": "spur_gear_m1_5_30t_bore8",
+      "name": "spur gear M1.5 30t bore8",
+      "type": "gear",
+      "subtype": "spur_gear",
+      "family": "spur",
+      "source_url": "https://www.step.parts/parts/spur_gear_m1_5_30t_bore8",
+      "local_dir": "component_library/spur-gear-m1-5-30t-bore8"
+    },
+    {
+      "component_id": "bevel-gear-45deg-m0-8-16t",
+      "source_id": "bevel_gear_45deg_m0_8_16t",
+      "name": "bevel gear 45deg M0.8 16t",
+      "type": "gear",
+      "subtype": "bevel_gear",
+      "family": "bevel-gear-45deg",
+      "source_url": "https://www.step.parts/parts/bevel_gear_45deg_m0_8_16t",
+      "local_dir": "component_library/bevel-gear-45deg-m0-8-16t"
+    },
+    {
+      "component_id": "gt2-pulley-20t-bore5-w6",
+      "source_id": "gt2_pulley_20t_bore5_w6",
+      "name": "gt2 pulley 20t bore5 w6",
+      "type": "pulley",
+      "subtype": "timing_pulley",
+      "family": "timing-pulley",
+      "source_url": "https://www.step.parts/parts/gt2_pulley_20t_bore5_w6",
+      "local_dir": "component_library/gt2-pulley-20t-bore5-w6"
+    },
+    {
+      "component_id": "gt2-pulley-20t-bore8-w6",
+      "source_id": "gt2_pulley_20t_bore8_w6",
+      "name": "gt2 pulley 20t bore8 w6",
+      "type": "pulley",
+      "subtype": "timing_pulley",
+      "family": "timing-pulley",
+      "source_url": "https://www.step.parts/parts/gt2_pulley_20t_bore8_w6",
+      "local_dir": "component_library/gt2-pulley-20t-bore8-w6"
+    },
+    {
+      "component_id": "gt2-pulley-36t-bore8-w6",
+      "source_id": "gt2_pulley_36t_bore8_w6",
+      "name": "gt2 pulley 36t bore8 w6",
+      "type": "pulley",
+      "subtype": "timing_pulley",
+      "family": "timing-pulley",
+      "source_url": "https://www.step.parts/parts/gt2_pulley_36t_bore8_w6",
+      "local_dir": "component_library/gt2-pulley-36t-bore8-w6"
+    },
+    {
+      "component_id": "gt2-pulley-40t-bore8-w6",
+      "source_id": "gt2_pulley_40t_bore8_w6",
+      "name": "gt2 pulley 40t bore8 w6",
+      "type": "pulley",
+      "subtype": "timing_pulley",
+      "family": "timing-pulley",
+      "source_url": "https://www.step.parts/parts/gt2_pulley_40t_bore8_w6",
+      "local_dir": "component_library/gt2-pulley-40t-bore8-w6"
+    },
+    {
+      "component_id": "gt2-smooth-idler-bore5-w6",
+      "source_id": "gt2_smooth_idler_bore5_w6",
+      "name": "gt2 smooth idler bore5 w6",
+      "type": "pulley",
+      "subtype": "timing_idler",
+      "family": "timing-idler",
+      "source_url": "https://www.step.parts/parts/gt2_smooth_idler_bore5_w6",
+      "local_dir": "component_library/gt2-smooth-idler-bore5-w6"
+    },
+    {
+      "component_id": "gt2-smooth-idler-bore5-w9",
+      "source_id": "gt2_smooth_idler_bore5_w9",
+      "name": "gt2 smooth idler bore5 w9",
+      "type": "pulley",
+      "subtype": "timing_idler",
+      "family": "timing-idler",
+      "source_url": "https://www.step.parts/parts/gt2_smooth_idler_bore5_w9",
+      "local_dir": "component_library/gt2-smooth-idler-bore5-w9"
+    },
+    {
+      "component_id": "v-belt-a-pulley-d20-bore5",
+      "source_id": "v_belt_a_pulley_d20_bore5",
+      "name": "v belt A pulley d20 bore5",
+      "type": "pulley",
+      "subtype": "belt_pulley",
+      "family": "belt-pulley",
+      "source_url": "https://www.step.parts/parts/v_belt_a_pulley_d20_bore5",
+      "local_dir": "component_library/v-belt-a-pulley-d20-bore5"
+    },
+    {
+      "component_id": "v-belt-a-pulley-d20-bore8",
+      "source_id": "v_belt_a_pulley_d20_bore8",
+      "name": "v belt A pulley d20 bore8",
+      "type": "pulley",
+      "subtype": "belt_pulley",
+      "family": "belt-pulley",
+      "source_url": "https://www.step.parts/parts/v_belt_a_pulley_d20_bore8",
+      "local_dir": "component_library/v-belt-a-pulley-d20-bore8"
+    },
+    {
+      "component_id": "sprocket-25-12t-bore5",
+      "source_id": "sprocket_25_12t_bore5",
+      "name": "sprocket 25 12t bore5",
+      "type": "sprocket",
+      "subtype": "roller_chain",
+      "family": "roller-chain-sprocket",
+      "source_url": "https://www.step.parts/parts/sprocket_25_12t_bore5",
+      "local_dir": "component_library/sprocket-25-12t-bore5"
+    },
+    {
+      "component_id": "sprocket-25-12t-bore8",
+      "source_id": "sprocket_25_12t_bore8",
+      "name": "sprocket 25 12t bore8",
+      "type": "sprocket",
+      "subtype": "roller_chain",
+      "family": "roller-chain-sprocket",
+      "source_url": "https://www.step.parts/parts/sprocket_25_12t_bore8",
+      "local_dir": "component_library/sprocket-25-12t-bore8"
+    },
+    {
+      "component_id": "shaft-coupler-rigid-clamp-d03-d03-simple",
+      "source_id": "shaft_coupler_rigid_clamp_d03_d03_simple",
+      "name": "Shaft couplers, 3 mm to 3 mm",
+      "type": "coupling",
+      "subtype": "shaft_coupling",
+      "family": "shaft-coupling",
+      "source_url": "https://www.step.parts/parts/shaft_coupler_rigid_clamp_d03_d03_simple",
+      "local_dir": "component_library/shaft-coupler-rigid-clamp-d03-d03-simple"
+    },
+    {
+      "component_id": "shaft-coupler-rigid-clamp-d03-d05-simple",
+      "source_id": "shaft_coupler_rigid_clamp_d03_d05_simple",
+      "name": "Shaft couplers, 3 mm to 5 mm",
+      "type": "coupling",
+      "subtype": "shaft_coupling",
+      "family": "shaft-coupling",
+      "source_url": "https://www.step.parts/parts/shaft_coupler_rigid_clamp_d03_d05_simple",
+      "local_dir": "component_library/shaft-coupler-rigid-clamp-d03-d05-simple"
+    },
+    {
+      "component_id": "shaft-coupler-rigid-clamp-d04-d04-simple",
+      "source_id": "shaft_coupler_rigid_clamp_d04_d04_simple",
+      "name": "Shaft couplers, 4 mm to 4 mm",
+      "type": "coupling",
+      "subtype": "shaft_coupling",
+      "family": "shaft-coupling",
+      "source_url": "https://www.step.parts/parts/shaft_coupler_rigid_clamp_d04_d04_simple",
+      "local_dir": "component_library/shaft-coupler-rigid-clamp-d04-d04-simple"
+    },
+    {
+      "component_id": "shaft-coupler-rigid-clamp-d05-d05-simple",
+      "source_id": "shaft_coupler_rigid_clamp_d05_d05_simple",
+      "name": "Shaft couplers, 5 mm to 5 mm",
+      "type": "coupling",
+      "subtype": "shaft_coupling",
+      "family": "shaft-coupling",
+      "source_url": "https://www.step.parts/parts/shaft_coupler_rigid_clamp_d05_d05_simple",
+      "local_dir": "component_library/shaft-coupler-rigid-clamp-d05-d05-simple"
+    },
+    {
+      "component_id": "shaft-collar-set-screw-bore-d03-simple",
+      "source_id": "shaft_collar_set_screw_bore_d03_simple",
+      "name": "Shaft collars, Ø3 mm bore",
+      "type": "shaft",
+      "subtype": "shaft_collar",
+      "family": "shaft-collar",
+      "source_url": "https://www.step.parts/parts/shaft_collar_set_screw_bore_d03_simple",
+      "local_dir": "component_library/shaft-collar-set-screw-bore-d03-simple"
+    },
+    {
+      "component_id": "shaft-collar-set-screw-bore-d04-simple",
+      "source_id": "shaft_collar_set_screw_bore_d04_simple",
+      "name": "Shaft collars, Ø4 mm bore",
+      "type": "shaft",
+      "subtype": "shaft_collar",
+      "family": "shaft-collar",
+      "source_url": "https://www.step.parts/parts/shaft_collar_set_screw_bore_d04_simple",
+      "local_dir": "component_library/shaft-collar-set-screw-bore-d04-simple"
+    },
+    {
+      "component_id": "clamp-hub-bore5-bc16",
+      "source_id": "clamp_hub_bore5_bc16",
+      "name": "clamp hub bore5 bc16",
+      "type": "hub",
+      "subtype": "shaft_hub",
+      "family": "shaft-hub",
+      "source_url": "https://www.step.parts/parts/clamp_hub_bore5_bc16",
+      "local_dir": "component_library/clamp-hub-bore5-bc16"
+    },
+    {
+      "component_id": "clamp-hub-bore5-bc20",
+      "source_id": "clamp_hub_bore5_bc20",
+      "name": "clamp hub bore5 bc20",
+      "type": "hub",
+      "subtype": "shaft_hub",
+      "family": "shaft-hub",
+      "source_url": "https://www.step.parts/parts/clamp_hub_bore5_bc20",
+      "local_dir": "component_library/clamp-hub-bore5-bc20"
+    },
+    {
+      "component_id": "precision-shaft-d03-l0025-chamfered",
+      "source_id": "precision_shaft_d03_l0025_chamfered",
+      "name": "Precision shaft, D3 x 25 mm",
+      "type": "shaft",
+      "subtype": "ground_shaft",
+      "family": "ground-shaft",
+      "source_url": "https://www.step.parts/parts/precision_shaft_d03_l0025_chamfered",
+      "local_dir": "component_library/precision-shaft-d03-l0025-chamfered"
+    },
+    {
+      "component_id": "precision-shaft-d03-l0050-chamfered",
+      "source_id": "precision_shaft_d03_l0050_chamfered",
+      "name": "Precision shaft, D3 x 50 mm",
+      "type": "shaft",
+      "subtype": "ground_shaft",
+      "family": "ground-shaft",
+      "source_url": "https://www.step.parts/parts/precision_shaft_d03_l0050_chamfered",
+      "local_dir": "component_library/precision-shaft-d03-l0050-chamfered"
+    },
+    {
+      "component_id": "gear-rack-m0-8-l0100",
+      "source_id": "gear_rack_m0_8_l0100",
+      "name": "gear rack M0.8 L0100",
+      "type": "gear",
+      "subtype": "gear_rack",
+      "family": "gear-rack",
+      "source_url": "https://www.step.parts/parts/gear_rack_m0_8_l0100",
+      "local_dir": "component_library/gear-rack-m0-8-l0100"
+    },
+    {
+      "component_id": "sfu1204-ball-screw-l0200-simple",
+      "source_id": "sfu1204_ball_screw_l0200_simple",
+      "name": "sfu1204 ball screw L0200 simple",
+      "type": "screw",
+      "subtype": "ball_screw",
+      "family": "ball-screw",
+      "source_url": "https://www.step.parts/parts/sfu1204_ball_screw_l0200_simple",
+      "local_dir": "component_library/sfu1204-ball-screw-l0200-simple"
+    },
+    {
+      "component_id": "sfu1605-ball-screw-l0200-simple",
+      "source_id": "sfu1605_ball_screw_l0200_simple",
+      "name": "sfu1605 ball screw L0200 simple",
+      "type": "screw",
+      "subtype": "ball_screw",
+      "family": "ball-screw",
+      "source_url": "https://www.step.parts/parts/sfu1605_ball_screw_l0200_simple",
+      "local_dir": "component_library/sfu1605-ball-screw-l0200-simple"
+    },
+    {
+      "component_id": "t8-p2-lead-screw-l0100-simple",
+      "source_id": "t8_p2_lead_screw_l0100_simple",
+      "name": "t8 p2 lead screw L0100 simple",
+      "type": "screw",
+      "subtype": "lead_screw",
+      "family": "lead-screw",
+      "source_url": "https://www.step.parts/parts/t8_p2_lead_screw_l0100_simple",
+      "local_dir": "component_library/t8-p2-lead-screw-l0100-simple"
+    },
+    {
+      "component_id": "t8-p2-lead-screw-l0150-simple",
+      "source_id": "t8_p2_lead_screw_l0150_simple",
+      "name": "t8 p2 lead screw L0150 simple",
+      "type": "screw",
+      "subtype": "lead_screw",
+      "family": "lead-screw",
+      "source_url": "https://www.step.parts/parts/t8_p2_lead_screw_l0150_simple",
+      "local_dir": "component_library/t8-p2-lead-screw-l0150-simple"
+    },
+    {
+      "component_id": "t8-p2-round-nut",
+      "source_id": "t8_p2_round_nut",
+      "name": "t8 p2 round nut",
+      "type": "nut",
+      "subtype": "lead_screw_nut",
+      "family": "lead-screw-nut",
+      "source_url": "https://www.step.parts/parts/t8_p2_round_nut",
+      "local_dir": "component_library/t8-p2-round-nut"
+    },
+    {
+      "component_id": "t8-p4-round-nut",
+      "source_id": "t8_p4_round_nut",
+      "name": "t8 p4 round nut",
+      "type": "nut",
+      "subtype": "lead_screw_nut",
+      "family": "lead-screw-nut",
+      "source_url": "https://www.step.parts/parts/t8_p4_round_nut",
+      "local_dir": "component_library/t8-p4-round-nut"
+    },
+    {
+      "component_id": "mgn7-linear-rail-l0100",
+      "source_id": "mgn7_linear_rail_l0100",
+      "name": "mgn7 linear rail L0100",
+      "type": "motion",
+      "subtype": "linear_rail",
+      "family": "profile-linear-rail",
+      "source_url": "https://www.step.parts/parts/mgn7_linear_rail_l0100",
+      "local_dir": "component_library/mgn7-linear-rail-l0100"
+    },
+    {
+      "component_id": "socket-head-cap-screw-m3-l0005-simple",
+      "source_id": "socket_head_cap_screw_m3_l0005_simple",
+      "name": "ISO 4762 socket head cap screw, M3 x 5 mm",
+      "type": "fastener",
+      "subtype": "socket_head_cap_screw",
+      "family": "socket-head-cap-screw",
+      "source_url": "https://www.step.parts/parts/socket_head_cap_screw_m3_l0005_simple",
+      "local_dir": "component_library/socket-head-cap-screw-m3-l0005-simple"
+    },
+    {
+      "component_id": "socket-head-cap-screw-m3-l0050-simple",
+      "source_id": "socket_head_cap_screw_m3_l0050_simple",
+      "name": "ISO 4762 socket head cap screw, M3 x 50 mm",
+      "type": "fastener",
+      "subtype": "socket_head_cap_screw",
+      "family": "socket-head-cap-screw",
+      "source_url": "https://www.step.parts/parts/socket_head_cap_screw_m3_l0050_simple",
+      "local_dir": "component_library/socket-head-cap-screw-m3-l0050-simple"
+    },
+    {
+      "component_id": "socket-head-cap-screw-m2-l0025-simple",
+      "source_id": "socket_head_cap_screw_m2_l0025_simple",
+      "name": "ISO 4762 socket head cap screw, M2 x 25 mm",
+      "type": "fastener",
+      "subtype": "socket_head_cap_screw",
+      "family": "socket-head-cap-screw",
+      "source_url": "https://www.step.parts/parts/socket_head_cap_screw_m2_l0025_simple",
+      "local_dir": "component_library/socket-head-cap-screw-m2-l0025-simple"
+    },
+    {
+      "component_id": "hex-head-bolt-m3-l0010-simple",
+      "source_id": "hex_head_bolt_m3_l0010_simple",
+      "name": "ISO 4017 hex-head bolt, M3 x 10 mm",
+      "type": "fastener",
+      "subtype": "hex_head_cap_screw",
+      "family": "hex-head-cap-screw",
+      "source_url": "https://www.step.parts/parts/hex_head_bolt_m3_l0010_simple",
+      "local_dir": "component_library/hex-head-bolt-m3-l0010-simple"
+    },
+    {
+      "component_id": "button-head-screw-m3-l0008-simple",
+      "source_id": "button_head_screw_m3_l0008_simple",
+      "name": "ISO 7380 button head socket screw, M3 x 8 mm",
+      "type": "fastener",
+      "subtype": "button_head_screw",
+      "family": "button-head-screw",
+      "source_url": "https://www.step.parts/parts/button_head_screw_m3_l0008_simple",
+      "local_dir": "component_library/button-head-screw-m3-l0008-simple"
+    },
+    {
+      "component_id": "countersunk-socket-screw-m3-l0008-simple",
+      "source_id": "countersunk_socket_screw_m3_l0008_simple",
+      "name": "ISO 10642 countersunk socket screw, M3 x 8 mm",
+      "type": "fastener",
+      "subtype": "countersunk_screw",
+      "family": "countersunk-screw",
+      "source_url": "https://www.step.parts/parts/countersunk_socket_screw_m3_l0008_simple",
+      "local_dir": "component_library/countersunk-socket-screw-m3-l0008-simple"
+    },
+    {
+      "component_id": "set-screw-m3-l0008-cup-point-simple",
+      "source_id": "set_screw_m3_l0008_cup_point_simple",
+      "name": "Metric set screws, M3 x 8 mm cup point",
+      "type": "fastener",
+      "subtype": "set_screw",
+      "family": "set-screw",
+      "source_url": "https://www.step.parts/parts/set_screw_m3_l0008_cup_point_simple",
+      "local_dir": "component_library/set-screw-m3-l0008-cup-point-simple"
+    },
+    {
+      "component_id": "iso4032-hex-nut-m3",
+      "source_id": "iso4032_hex_nut_m3",
+      "name": "ISO 4032 hex nut, M3",
+      "type": "fastener",
+      "subtype": "hex_nut",
+      "family": "hex-nut",
+      "source_url": "https://www.step.parts/parts/iso4032_hex_nut_m3",
+      "local_dir": "component_library/iso4032-hex-nut-m3"
+    },
+    {
+      "component_id": "iso4032-hex-nut-m4",
+      "source_id": "iso4032_hex_nut_m4",
+      "name": "ISO 4032 hex nut, M4",
+      "type": "fastener",
+      "subtype": "hex_nut",
+      "family": "hex-nut",
+      "source_url": "https://www.step.parts/parts/iso4032_hex_nut_m4",
+      "local_dir": "component_library/iso4032-hex-nut-m4"
+    },
+    {
+      "component_id": "flat-washer-normal-m3-simple",
+      "source_id": "flat_washer_normal_m3_simple",
+      "name": "ISO 7089 flat washer, M3",
+      "type": "fastener",
+      "subtype": "flat_washer",
+      "family": "flat-washer",
+      "source_url": "https://www.step.parts/parts/flat_washer_normal_m3_simple",
+      "local_dir": "component_library/flat-washer-normal-m3-simple"
+    },
+    {
+      "component_id": "flat-washer-normal-m4-simple",
+      "source_id": "flat_washer_normal_m4_simple",
+      "name": "ISO 7089 flat washer, M4",
+      "type": "fastener",
+      "subtype": "flat_washer",
+      "family": "flat-washer",
+      "source_url": "https://www.step.parts/parts/flat_washer_normal_m4_simple",
+      "local_dir": "component_library/flat-washer-normal-m4-simple"
+    },
+    {
+      "component_id": "din127-spring-washer-m4",
+      "source_id": "din127_spring_washer_m4",
+      "name": "DIN 127 class B spring washer, M4",
+      "type": "fastener",
+      "subtype": "spring_washer",
+      "family": "spring-washer",
+      "source_url": "https://www.step.parts/parts/din127_spring_washer_m4",
+      "local_dir": "component_library/din127-spring-washer-m4"
+    },
+    {
+      "component_id": "dowel-pin-4mm-l4mm-m3-setscrew",
+      "source_id": "dowel_pin_4mm_l4mm_m3_setscrew",
+      "name": "Dowel pin, 4 mm x 4 mm, M3 set-screw",
+      "type": "pin",
+      "subtype": "dowel_pin",
+      "family": "dowel-pin",
+      "source_url": "https://www.step.parts/parts/dowel_pin_4mm_l4mm_m3_setscrew",
+      "local_dir": "component_library/dowel-pin-4mm-l4mm-m3-setscrew"
+    },
+    {
+      "component_id": "iso-2338-dowel-pin-d002-l006",
+      "source_id": "iso_2338_dowel_pin_d002_l006",
+      "name": "ISO 2338 dowel pin, D2 x 6 mm",
+      "type": "pin",
+      "subtype": "dowel_pin",
+      "family": "dowel-pin",
+      "source_url": "https://www.step.parts/parts/iso_2338_dowel_pin_d002_l006",
+      "local_dir": "component_library/iso-2338-dowel-pin-d002-l006"
+    },
+    {
+      "component_id": "iso-2338-dowel-pin-d002-l008",
+      "source_id": "iso_2338_dowel_pin_d002_l008",
+      "name": "ISO 2338 dowel pin, D2 x 8 mm",
+      "type": "pin",
+      "subtype": "dowel_pin",
+      "family": "dowel-pin",
+      "source_url": "https://www.step.parts/parts/iso_2338_dowel_pin_d002_l008",
+      "local_dir": "component_library/iso-2338-dowel-pin-d002-l008"
+    },
+    {
+      "component_id": "standoff-hex-male-female-m3-l0005-simple",
+      "source_id": "standoff_hex_male_female_m3_l0005_simple",
+      "name": "Standoffs and spacers, M3, 5 mm body",
+      "type": "spacer",
+      "subtype": "threaded_standoff",
+      "family": "threaded-standoff",
+      "source_url": "https://www.step.parts/parts/standoff_hex_male_female_m3_l0005_simple",
+      "local_dir": "component_library/standoff-hex-male-female-m3-l0005-simple"
+    },
+    {
+      "component_id": "standoff-hex-male-female-m3-l0006-simple",
+      "source_id": "standoff_hex_male_female_m3_l0006_simple",
+      "name": "Standoffs and spacers, M3, 6 mm body",
+      "type": "spacer",
+      "subtype": "threaded_standoff",
+      "family": "threaded-standoff",
+      "source_url": "https://www.step.parts/parts/standoff_hex_male_female_m3_l0006_simple",
+      "local_dir": "component_library/standoff-hex-male-female-m3-l0006-simple"
+    },
+    {
+      "component_id": "standoff-hex-male-female-m3-l0008-simple",
+      "source_id": "standoff_hex_male_female_m3_l0008_simple",
+      "name": "Standoffs and spacers, M3, 8 mm body",
+      "type": "spacer",
+      "subtype": "threaded_standoff",
+      "family": "threaded-standoff",
+      "source_url": "https://www.step.parts/parts/standoff_hex_male_female_m3_l0008_simple",
+      "local_dir": "component_library/standoff-hex-male-female-m3-l0008-simple"
+    },
+    {
+      "component_id": "spacer-round-clearance-m3-l0005",
+      "source_id": "spacer_round_clearance_m3_l0005",
+      "name": "Unthreaded spacers, M3 clearance, 5 mm",
+      "type": "spacer",
+      "subtype": "round_spacer",
+      "family": "round-spacer",
+      "source_url": "https://www.step.parts/parts/spacer_round_clearance_m3_l0005",
+      "local_dir": "component_library/spacer-round-clearance-m3-l0005"
+    },
+    {
+      "component_id": "spacer-round-clearance-m3-l0006",
+      "source_id": "spacer_round_clearance_m3_l0006",
+      "name": "Unthreaded spacers, M3 clearance, 6 mm",
+      "type": "spacer",
+      "subtype": "round_spacer",
+      "family": "round-spacer",
+      "source_url": "https://www.step.parts/parts/spacer_round_clearance_m3_l0006",
+      "local_dir": "component_library/spacer-round-clearance-m3-l0006"
+    },
+    {
+      "component_id": "profile-2020-i-slot5-l100",
+      "source_id": "profile_2020_i_slot5_l100",
+      "name": "20 x 20 I-type slot-5 aluminum extrusion profile, 100 mm length",
+      "type": "profile",
+      "subtype": "t_slot_extrusion",
+      "family": "t-slot-extrusion",
+      "source_url": "https://www.step.parts/parts/profile_2020_i_slot5_l100",
+      "local_dir": "component_library/profile-2020-i-slot5-l100"
+    },
+    {
+      "component_id": "vslot-2020-l0100",
+      "source_id": "vslot_2020_l0100",
+      "name": "Aluminum extrusions, 100 mm",
+      "type": "profile",
+      "subtype": "v_slot_extrusion",
+      "family": "v-slot-extrusion",
+      "source_url": "https://www.step.parts/parts/vslot_2020_l0100",
+      "local_dir": "component_library/vslot-2020-l0100"
+    },
+    {
+      "component_id": "vslot-2020-l0150",
+      "source_id": "vslot_2020_l0150",
+      "name": "Aluminum extrusions, 150 mm",
+      "type": "profile",
+      "subtype": "v_slot_extrusion",
+      "family": "v-slot-extrusion",
+      "source_url": "https://www.step.parts/parts/vslot_2020_l0150",
+      "local_dir": "component_library/vslot-2020-l0150"
+    },
+    {
+      "component_id": "plate-blank-50x50x2",
+      "source_id": "plate_blank_50x50x2",
+      "name": "Plate blank, 50 x 50 x 2 mm",
+      "type": "stock",
+      "subtype": "plate_blank",
+      "family": "plate-blank",
+      "source_url": "https://www.step.parts/parts/plate_blank_50x50x2",
+      "local_dir": "component_library/plate-blank-50x50x2"
+    },
+    {
+      "component_id": "angle-equal-en10056-20x20x3",
+      "source_id": "angle_equal_en10056_20x20x3",
+      "name": "EN 10056 equal angle bar, 20 x 20 x 3",
+      "type": "stock",
+      "subtype": "angle_bar",
+      "family": "angle-bar",
+      "source_url": "https://www.step.parts/parts/angle_equal_en10056_20x20x3",
+      "local_dir": "component_library/angle-equal-en10056-20x20x3"
+    },
+    {
+      "component_id": "motor-mount-plate-nema17-to-2020-simple",
+      "source_id": "motor_mount_plate_nema17_to_2020_simple",
+      "name": "Extrusion brackets and joining plates, nema17_to_2020",
+      "type": "hardware",
+      "subtype": "extrusion_bracket",
+      "family": "extrusion-bracket",
+      "source_url": "https://www.step.parts/parts/motor_mount_plate_nema17_to_2020_simple",
+      "local_dir": "component_library/motor-mount-plate-nema17-to-2020-simple"
+    },
+    {
+      "component_id": "motor-mount-plate-nema23-to-2040-simple",
+      "source_id": "motor_mount_plate_nema23_to_2040_simple",
+      "name": "Extrusion brackets and joining plates, nema23_to_2040",
+      "type": "hardware",
+      "subtype": "extrusion_bracket",
+      "family": "extrusion-bracket",
+      "source_url": "https://www.step.parts/parts/motor_mount_plate_nema23_to_2040_simple",
+      "local_dir": "component_library/motor-mount-plate-nema23-to-2040-simple"
+    },
+    {
+      "component_id": "extrusion-slot5-hammer-nut-m3-simple",
+      "source_id": "extrusion_slot5_hammer_nut_m3_simple",
+      "name": "Hammer nuts for extrusion, slot=5 mm, thread=M3",
+      "type": "fastener",
+      "subtype": "extrusion_nut",
+      "family": "extrusion-nut",
+      "source_url": "https://www.step.parts/parts/extrusion_slot5_hammer_nut_m3_simple",
+      "local_dir": "component_library/extrusion-slot5-hammer-nut-m3-simple"
+    },
+    {
+      "component_id": "extrusion-slot5-hammer-nut-m4-simple",
+      "source_id": "extrusion_slot5_hammer_nut_m4_simple",
+      "name": "Hammer nuts for extrusion, slot=5 mm, thread=M4",
+      "type": "fastener",
+      "subtype": "extrusion_nut",
+      "family": "extrusion-nut",
+      "source_url": "https://www.step.parts/parts/extrusion_slot5_hammer_nut_m4_simple",
+      "local_dir": "component_library/extrusion-slot5-hammer-nut-m4-simple"
+    },
+    {
+      "component_id": "stepper-motor-nema17-l0020-single-shaft",
+      "source_id": "stepper_motor_nema17_l0020_single_shaft",
+      "name": "NEMA stepper motors, body length 20 mm",
+      "type": "actuator",
+      "subtype": "nema_stepper",
+      "family": "nema-stepper-motor",
+      "source_url": "https://www.step.parts/parts/stepper_motor_nema17_l0020_single_shaft",
+      "local_dir": "component_library/stepper-motor-nema17-l0020-single-shaft"
+    },
+    {
+      "component_id": "stepper-motor-nema17-l0028-single-shaft",
+      "source_id": "stepper_motor_nema17_l0028_single_shaft",
+      "name": "NEMA stepper motors, body length 28 mm",
+      "type": "actuator",
+      "subtype": "nema_stepper",
+      "family": "nema-stepper-motor",
+      "source_url": "https://www.step.parts/parts/stepper_motor_nema17_l0028_single_shaft",
+      "local_dir": "component_library/stepper-motor-nema17-l0028-single-shaft"
+    },
+    {
+      "component_id": "stepper-motor-nema17-l0034-single-shaft",
+      "source_id": "stepper_motor_nema17_l0034_single_shaft",
+      "name": "NEMA stepper motors, body length 34 mm",
+      "type": "actuator",
+      "subtype": "nema_stepper",
+      "family": "nema-stepper-motor",
+      "source_url": "https://www.step.parts/parts/stepper_motor_nema17_l0034_single_shaft",
+      "local_dir": "component_library/stepper-motor-nema17-l0034-single-shaft"
+    },
+    {
+      "component_id": "star-knob-m3-d16",
+      "source_id": "star_knob_m3_d16",
+      "name": "star knob M3 d16",
+      "type": "hardware",
+      "subtype": "control_knob",
+      "family": "control-knob",
+      "source_url": "https://www.step.parts/parts/star_knob_m3_d16",
+      "local_dir": "component_library/star-knob-m3-d16"
+    }
+  ]
+}

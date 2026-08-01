@@ -1,0 +1,130 @@
+:root {
+  --purple: #7c3aed;
+  --purple-2: #8b5cf6;
+  --purple-50: #f5f3ff;
+  --purple-100: #ede9fe;
+  --purple-200: #ddd6fe;
+  --purple-300: #c4b5fd;
+  --purple-400: #a78bfa;
+  --purple-700: #6d28d9;
+  --purple-800: #5b21b6;
+}
+
+textarea:focus,
+select:focus {
+  border-color: var(--purple-2);
+  box-shadow: 0 0 0 3px #7c3aed1f;
+}
+
+.ai-toggle {
+  color: var(--purple-800);
+  background: var(--purple-50);
+  border-color: var(--purple-200);
+}
+
+.history-item:hover,
+.upload:hover {
+  border-color: var(--purple-300);
+}
+
+.primary {
+  background: linear-gradient(90deg, var(--purple), #9f1239);
+  box-shadow: 0 4px 14px #8b5cf633;
+}
+
+.primary:not(:disabled):hover {
+  box-shadow: 0 7px 20px #8b5cf64d;
+}
+
+.primary:focus-visible {
+  outline-color: #7c3aed33;
+}
+
+.primary.is-loading {
+  background: linear-gradient(90deg, var(--purple), #9f1239);
+  box-shadow: 0 3px 12px #8b5cf633;
+}
+
+.parts button.recommended {
+  border-color: var(--purple-400);
+  box-shadow: 0 0 0 2px #7c3aed1a;
+}
+
+.parts button .recommend-badge {
+  color: var(--purple-700);
+  background: var(--purple-100);
+  border-color: var(--purple-300);
+}
+
+.parts button.active .recommend-badge {
+  color: var(--purple-700);
+}
+
+.section-title #recommendation-status.recognizing,
+.section-title #recommendation-status.recognized {
+  color: var(--purple-700);
+}
+
+.section-title #recommendation-status i {
+  background: var(--purple-2);
+  box-shadow: 0 0 0 0 #8b5cf666;
+}
+
+.progress-card {
+  background: linear-gradient(145deg, #fff 0%, var(--purple-50) 100%);
+  border-color: var(--purple-200);
+}
+
+.progress-card::before {
+  background: radial-gradient(circle at 22% 12%, #8b5cf61a, transparent 38%),
+    radial-gradient(circle at 82% 70%, #9f12390d, transparent 34%);
+}
+
+.progress-meta small,
+.cad-phases span.active {
+  color: var(--purple-700);
+}
+
+.progress-track {
+  background: var(--purple-100);
+  border-color: var(--purple-200);
+}
+
+.progress-track span {
+  background: linear-gradient(90deg, var(--purple), #9f1239);
+  box-shadow: 0 0 10px #8b5cf666;
+}
+
+.cad-engine {
+  border-color: var(--purple-200);
+  background: linear-gradient(180deg, #fff 0%, var(--purple-50) 100%);
+  box-shadow: 0 0 28px #7c3aed0d inset;
+}
+
+.cad-grid {
+  background-image: linear-gradient(#7c3aed0a 1px, transparent 1px),
+    linear-gradient(90deg, #7c3aed0a 1px, transparent 1px);
+}
+
+.cad-blueprint {
+  filter: drop-shadow(0 0 5px #7c3aed33);
+}
+
+.cad-wire-front path {
+  stroke: var(--purple);
+}
+
+.cad-nodes circle {
+  stroke: var(--purple-2);
+}
+
+.cad-orbit {
+  background: var(--purple-2);
+  box-shadow: 0 0 8px #8b5cf680;
+}
+
+.cad-phases span.active::before {
+  background: var(--purple-2);
+  border-color: var(--purple-2);
+  box-shadow: 0 0 0 4px #8b5cf61f, 0 0 10px #8b5cf666;
+}

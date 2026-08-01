@@ -139,7 +139,7 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: 直齿轮A类型-VNR41-3.0-48-B30-A-P35N.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
@@ -214,7 +214,7 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: 直齿轮A类型-VNR41-3.0-48-B30-A-P35N.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
@@ -238,3 +238,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/直齿轮

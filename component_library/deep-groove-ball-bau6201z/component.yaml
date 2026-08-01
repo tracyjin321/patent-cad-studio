@@ -1,23 +1,23 @@
 schema_version: '1.3'
 spec_type: component
 identity:
-  id: spur-gear-vnr41-3-0-48-b30-a-p35n-b
-  name: 直齿圆柱齿轮
-  name_en: Spur Gear
-  type: gear
-  subtype: spur_gear
-  family: power_transmission
+  id: deep-groove-ball-bau6201z
+  name: 深沟球轴承
+  name_en: Deep Groove Ball Bearing
+  type: bearing
+  subtype: deep_groove_ball
+  family: support
   standard: null
-  description: 由现有 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp 无损转换的固定规格图元。
+  description: 由现有 深沟球轴承-BAU6201Z.stp 无损转换的固定规格图元。
   license: 源文件许可见 STEP 元数据
   version: 1.0.0
   created_at: '2026-07-31'
   updated_at: '2026-07-31'
   status: draft
   tags:
-  - 直齿轮
-  - 直齿圆柱齿轮
-  - VNR41-3.0-48-B30-A-P35N
+  - 轴承
+  - 深沟球轴承
+  - BAU6201Z
   default_preset: reference
   default_color: '#8D9BAB'
 coordinate_system:
@@ -27,7 +27,7 @@ coordinate_system:
   origin:
   - 0.0
   - 0.0
-  - -15.0
+  - 0.0
   x_axis:
   - 1.0
   - 0.0
@@ -44,35 +44,19 @@ coordinate_system:
   z_axis_definition: 沿原始 STEP +Z
   zero_rotation_definition: 沿原始 STEP +X
 parameters:
-- name: module
-  label: 模数
+- name: outer_diameter
+  label: 外径（由 STEP 实测）
   type: float
   unit: mm
-  default: 3.0
+  default: 34.637
   required: true
   editable: false
   affects_geometry: true
-- name: tooth_count
-  label: 齿数
-  type: integer
-  unit: null
-  default: 48
-  required: true
-  editable: false
-  affects_geometry: true
-- name: face_width
-  label: 齿宽
+- name: width
+  label: 宽度（由 STEP 实测）
   type: float
   unit: mm
-  default: 30.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: bore_diameter
-  label: 轴孔直径
-  type: float
-  unit: mm
-  default: 35.0
+  default: 10.0
   required: true
   editable: false
   affects_geometry: true
@@ -87,16 +71,16 @@ ports:
   role: mechanical_connection
   frame:
     origin:
+    - -5.0
     - 0.0
     - 0.0
-    - -30.0
     axis:
-    - -0.0
-    - -0.0
     - -1.0
+    - -0.0
+    - -0.0
     up: &id001
-    - 1.0
     - 0.0
+    - 1.0
     - 0.0
   interface: {}
   compatible_with:
@@ -112,13 +96,13 @@ ports:
   role: mechanical_connection
   frame:
     origin:
-    - 0.0
+    - 5.0
     - 0.0
     - 0.0
     axis:
-    - 0.0
-    - 0.0
     - 1.0
+    - 0.0
+    - 0.0
     up: *id001
   interface: {}
   compatible_with:
@@ -139,22 +123,20 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
     preserve_names: true
     preserve_colors: true
-    filename_template: spur-gear-vnr41-3-0-48-b30-a-p35n-b.step
+    filename_template: deep-groove-ball-bau6201z.step
 presets:
 - name: reference
-  source_ref: 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp
+  source_ref: 深沟球轴承-BAU6201Z.stp
   verification_status: geometry_measured
   params:
-    module: 3.0
-    tooth_count: 48
-    face_width: 30.0
-    bore_diameter: 35.0
+    outer_diameter: 34.637
+    width: 10.0
 validation:
   parameter_validation:
     required_parameters_complete: true
@@ -173,29 +155,29 @@ validation:
     measured:
       bounding_box:
         min:
-        - -75.0
-        - -75.0
-        - -30.0
+        - -5.0
+        - -17.318275
+        - -17.318275
         max:
-        - 75.0
-        - 75.0
-        - 0.0
+        - 5.0
+        - 17.318275
+        - 17.318275
         size:
-        - 150.0
-        - 150.0
-        - 30.0
+        - 10.0
+        - 34.63655
+        - 34.63655
       topology:
         solids: 1
         shells: 1
-        faces: 392
-        edges: 2340
-        vertices: 4680
+        faces: 45
+        edges: 320
+        vertices: 640
         compounds: 0
-      volume_mm3: 452630.105063
+      volume_mm3: 4998.769845
       center_of_mass:
+      - -0.097937
       - 0.0
-      - -0.044506
-      - -15.0
+      - -0.0
       valid_solid: true
   ports:
     validate_frame_orthogonality: true
@@ -214,12 +196,12 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
     length_unit: mm
-    sha256: b1cd5fd1f268557d7a117c631806170873a96145876fef695d601b6f3f4105aa
+    sha256: 98648b485fb5971ef53fe5120094cabb1c715ca38c0b31b5c561dcf4f10701c6
   generator_source:
     file: null
     required: false
@@ -238,3 +220,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/轴承

@@ -5,19 +5,20 @@ import pytest
 import yaml
 
 from app.component_spec import dump_spec, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
+from scripts.rebuild_component_catalog import build_catalog
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def component_yamls():
-    return sorted((ROOT / "graphic_element").rglob("*.yaml"))
+    return sorted((ROOT / "component_library").glob("*/component.yaml"))
 
 
 def test_all_step_files_have_component_specs():
-    steps = sorted([*(ROOT / "graphic_element").rglob("*.step"), *(ROOT / "graphic_element").rglob("*.stp")])
+    steps = sorted((ROOT / "component_library").glob("*/reference.step"))
     assert steps
-    assert {path.with_suffix(".yaml") for path in steps} == set(component_yamls())
+    assert {path.parent / "component.yaml" for path in steps} == set(component_yamls())
 
 
 @pytest.mark.parametrize("spec_path", component_yamls(), ids=lambda path: path.stem)
@@ -37,8 +38,14 @@ def test_component_ids_are_unique():
     assert len(ids) == len(set(ids))
 
 
+def test_component_catalog_is_current():
+    catalog_path = ROOT / "component_library" / "catalog.yaml"
+    actual = yaml.safe_load(catalog_path.read_text(encoding="utf-8"))
+    assert actual == build_catalog(catalog_path.parent)
+
+
 def test_generic_step_to_yaml_and_ap242_roundtrip(tmp_path):
-    source = next((ROOT / "graphic_element").rglob("*.stp"))
+    source = next((ROOT / "component_library").glob("*/reference.step"))
     yaml_path = tmp_path / "generic.yaml"
     spec = step_to_spec(source, yaml_path, identity={"id": "generic-test", "name": "通用测试件"})
     assert yaml_path.with_suffix(source.suffix).exists()
@@ -49,7 +56,7 @@ def test_generic_step_to_yaml_and_ap242_roundtrip(tmp_path):
 
 
 def test_yaml_placement_translates_exported_geometry(tmp_path):
-    source = next((ROOT / "graphic_element" / "轴承").glob("*.stp"))
+    source = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "reference.step"
     yaml_path = tmp_path / "placed.yaml"
     spec = step_to_spec(source, yaml_path)
     original = spec["validation"]["geometry"]["measured"]["bounding_box"]

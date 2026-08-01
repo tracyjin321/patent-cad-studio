@@ -1,23 +1,23 @@
 schema_version: '1.3'
 spec_type: component
 identity:
-  id: belt-pulley-bau6201z
-  name: 带轮
-  name_en: Pulley
-  type: pulley
-  subtype: belt_pulley
+  id: roller-chain-drive-vlk02-60-28-d35
+  name: 链轮
+  name_en: Sprocket
+  type: sprocket
+  subtype: roller_chain_drive
   family: power_transmission
   standard: null
-  description: 由现有 BAU6201Z.stp 无损转换的固定规格图元。
+  description: 由现有 VLK02-60-28-D35.stp 无损转换的固定规格图元。
   license: 源文件许可见 STEP 元数据
   version: 1.0.0
   created_at: '2026-07-31'
   updated_at: '2026-07-31'
   status: draft
   tags:
-  - 带轮
-  - 带轮
-  - BAU6201Z
+  - 链轮链条
+  - 链轮
+  - VLK02-60-28-D35
   default_preset: reference
   default_color: '#8D9BAB'
 coordinate_system:
@@ -27,7 +27,7 @@ coordinate_system:
   origin:
   - 0.0
   - 0.0
-  - 0.0
+  - 14.146728
   x_axis:
   - 1.0
   - 0.0
@@ -44,19 +44,27 @@ coordinate_system:
   z_axis_definition: 沿原始 STEP +Z
   zero_rotation_definition: 沿原始 STEP +X
 parameters:
-- name: outer_diameter
-  label: 外径（由 STEP 实测）
-  type: float
-  unit: mm
-  default: 34.637
+- name: tooth_count
+  label: 齿数
+  type: integer
+  unit: null
+  default: 60
   required: true
   editable: false
   affects_geometry: true
-- name: width
-  label: 宽度（由 STEP 实测）
+- name: chain_number
+  label: 链条号
+  type: integer
+  unit: null
+  default: 28
+  required: true
+  editable: false
+  affects_geometry: true
+- name: bore_diameter
+  label: 轴孔直径
   type: float
   unit: mm
-  default: 10.0
+  default: 35.0
   required: true
   editable: false
   affects_geometry: true
@@ -71,16 +79,16 @@ ports:
   role: mechanical_connection
   frame:
     origin:
-    - -5.0
     - 0.0
     - 0.0
+    - -5.85977
     axis:
+    - -0.0
+    - -0.0
     - -1.0
-    - -0.0
-    - -0.0
     up: &id001
-    - 0.0
     - 1.0
+    - 0.0
     - 0.0
   interface: {}
   compatible_with:
@@ -96,13 +104,13 @@ ports:
   role: mechanical_connection
   frame:
     origin:
-    - 5.0
     - 0.0
     - 0.0
+    - 34.153226
     axis:
+    - 0.0
+    - 0.0
     - 1.0
-    - 0.0
-    - 0.0
     up: *id001
   interface: {}
   compatible_with:
@@ -123,20 +131,21 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: BAU6201Z.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
     preserve_names: true
     preserve_colors: true
-    filename_template: belt-pulley-bau6201z.step
+    filename_template: roller-chain-drive-vlk02-60-28-d35.step
 presets:
 - name: reference
-  source_ref: BAU6201Z.stp
+  source_ref: VLK02-60-28-D35.stp
   verification_status: geometry_measured
   params:
-    outer_diameter: 34.637
-    width: 10.0
+    tooth_count: 60
+    chain_number: 28
+    bore_diameter: 35.0
 validation:
   parameter_validation:
     required_parameters_complete: true
@@ -155,29 +164,29 @@ validation:
     measured:
       bounding_box:
         min:
-        - -5.0
-        - -17.318275
-        - -17.318275
+        - -94.895152
+        - -94.895152
+        - -5.85977
         max:
-        - 5.0
-        - 17.318275
-        - 17.318275
+        - 94.895152
+        - 94.895152
+        - 34.153226
         size:
-        - 10.0
-        - 34.63655
-        - 34.63655
+        - 189.790304
+        - 189.790304
+        - 40.012996
       topology:
         solids: 1
         shells: 1
-        faces: 45
-        edges: 320
-        vertices: 640
+        faces: 183
+        edges: 1080
+        vertices: 2160
         compounds: 0
-      volume_mm3: 4998.769845
+      volume_mm3: 365679.298383
       center_of_mass:
-      - -0.097937
-      - 0.0
-      - -0.0
+      - -0.058563
+      - -0.101185
+      - 6.727066
       valid_solid: true
   ports:
     validate_frame_orthogonality: true
@@ -196,12 +205,12 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: BAU6201Z.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
     length_unit: mm
-    sha256: 98648b485fb5971ef53fe5120094cabb1c715ca38c0b31b5c561dcf4f10701c6
+    sha256: f77127d46a66d5aafef79be3325b947da2909b86abd3493852e462602a4bf47b
   generator_source:
     file: null
     required: false
@@ -220,3 +229,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/链轮链条

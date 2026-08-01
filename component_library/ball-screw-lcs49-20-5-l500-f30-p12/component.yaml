@@ -1,23 +1,23 @@
 schema_version: '1.3'
 spec_type: component
 identity:
-  id: oldham-dbu03-d55-d20-e20
-  name: 十字环联轴器
-  name_en: Oldham Coupling
-  type: coupling
-  subtype: oldham
-  family: shafting
+  id: ball-screw-lcs49-20-5-l500-f30-p12
+  name: 滚珠丝杆
+  name_en: Ball Screw
+  type: screw
+  subtype: ball_screw
+  family: linear_motion
   standard: null
-  description: 由现有 DBU03-D55-d20-e20.stp 无损转换的固定规格图元。
+  description: 由现有 滚珠丝杆-LCS49-20-5-L500-F30-P12.stp 无损转换的固定规格图元。
   license: 源文件许可见 STEP 元数据
   version: 1.0.0
   created_at: '2026-07-31'
   updated_at: '2026-07-31'
   status: draft
   tags:
-  - 联轴器
-  - 十字环联轴器
-  - DBU03-D55-d20-e20
+  - 丝杆
+  - 滚珠丝杆
+  - LCS49-20-5-L500-F30-P12
   default_preset: reference
   default_color: '#8D9BAB'
 coordinate_system:
@@ -25,8 +25,8 @@ coordinate_system:
   angle_unit: deg
   handedness: right_handed
   origin:
-  - -28.5
-  - 0.0
+  - 250.0
+  - 0.000243
   - 0.0
   x_axis:
   - 1.0
@@ -44,19 +44,19 @@ coordinate_system:
   z_axis_definition: 沿原始 STEP +Z
   zero_rotation_definition: 沿原始 STEP +X
 parameters:
-- name: outer_diameter
-  label: 外径
-  type: float
-  unit: mm
-  default: 55.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: bore_diameter
-  label: 轴孔直径
+- name: shaft_diameter
+  label: 丝杆轴径
   type: float
   unit: mm
   default: 20.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: lead
+  label: 导程
+  type: float
+  unit: mm
+  default: 5.0
   required: true
   editable: false
   affects_geometry: true
@@ -64,7 +64,23 @@ parameters:
   label: 总长
   type: float
   unit: mm
-  default: 59.535
+  default: 500.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: flange_diameter
+  label: 法兰外径
+  type: float
+  unit: mm
+  default: 30.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: mounting_pitch
+  label: 安装孔距
+  type: float
+  unit: mm
+  default: 12.0
   required: true
   editable: false
   affects_geometry: true
@@ -75,20 +91,20 @@ constraints:
 ports:
 - id: end_a
   name: 轴向端口 A
-  type: shaft_bore
+  type: shaft_end
   role: mechanical_connection
   frame:
     origin:
-    - -28.5
-    - -29.767518
+    - -0.0
+    - 0.000243
     - 0.0
     axis:
-    - -0.0
     - -1.0
     - -0.0
+    - -0.0
     up: &id001
-    - 1.0
     - 0.0
+    - 1.0
     - 0.0
   interface: {}
   compatible_with:
@@ -100,16 +116,16 @@ ports:
   - coincident_concentric
 - id: end_b
   name: 轴向端口 B
-  type: shaft_bore
+  type: shaft_end
   role: mechanical_connection
   frame:
     origin:
-    - -28.5
-    - 29.767518
+    - 500.0
+    - 0.000243
     - 0.0
     axis:
-    - 0.0
     - 1.0
+    - 0.0
     - 0.0
     up: *id001
   interface: {}
@@ -131,21 +147,23 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: DBU03-D55-d20-e20.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
     preserve_names: true
     preserve_colors: true
-    filename_template: oldham-dbu03-d55-d20-e20.step
+    filename_template: ball-screw-lcs49-20-5-l500-f30-p12.step
 presets:
 - name: reference
-  source_ref: DBU03-D55-d20-e20.stp
+  source_ref: 滚珠丝杆-LCS49-20-5-L500-F30-P12.stp
   verification_status: geometry_measured
   params:
-    outer_diameter: 55.0
-    bore_diameter: 20.0
-    length: 59.535
+    shaft_diameter: 20.0
+    lead: 5.0
+    length: 500.0
+    flange_diameter: 30.0
+    mounting_pitch: 12.0
 validation:
   parameter_validation:
     required_parameters_complete: true
@@ -164,29 +182,29 @@ validation:
     measured:
       bounding_box:
         min:
-        - -57.001733
-        - -29.767518
-        - -29.767518
+        - -0.0
+        - -30.0
+        - -20.0
         max:
-        - 0.001733
-        - 29.767518
-        - 29.767518
+        - 500.0
+        - 30.000486
+        - 20.0
         size:
-        - 57.003466
-        - 59.535036
-        - 59.535036
+        - 500.0
+        - 60.000486
+        - 40.0
       topology:
         solids: 3
         shells: 3
-        faces: 68
-        edges: 352
-        vertices: 705
+        faces: 42
+        edges: 162
+        vertices: 325
         compounds: 1
-      volume_mm3: 106592.177546
+      volume_mm3: 193074.026363
       center_of_mass:
-      - -28.500017
-      - -0.215407
-      - -0.215417
+      - 230.434618
+      - -0.04086
+      - -0.0
       valid_solid: true
   ports:
     validate_frame_orthogonality: true
@@ -205,12 +223,12 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: DBU03-D55-d20-e20.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
     length_unit: mm
-    sha256: 939db0956c38a82dfd8440a230e2bd289ba799e4a842c163e00e4a3c03d91dac
+    sha256: f661930c1949cae225d9869e7ca5d418c0a8c6beae81a14d4a7b5998e6b25c78
   generator_source:
     file: null
     required: false
@@ -229,3 +247,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/丝杆

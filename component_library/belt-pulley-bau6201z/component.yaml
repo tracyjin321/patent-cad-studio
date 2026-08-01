@@ -1,22 +1,22 @@
 schema_version: '1.3'
 spec_type: component
 identity:
-  id: deep-groove-ball-bau6201z
-  name: 深沟球轴承
-  name_en: Deep Groove Ball Bearing
-  type: bearing
-  subtype: deep_groove_ball
-  family: support
+  id: belt-pulley-bau6201z
+  name: 带轮
+  name_en: Pulley
+  type: pulley
+  subtype: belt_pulley
+  family: power_transmission
   standard: null
-  description: 由现有 深沟球轴承-BAU6201Z.stp 无损转换的固定规格图元。
+  description: 由现有 BAU6201Z.stp 无损转换的固定规格图元。
   license: 源文件许可见 STEP 元数据
   version: 1.0.0
   created_at: '2026-07-31'
   updated_at: '2026-07-31'
   status: draft
   tags:
-  - 轴承
-  - 深沟球轴承
+  - 带轮
+  - 带轮
   - BAU6201Z
   default_preset: reference
   default_color: '#8D9BAB'
@@ -123,16 +123,16 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: 深沟球轴承-BAU6201Z.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
     preserve_names: true
     preserve_colors: true
-    filename_template: deep-groove-ball-bau6201z.step
+    filename_template: belt-pulley-bau6201z.step
 presets:
 - name: reference
-  source_ref: 深沟球轴承-BAU6201Z.stp
+  source_ref: BAU6201Z.stp
   verification_status: geometry_measured
   params:
     outer_diameter: 34.637
@@ -196,7 +196,7 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: 深沟球轴承-BAU6201Z.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
@@ -220,3 +220,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/带轮

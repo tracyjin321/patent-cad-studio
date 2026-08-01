@@ -33,21 +33,22 @@ API Key 只从环境变量读取，不会发送给浏览器，也不应提交到
 
 ## STEP / ComponentSpec YAML
 
-`graphic_element` 中每个 STEP 都配有一份 ComponentSpec v1.3 YAML。导入模型采用
+`component_library` 是正式图元库，每个图元目录包含 `component.yaml` 和
+`reference.step`。`graphic_element` 只保存截图、选型参数图等来源资料。导入模型采用
 `reference_brep` 表示：参数、坐标系、装配端口和实测拓扑写入 YAML，原始 STEP 作为
 几何真值，因此未变换的 YAML → STEP 是字节级无损的。
 
 ```bash
-# 重新扫描并生成 YAML（已有文件默认跳过）
-./.venv/bin/python scripts/convert_components.py
-
-# 任意 STEP 建立一份可搬移的 YAML + reference STEP 交付对
-./.venv/bin/python scripts/component_cli.py step-to-yaml input.step component.yaml \
+# 任意 STEP 按正式图元库结构建立 YAML + reference STEP 交付对
+mkdir -p component_library/my-component
+./.venv/bin/python scripts/component_cli.py step-to-yaml \
+  input.step component_library/my-component/component.yaml \
+  --reference-name reference.step \
   --id my-component --name "我的图元" --type shaft
 
 # YAML 恢复 STEP，并校验 SHA-256
 ./.venv/bin/python scripts/component_cli.py yaml-to-step \
-  graphic_element/轴承/深沟球轴承-BAU6201Z.yaml /tmp/bearing.step
+  component_library/deep-groove-ball-bau6201z/component.yaml /tmp/bearing.step
 
 # 查看包围盒、体积和拓扑
 ./.venv/bin/python scripts/component_cli.py inspect /tmp/bearing.step
@@ -60,16 +61,16 @@ API Key 只从环境变量读取，不会发送给浏览器，也不应提交到
 服务端同时提供：
 
 - `POST /api/convert/step-to-yaml?filename=part.step`：请求体为 STEP 二进制，返回 YAML 与 reference STEP 下载地址。
-- `POST /api/convert/yaml-to-step`：传入 `{"spec_path":"graphic_element/...yaml","reexport":true}` 生成 STEP。
-- `GET /api/component-spec/validate?spec_path=graphic_element/...yaml`：校验 YAML、端口、引用文件及校验和。
+- `POST /api/convert/yaml-to-step`：传入 `{"spec_path":"component_library/<id>/component.yaml","reexport":true}` 生成 STEP。
+- `GET /api/component-spec/validate?spec_path=component_library/<id>/component.yaml`：校验 YAML、端口、引用文件及校验和。
 
 端口装配使用 JSON 清单。第一项固定，后续项的 `port` 会与 `target` 指定组件的
 `mate_to` 端口原点重合、轴向相反、up 方向对齐：
 
 ```json
 {"components": [
-  {"spec": "graphic_element/传动轴/二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.yaml"},
-  {"spec": "graphic_element/轴承/深沟球轴承-BAU6201Z.yaml", "port": "end_a", "target": 0, "mate_to": "end_b"}
+  {"spec": "component_library/stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12/component.yaml"},
+  {"spec": "component_library/deep-groove-ball-bau6201z/component.yaml", "port": "end_a", "target": 0, "mate_to": "end_b"}
 ]}
 ```
 

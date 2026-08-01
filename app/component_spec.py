@@ -155,7 +155,7 @@ def _slug(value: str) -> str:
 
 
 def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | None = None,
-                 copy_reference: bool = True) -> dict[str, Any]:
+                 copy_reference: bool = True, reference_filename: str | None = None) -> dict[str, Any]:
     """Create a portable ComponentSpec for any STEP file.
 
     By default the reference STEP is copied next to the YAML, making the pair
@@ -164,7 +164,9 @@ def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | No
     measured = inspect_step(step_path)
     info = identity or {}
     component_id = info.get("id", _slug(step_path.stem))
-    reference = output.with_suffix(step_path.suffix.lower()) if copy_reference else step_path.resolve()
+    if reference_filename and Path(reference_filename).name != reference_filename:
+        raise ValueError("reference_filename 只能是文件名，不能包含目录")
+    reference = (output.parent / reference_filename if reference_filename else output.with_suffix(step_path.suffix.lower())) if copy_reference else step_path.resolve()
     if copy_reference and reference.resolve() != step_path.resolve():
         if reference.exists() and _sha256(reference) != _sha256(step_path):
             raise FileExistsError(f"目标 reference STEP 已存在且内容不同: {reference}")

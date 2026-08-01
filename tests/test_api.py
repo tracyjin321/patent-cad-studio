@@ -130,7 +130,7 @@ async def test_step_to_yaml_and_yaml_to_step_api():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
-    source = next((root / "graphic_element" / "轴承").glob("*.stp"))
+    source = root / "component_library" / "deep-groove-ball-bau6201z" / "reference.step"
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         converted = await client.post(
             "/api/convert/step-to-yaml?filename=bearing.stp",

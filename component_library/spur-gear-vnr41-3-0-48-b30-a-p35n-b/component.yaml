@@ -1,23 +1,23 @@
 schema_version: '1.3'
 spec_type: component
 identity:
-  id: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12
-  name: 二阶形轴
-  name_en: Stepped Shaft
-  type: shaft
-  subtype: stepped_shaft
-  family: shafting
+  id: spur-gear-vnr41-3-0-48-b30-a-p35n-b
+  name: 直齿圆柱齿轮
+  name_en: Spur Gear
+  type: gear
+  subtype: spur_gear
+  family: power_transmission
   standard: null
-  description: 由现有 二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.stp 无损转换的固定规格图元。
+  description: 由现有 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp 无损转换的固定规格图元。
   license: 源文件许可见 STEP 元数据
   version: 1.0.0
   created_at: '2026-07-31'
   updated_at: '2026-07-31'
   status: draft
   tags:
-  - 传动轴
-  - 二阶形轴
-  - MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12
+  - 直齿轮
+  - 直齿圆柱齿轮
+  - VNR41-3.0-48-B30-A-P35N
   default_preset: reference
   default_color: '#8D9BAB'
 coordinate_system:
@@ -27,7 +27,7 @@ coordinate_system:
   origin:
   - 0.0
   - 0.0
-  - -35.0
+  - -15.0
   x_axis:
   - 1.0
   - 0.0
@@ -44,67 +44,35 @@ coordinate_system:
   z_axis_definition: 沿原始 STEP +Z
   zero_rotation_definition: 沿原始 STEP +X
 parameters:
-- name: max_diameter
-  label: 最大轴径
+- name: module
+  label: 模数
+  type: float
+  unit: mm
+  default: 3.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: tooth_count
+  label: 齿数
+  type: integer
+  unit: null
+  default: 48
+  required: true
+  editable: false
+  affects_geometry: true
+- name: face_width
+  label: 齿宽
   type: float
   unit: mm
   default: 30.0
   required: true
   editable: false
   affects_geometry: true
-- name: section_length
-  label: 中段长度
+- name: bore_diameter
+  label: 轴孔直径
   type: float
   unit: mm
-  default: 70.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: left_extension
-  label: 左伸出长度
-  type: float
-  unit: mm
-  default: 45.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: right_extension
-  label: 右伸出长度
-  type: float
-  unit: mm
-  default: 45.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: left_end_diameter
-  label: 左端直径
-  type: float
-  unit: mm
-  default: 20.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: right_end_diameter
-  label: 右端直径
-  type: float
-  unit: mm
-  default: 20.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: left_keyway_width
-  label: 左键槽宽
-  type: float
-  unit: mm
-  default: 12.0
-  required: true
-  editable: false
-  affects_geometry: true
-- name: right_keyway_width
-  label: 右键槽宽
-  type: float
-  unit: mm
-  default: 12.0
+  default: 35.0
   required: true
   editable: false
   affects_geometry: true
@@ -115,13 +83,13 @@ constraints:
 ports:
 - id: end_a
   name: 轴向端口 A
-  type: shaft_end
+  type: shaft_bore
   role: mechanical_connection
   frame:
     origin:
     - 0.0
     - 0.0
-    - -115.0
+    - -30.0
     axis:
     - -0.0
     - -0.0
@@ -140,13 +108,13 @@ ports:
   - coincident_concentric
 - id: end_b
   name: 轴向端口 B
-  type: shaft_end
+  type: shaft_bore
   role: mechanical_connection
   frame:
     origin:
     - 0.0
     - 0.0
-    - 45.0
+    - 0.0
     axis:
     - 0.0
     - 0.0
@@ -171,26 +139,22 @@ geometry:
   construction:
   - id: import_reference
     operation: import_step
-    source: 二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.stp
+    source: reference.step
   output:
     format: STEP
     application_protocol: source_preserved
     preserve_names: true
     preserve_colors: true
-    filename_template: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12.step
+    filename_template: spur-gear-vnr41-3-0-48-b30-a-p35n-b.step
 presets:
 - name: reference
-  source_ref: 二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.stp
+  source_ref: 直齿轮B类型-VNR41-3.0-48-B30-A-P35N.stp
   verification_status: geometry_measured
   params:
-    max_diameter: 30.0
-    section_length: 70.0
-    left_extension: 45.0
-    right_extension: 45.0
-    left_end_diameter: 20.0
-    right_end_diameter: 20.0
-    left_keyway_width: 12.0
-    right_keyway_width: 12.0
+    module: 3.0
+    tooth_count: 48
+    face_width: 30.0
+    bore_diameter: 35.0
 validation:
   parameter_validation:
     required_parameters_complete: true
@@ -209,29 +173,29 @@ validation:
     measured:
       bounding_box:
         min:
-        - -15.0
-        - -15.0
-        - -115.0
+        - -75.0
+        - -75.0
+        - -30.0
         max:
-        - 15.0
-        - 15.0
-        - 45.0
+        - 75.0
+        - 75.0
+        - 0.0
         size:
+        - 150.0
+        - 150.0
         - 30.0
-        - 30.0
-        - 160.0
       topology:
         solids: 1
         shells: 1
-        faces: 21
-        edges: 70
-        vertices: 140
+        faces: 392
+        edges: 2340
+        vertices: 4680
         compounds: 0
-      volume_mm3: 65269.000474
+      volume_mm3: 452630.105063
       center_of_mass:
-      - -0.0
-      - -0.0
-      - -35.0
+      - 0.0
+      - -0.044506
+      - -15.0
       valid_solid: true
   ports:
     validate_frame_orthogonality: true
@@ -250,12 +214,12 @@ validation:
     release_blocked_when_pending: true
 artifacts:
   reference_step:
-    file: 二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.stp
+    file: reference.step
     role: 固定规格几何与往返转换基准
     format: STEP
     application_protocol: AP214
     length_unit: mm
-    sha256: 877f320f5dcdd5f12273618ea305517d54d19f48c17047391530307dd7e67f62
+    sha256: b1cd5fd1f268557d7a117c631806170873a96145876fef695d601b6f3f4105aa
   generator_source:
     file: null
     required: false
@@ -274,3 +238,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  source_material_directory: graphic_element/直齿轮

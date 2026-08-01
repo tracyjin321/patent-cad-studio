@@ -190,14 +190,14 @@ def markdown(results: list[dict[str, Any]], rounds: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=ROOT / "graphic_element")
+    parser.add_argument("--root", type=Path, default=ROOT / "component_library")
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--report", type=Path, default=ROOT / "reports" / "step-yaml-multiround-report.md")
     parser.add_argument("--json", type=Path)
     args = parser.parse_args()
     if args.rounds < 1:
         parser.error("--rounds 必须大于 0")
-    specs = sorted(args.root.rglob("*.yaml"))
+    specs = sorted(args.root.glob("*/component.yaml"))
     if not specs:
         parser.error(f"{args.root} 中没有 YAML")
     with tempfile.TemporaryDirectory(prefix="component-multiround-") as directory:

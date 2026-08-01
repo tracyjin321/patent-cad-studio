@@ -74,9 +74,9 @@ def download_step(model_id: str) -> Response:
 
 def _safe_spec_path(relative: str) -> Path:
     candidate = (ROOT / relative).resolve()
-    allowed = (ROOT / "graphic_element").resolve(), GENERATED.resolve()
+    allowed = (ROOT / "component_library").resolve(), GENERATED.resolve()
     if candidate.suffix.lower() not in {".yaml", ".yml"} or not any(candidate.is_relative_to(root) for root in allowed):
-        raise HTTPException(status_code=400, detail="spec_path 只能指向 graphic_element 或 generated 下的 YAML")
+        raise HTTPException(status_code=400, detail="spec_path 只能指向 component_library 或 generated 下的 YAML")
     if not candidate.is_file():
         raise HTTPException(status_code=404, detail="YAML 不存在")
     return candidate

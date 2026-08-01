@@ -62,6 +62,10 @@ mkdir -p component_library/my-component
 # 校验规范/引用文件，以及执行 OpenCascade 重导出一致性检查
 ./.venv/bin/python scripts/component_cli.py validate component.yaml
 ./.venv/bin/python scripts/component_cli.py roundtrip component.yaml --output checked.step
+
+# 已知图元的 STEP 重新建档时关联权威 YAML，保留参数、约束、预设和端口
+./.venv/bin/python scripts/component_cli.py step-to-yaml output.step linked.yaml \
+  --no-copy-reference --source-spec component_library/<id>/component.yaml
 ```
 
 服务端同时提供：

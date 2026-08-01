@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from app.component_spec import dump_spec, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
+from app.component_spec import dump_spec, geometry_signatures, inspect_step, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
 from app.parametric_spec import resolve_parametric_component
 from scripts.rebuild_component_catalog import build_catalog
 
@@ -131,3 +131,17 @@ def test_parametric_yaml_materializes_and_rebuilds_step(tmp_path):
     )
     assert library_hit.source == "library"
     assert library_hit.component_id == resolved.component_id
+
+
+def test_linked_step_to_yaml_preserves_authoritative_semantics(tmp_path):
+    source_spec = component_yamls()[0]
+    original = load_spec(source_spec)
+    exported = tmp_path / "exported.step"
+    spec_to_step(source_spec, exported, force_reexport=True)
+    output = tmp_path / "linked.yaml"
+    linked = step_to_spec(exported, output, copy_reference=False, source_spec_path=source_spec)
+    for key in ("parameters", "constraints", "ports", "presets"):
+        assert linked[key] == original[key]
+    assert linked["provenance"]["semantic_recovery"] == "authoritative_sidecar"
+    assert linked["validation"]["geometry"]["signatures"] == geometry_signatures(inspect_step(exported))
+    assert validate_spec(linked, spec_path=output)["errors"] == []

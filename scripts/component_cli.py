@@ -29,6 +29,7 @@ def main() -> None:
     convert.add_argument("--type", default="generic")
     convert.add_argument("--no-copy-reference", action="store_true")
     convert.add_argument("--reference-name", help="复制后的基准文件名；正式图元库建议使用 reference.step")
+    convert.add_argument("--source-spec", type=Path, help="关联权威 YAML，保留参数、约束、预设和端口语义")
     build = commands.add_parser("yaml-to-step", help="从 YAML 恢复 STEP")
     build.add_argument("yaml", type=Path)
     build.add_argument("output", type=Path)
@@ -48,7 +49,7 @@ def main() -> None:
     elif args.command == "step-to-yaml":
         identity = {key: value for key, value in {"id": args.id, "name": args.name, "type": args.type}.items() if value}
         spec = step_to_spec(args.step, args.output, identity=identity, copy_reference=not args.no_copy_reference,
-                            reference_filename=args.reference_name)
+                            reference_filename=args.reference_name, source_spec_path=args.source_spec)
         result = {"yaml": str(args.output), "reference_step": spec["artifacts"]["reference_step"]["file"],
                   "identity": spec["identity"]}
     elif args.command == "yaml-to-step":

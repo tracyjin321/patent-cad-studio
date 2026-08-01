@@ -9,9 +9,11 @@ and exported by OpenCascade.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import re
 import shutil
+from copy import deepcopy
 from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
@@ -65,6 +67,8 @@ def inspect_shape(shape: object) -> dict[str, Any]:
     props = GProp_GProps()
     BRepGProp.VolumeProperties_s(shape, props)
     center = props.CentreOfMass()
+    surface_props = GProp_GProps()
+    BRepGProp.SurfaceProperties_s(shape, surface_props)
     valid = not bool(BRep_Tool.IsClosed_s(shape)) if counts["solids"] == 0 else True
     return {
         "bounding_box": {
@@ -73,6 +77,7 @@ def inspect_shape(shape: object) -> dict[str, Any]:
         },
         "topology": counts,
         "volume_mm3": round(float(props.Mass()), 6),
+        "surface_area_mm2": round(float(surface_props.Mass()), 6),
         "center_of_mass": [round(float(center.X()), 6), round(float(center.Y()), 6), round(float(center.Z()), 6)],
         "valid_solid": valid,
     }
@@ -80,6 +85,27 @@ def inspect_shape(shape: object) -> dict[str, Any]:
 
 def inspect_step(path: Path) -> dict[str, Any]:
     return inspect_shape(read_step(path))
+
+
+def geometry_signatures(measured: dict[str, Any]) -> dict[str, str]:
+    """Return strict-topology and engineering-stable SHA-256 signatures."""
+    strict = {
+        "topology": measured["topology"],
+        "volume_mm3": measured["volume_mm3"],
+        "surface_area_mm2": measured["surface_area_mm2"],
+        "bounding_box": measured["bounding_box"],
+        "center_of_mass": measured["center_of_mass"],
+    }
+    engineering = {
+        "topology": {key: measured["topology"][key] for key in ("solids", "shells", "faces")},
+        "volume_mm3": measured["volume_mm3"],
+        "surface_area_mm2": measured["surface_area_mm2"],
+        "bounding_box": measured["bounding_box"],
+        "center_of_mass": measured["center_of_mass"],
+    }
+    encode = lambda value: json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return {"strict_topology_sha256": hashlib.sha256(encode(strict)).hexdigest(),
+            "engineering_geometry_sha256": hashlib.sha256(encode(engineering)).hexdigest()}
 
 
 def load_spec(path: Path) -> dict[str, Any]:
@@ -139,6 +165,10 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
             errors.append(f"reference STEP 不存在: {source}")
         elif artifact.get("sha256") and _sha256(source) != artifact["sha256"]:
             errors.append("reference STEP SHA-256 不匹配")
+        elif stored := spec.get("validation", {}).get("geometry", {}).get("signatures"):
+            actual = geometry_signatures(inspect_step(source))
+            if stored != actual:
+                errors.append("reference STEP 几何签名不匹配")
     if generator_mode == "reference_step":
         if geometry.get("representation") != "reference_brep":
             errors.append("reference_step 模式必须使用 reference_brep")
@@ -184,7 +214,8 @@ def _slug(value: str) -> str:
 
 
 def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | None = None,
-                 copy_reference: bool = True, reference_filename: str | None = None) -> dict[str, Any]:
+                 copy_reference: bool = True, reference_filename: str | None = None,
+                 source_spec_path: Path | None = None) -> dict[str, Any]:
     """Create a portable ComponentSpec for any STEP file.
 
     By default the reference STEP is copied next to the YAML, making the pair
@@ -202,6 +233,28 @@ def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | No
         reference.parent.mkdir(parents=True, exist_ok=True)
         if not reference.exists():
             shutil.copyfile(step_path, reference)
+    artifact_file = reference.name if reference.parent.resolve() == output.parent.resolve() else str(reference)
+    if source_spec_path is not None:
+        spec = deepcopy(load_spec(source_spec_path))
+        if spec.get("geometry", {}).get("placement") is not None:
+            raise ValueError("带 placement 的 YAML 重导出后不能直接继承局部端口；请先固化坐标变换")
+        if identity:
+            spec["identity"].update(identity)
+        spec["identity"]["updated_at"] = date.today().isoformat()
+        spec["artifacts"]["reference_step"]["file"] = artifact_file
+        spec["artifacts"]["reference_step"]["sha256"] = _sha256(reference)
+        for operation in spec.get("geometry", {}).get("construction", []):
+            if operation.get("operation") == "import_step":
+                operation["source"] = artifact_file
+        geometry_validation = spec.setdefault("validation", {}).setdefault("geometry", {})
+        geometry_validation["measured"] = measured
+        geometry_validation["signatures"] = geometry_signatures(measured)
+        spec.setdefault("validation", {}).setdefault("topology", {})["expected_body_count"] = measured["topology"]["solids"]
+        provenance = spec.setdefault("provenance", {})
+        provenance["semantic_recovery"] = "authoritative_sidecar"
+        provenance["source_spec_sha256"] = _sha256(source_spec_path)
+        dump_spec(spec, output)
+        return spec
     bbox, size = measured["bounding_box"], measured["bounding_box"]["size"]
     axis_index = size.index(max(size))
     axis = [0.0, 0.0, 0.0]
@@ -210,7 +263,6 @@ def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | No
     center = [(bbox["min"][i] + bbox["max"][i]) / 2 for i in range(3)]
     low, high = center.copy(), center.copy()
     low[axis_index], high[axis_index] = bbox["min"][axis_index], bbox["max"][axis_index]
-    artifact_file = reference.name if reference.parent.resolve() == output.parent.resolve() else str(reference)
     today = date.today().isoformat()
     spec = {
         "schema_version": "1.3", "spec_type": "component",
@@ -251,7 +303,8 @@ def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | No
                                     "closed_shell_required": True, "manifold_required": True,
                                     "self_intersection_allowed": False},
                        "geometry": {"dimensional_tolerance": 0.01, "angular_tolerance": 0.1,
-                                    "positive_volume_required": True, "measured": measured},
+                                    "positive_volume_required": True, "measured": measured,
+                                    "signatures": geometry_signatures(measured)},
                        "ports": {"validate_frame_orthogonality": True, "validate_axis_normalized": True,
                                  "validate_origin_on_interface": True},
                        "step_roundtrip": {"required": True, "application_protocol": "AP242",
@@ -264,6 +317,7 @@ def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | No
                       "preview_model": {"file": None, "required": False, "sha256": None},
                       "thumbnail": {"file": None, "required": False, "sha256": None}},
         "provenance": {"source_type": "imported_step", "standard_refs": [], "data_entry_method": "imported",
+                       "semantic_recovery": "inferred",
                        "verified_by": None, "verified_at": None},
     }
     dump_spec(spec, output)
@@ -345,16 +399,20 @@ def roundtrip_report(spec_path: Path, output: Path | None = None) -> dict[str, A
         spec.get("validation", {}).get("geometry", {}).get("volume_relative_tolerance", 1e-6)
     )
     volume_tolerance = max(1e-6, abs(original["volume_mm3"]) * volume_relative_tolerance)
+    area_tolerance = max(1e-6, abs(original["surface_area_mm2"]) * volume_relative_tolerance)
     size_delta = [abs(a - b) for a, b in zip(original["bounding_box"]["size"], rebuilt["bounding_box"]["size"])]
     checks = {
         "solid_count": original["topology"]["solids"] == rebuilt["topology"]["solids"],
         "face_count": original["topology"]["faces"] == rebuilt["topology"]["faces"],
         "volume": abs(original["volume_mm3"] - rebuilt["volume_mm3"]) <= volume_tolerance,
+        "surface_area": abs(original["surface_area_mm2"] - rebuilt["surface_area_mm2"]) <= area_tolerance,
         "bounding_box_size": all(delta <= tolerance for delta in size_delta),
     }
     return {"passed": all(checks.values()), "checks": checks, "size_delta_mm": size_delta,
             "volume_delta_mm3": abs(original["volume_mm3"] - rebuilt["volume_mm3"]),
             "volume_tolerance_mm3": volume_tolerance,
+            "surface_area_delta_mm2": abs(original["surface_area_mm2"] - rebuilt["surface_area_mm2"]),
+            "surface_area_tolerance_mm2": area_tolerance,
             "original": original, "rebuilt": rebuilt}
 
 

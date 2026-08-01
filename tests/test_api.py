@@ -164,7 +164,59 @@ async def test_timeout_fallback_reports_reason(monkeypatch):
     monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
     _, parser, detail = await llm.parse_parameters("生成一个轴承", "bearing", True)
     assert parser == "local-fallback"
-    assert detail == "Kimi 请求超时"
+    assert detail == "智能解析响应超时，已自动回退"
+
+
+@pytest.mark.asyncio
+async def test_parameter_extraction_uses_strict_structured_output(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class SuccessfulResponse:
+        def raise_for_status(self): return None
+        def json(self):
+            return {
+                "choices": [{
+                    "finish_reason": "stop",
+                    "message": {"content": '{"outer_diameter":90,"inner_diameter":45,"width":23,"rolling_elements":12}'},
+                }],
+            }
+
+    class SuccessfulClient:
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): return None
+        async def post(self, *args, **kwargs):
+            captured.update(kwargs["json"])
+            return SuccessfulResponse()
+
+    monkeypatch.setattr(llm.httpx, "AsyncClient", lambda **kwargs: SuccessfulClient())
+    monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
+    parameters, parser, detail = await llm.parse_parameters("轴承外径90内径45宽23，12个滚珠", "bearing", True)
+    response_format = captured["response_format"]
+    assert parser == "moonshot"
+    assert detail is None
+    assert parameters["rolling_elements"] == 12
+    assert response_format["type"] == "json_schema"
+    assert response_format["json_schema"]["strict"] is True
+    assert response_format["json_schema"]["schema"]["additionalProperties"] is False
+    assert captured["thinking"] == {"type": "disabled"}
+    assert captured["max_completion_tokens"] == 256
+
+
+@pytest.mark.asyncio
+async def test_remote_protocol_error_is_hidden_from_user_and_logged(monkeypatch, caplog):
+    class BrokenClient:
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): return None
+        async def post(self, *args, **kwargs):
+            raise llm.httpx.RemoteProtocolError("Server disconnected without sending a response")
+
+    monkeypatch.setattr(llm.httpx, "AsyncClient", lambda **kwargs: BrokenClient())
+    monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
+    _, parser, detail = await llm.parse_parameters("生成一个密封件", "seal", True)
+    assert parser == "local-fallback"
+    assert detail == "智能解析服务通信异常，已自动回退"
+    assert "RemoteProtocolError" not in detail
+    assert "Server disconnected without sending a response" in caplog.text
 
 
 def test_invalid_dimensions_are_normalized_before_geometry_generation():

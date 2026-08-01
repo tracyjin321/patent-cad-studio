@@ -245,17 +245,111 @@ select {
 
 .parts button {
   height: 40px;
+  padding: 0;
   color: var(--slate-500);
   border-color: var(--line);
   border-radius: 7px;
   font-size: 12px;
   font-weight: 500;
+  line-height: 1;
+  box-shadow: none;
   transition: color 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.parts button.recommended,
+.parts button.active.related-part,
+.parts button.active.primary-part {
+  box-shadow: none;
+}
+
+.part-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .parts button:not(.active):hover {
   color: var(--purple);
   border-color: var(--purple-300);
+}
+
+.parts button.active.related-part {
+  color: var(--purple-700);
+  background: var(--purple-50);
+  border-color: var(--purple-300);
+}
+
+.parts button.active.primary-part {
+  color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--purple-2));
+  border-color: var(--purple);
+}
+
+.primary-part-badge,
+.related-part-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 4px;
+  color: var(--purple-700);
+  background: #fff;
+  border: 1px solid #ffffffcc;
+  border-radius: 5px;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.related-part-badge {
+  color: var(--purple-700);
+  background: var(--purple-100);
+  border-color: var(--purple-200);
+}
+
+.primary-part-control {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.primary-part-control label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: var(--slate-600);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.primary-part-control label small {
+  color: var(--slate-400);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.primary-part-control select {
+  height: 34px;
+  background: #fff;
+}
+
+.primary-part-control select:disabled {
+  color: var(--slate-400);
+  background: var(--soft);
+}
+
+#primary-part-hint {
+  margin: 6px 1px 0;
+  color: var(--slate-400);
+  font-size: 9px;
+  line-height: 1.45;
 }
 
 .ai-toggle {
@@ -400,10 +494,29 @@ article {
   border-color: var(--line);
 }
 
+.toolbar-link.disabled {
+  color: var(--slate-500);
+  background: #fff;
+  border-color: var(--line);
+  cursor: not-allowed;
+}
+
 .toolbar button:not(:disabled):hover {
   color: var(--slate-700);
   background: var(--soft);
   border-color: var(--slate-300);
+}
+
+.toolbar button#compliance.is-passed {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.toolbar button#compliance.is-passed:not(:disabled):hover {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #4ade80;
 }
 
 .toolbar .ui-icon,

@@ -89,6 +89,54 @@ def local_recommend(description: str) -> list[str]:
     return [key for key, pattern in ELEMENT_PATTERNS.items() if re.search(pattern, description, re.I)]
 
 
+def _json_schema_format(name: str, properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
+    """Return the Kimi Structured Output envelope for a strict JSON object."""
+    return {
+        "type": "json_schema",
+        "json_schema": {
+            "name": name,
+            "strict": True,
+            "schema": {
+                "type": "object",
+                "properties": properties,
+                "required": required,
+                "additionalProperties": False,
+            },
+        },
+    }
+
+
+def _completion_object(response: httpx.Response) -> dict[str, Any]:
+    response.raise_for_status()
+    payload = response.json()
+    choice = payload["choices"][0]
+    if choice.get("finish_reason") != "stop":
+        raise ValueError(f"Kimi 未完整结束响应: {choice.get('finish_reason')}")
+    content = choice["message"]["content"]
+    if not isinstance(content, str):
+        raise TypeError("Kimi content 必须是字符串")
+    parsed = json.loads(content)
+    if not isinstance(parsed, dict):
+        raise TypeError("Kimi Structured Output 必须是 JSON 对象")
+    return parsed
+
+
+def _fallback_detail(exc: Exception, feature: str) -> str:
+    if isinstance(exc, httpx.ConnectTimeout):
+        return f"{feature}连接超时，已自动回退"
+    if isinstance(exc, httpx.ReadTimeout):
+        return f"{feature}响应超时，已自动回退"
+    if isinstance(exc, httpx.RemoteProtocolError):
+        return f"{feature}服务通信异常，已自动回退"
+    if isinstance(exc, httpx.ConnectError):
+        return f"无法连接{feature}服务，已自动回退"
+    if isinstance(exc, httpx.HTTPStatusError):
+        return f"{feature}服务暂不可用，已自动回退"
+    if isinstance(exc, httpx.HTTPError):
+        return f"{feature}服务通信异常，已自动回退"
+    return f"{feature}结果格式异常，已自动回退"
+
+
 async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[str], str, str | None]:
     fallback = local_recommend(description)
     api_key = os.getenv("MOONSHOT_API_KEY")
@@ -105,19 +153,29 @@ async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[
             response = await client.post(
                 f"{os.getenv('MOONSHOT_BASE_URL', 'https://api.moonshot.cn/v1').rstrip('/')}/chat/completions",
                 headers={"Authorization": f"Bearer {api_key}"},
-                json={"model": os.getenv("MOONSHOT_MODEL", "kimi-k2.6"), "messages": [{"role": "user", "content": prompt}], "response_format": {"type": "json_object"}},
+                json={
+                    "model": os.getenv("MOONSHOT_MODEL", "kimi-k2.6"),
+                    "messages": [{"role": "user", "content": prompt}],
+                    "response_format": _json_schema_format(
+                        "core_elements",
+                        {"elements": {"type": "array", "items": {"type": "string", "enum": list(LABELS)}}},
+                        ["elements"],
+                    ),
+                    "thinking": {"type": "disabled"},
+                    "max_completion_tokens": 128,
+                },
             )
-            response.raise_for_status()
-            parsed = json.loads(response.json()["choices"][0]["message"]["content"])
+            parsed = _completion_object(response)
+            if set(parsed) != {"elements"} or not isinstance(parsed["elements"], list):
+                raise ValueError("核心图元响应字段不完整")
             allowed = set(LABELS)
-            elements = [item for item in parsed.get("elements", []) if item in allowed]
+            if any(not isinstance(item, str) or item not in allowed for item in parsed["elements"]):
+                raise ValueError("核心图元响应包含未注册类别")
+            elements = parsed["elements"]
             return list(dict.fromkeys(elements)), "moonshot", None
-    except httpx.TimeoutException:
-        return fallback, "local-fallback", "Kimi 分类请求超时"
-    except httpx.HTTPStatusError as exc:
-        return fallback, "local-fallback", f"Kimi API 返回 {exc.response.status_code}"
-    except (httpx.HTTPError, KeyError, ValueError, TypeError) as exc:
-        return fallback, "local-fallback", f"分类响应解析失败（{type(exc).__name__}）"
+    except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
+        logger.warning("Moonshot core-element recommendation failed: %r", exc, exc_info=True)
+        return fallback, "local-fallback", _fallback_detail(exc, "智能识别")
 
 
 def local_parse(description: str, part_type: str) -> dict[str, Any]:
@@ -158,6 +216,14 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
         f"缺失值使用这些默认值：{json.dumps(fallback, ensure_ascii=False)}。"
         "所有尺寸单位统一为 mm，数量为整数。描述如下：\n" + description
     )
+    response_format = _json_schema_format(
+        f"{part_type}_parameters",
+        {
+            key: {"type": "integer" if key in COUNT_LIMITS else "number"}
+            for key in fallback
+        },
+        list(fallback),
+    )
     try:
         timeout = httpx.Timeout(65, connect=10)
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -167,23 +233,20 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
                 json={
                     "model": os.getenv("MOONSHOT_MODEL", "kimi-k2.6"),
                     "messages": [{"role": "user", "content": prompt}],
-                    "response_format": {"type": "json_object"},
+                    "response_format": response_format,
+                    "thinking": {"type": "disabled"},
+                    "max_completion_tokens": 256,
                 },
             )
-            response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
-            parsed = json.loads(content)
-            extracted = {key: parsed.get(key, value) for key, value in fallback.items()}
-            normalized = normalize_parameters(part_type, extracted)
+            parsed = _completion_object(response)
+            if set(parsed) != set(fallback):
+                raise ValueError("参数响应字段与生成器不匹配")
+            if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in parsed.values()):
+                raise TypeError("参数响应必须全部为数值")
+            normalized = normalize_parameters(part_type, parsed)
             if part_type == "flange" and fallback.get("neck_height", 0) > 0:
                 normalized["neck_height"] = max(normalized["neck_height"], fallback["neck_height"])
             return normalized, "moonshot", None
-    except httpx.TimeoutException as exc:
-        logger.warning("Moonshot parameter parsing timed out: %s", type(exc).__name__)
-        return fallback, "local-fallback", "Kimi 请求超时"
-    except httpx.HTTPStatusError as exc:
-        logger.warning("Moonshot parameter parsing HTTP %s", exc.response.status_code)
-        return fallback, "local-fallback", f"Kimi API 返回 {exc.response.status_code}"
-    except (httpx.HTTPError, KeyError, ValueError, TypeError) as exc:
-        logger.warning("Moonshot parameter parsing failed: %s", type(exc).__name__)
-        return fallback, "local-fallback", f"响应解析失败（{type(exc).__name__}）"
+    except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
+        logger.warning("Moonshot parameter parsing failed: %r", exc, exc_info=True)
+        return fallback, "local-fallback", _fallback_detail(exc, "智能解析")

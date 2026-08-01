@@ -9,7 +9,6 @@ PartType = Literal["bearing", "flange", "valve", "shaft", "gear", "screw", "coup
 class GenerateRequest(BaseModel):
     description: str = Field(min_length=2, max_length=5000)
     part_type: PartType
-    field: str = "机械结构"
     use_ai: bool = True
     core_elements: list[PartType] = Field(default_factory=list)
 

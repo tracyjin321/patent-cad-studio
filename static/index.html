@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-yaml-first">
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
   <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
-  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-ui-system-5">
+  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-disabled-actions">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
 </head>
 <body>
@@ -44,16 +44,17 @@
         <label class="upload"><svg class="ui-icon"><use href="#icon-upload"></use></svg>点击导入技术描述<input id="document" type="file" accept=".txt,.md,text/plain"></label>
       </section>
       <section>
-        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-sliders"></use></svg>工程领域</strong></div>
-        <select id="field"><option>机械结构</option><option>能源装备</option><option>化工装置</option><option>纺织机械</option></select>
-      </section>
-      <section>
         <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-layers"></use></svg>核心图元</strong><span id="recommendation-status">自动推荐，可人工补充</span></div>
         <div id="parts" class="parts">
           <button data-part="bearing" class="active">轴承</button><button data-part="flange">法兰</button>
           <button data-part="valve">阀门</button><button data-part="shaft">轴系</button>
           <button data-part="gear">齿轮</button><button data-part="screw">丝杠</button>
           <button data-part="coupling">联轴器</button><button data-part="seal">密封件</button>
+        </div>
+        <div class="primary-part-control">
+          <label for="primary-part"><span>主要生成对象</span><small>从已选图元中指定</small></label>
+          <select id="primary-part" disabled><option>请先选择核心图元</option></select>
+          <p id="primary-part-hint">请选择至少一个核心图元，并指定主要生成对象。</p>
         </div>
       </section>
       <label class="ai-toggle"><input id="use-ai" type="checkbox" checked><span class="ai-title">使用 Moonshot 智能提取参数</span><small>不可用时自动回退本地解析</small></label>
@@ -67,7 +68,7 @@
       <nav class="tabs"><button data-tab="model"><svg class="ui-icon"><use href="#icon-cube"></use></svg>3D 预览</button><button data-tab="preview" class="active"><svg class="ui-icon"><use href="#icon-image"></use></svg>附图预览</button><button data-tab="params"><svg class="ui-icon"><use href="#icon-file-text"></use></svg>参数文档</button></nav>
       <div class="toolbar">
         <div class="toolbar-zoom"><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
-        <div class="toolbar-actions"><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="compliance" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>合规校验</button><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
+        <div class="toolbar-actions"><button id="compliance" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>合规校验</button><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
         <div class="model-stage"><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
@@ -112,6 +113,6 @@
       <div id="toast" role="status" aria-live="polite"></div>
     </article>
   </main>
-  <script type="module" src="/static/app.js?v=20260801-ui-system"></script>
+  <script type="module" src="/static/app.js?v=20260801-compliance-state"></script>
 </body>
 </html>

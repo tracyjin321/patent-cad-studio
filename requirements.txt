@@ -5,3 +5,6 @@ pytest==8.4.1
 pytest-asyncio==1.1.0
 cadquery-ocp==7.8.1.1.post1
 PyYAML==6.0.3
+pypdf==6.14.2
+python-docx==1.2.0
+python-multipart==0.0.32

@@ -52,7 +52,7 @@ function persistHistory(items) {
   try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: loadHistory() };
+const state = { part: "bearing", result: null, referenceImage: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: loadHistory() };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -158,7 +158,7 @@ async function generate() {
     const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
     state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
-  finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg><span>生成附图</span>';}
+  finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';}
 }
 
 $("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length}/5000`;extractCoreElements(e.target.value);};
@@ -166,7 +166,8 @@ $("#example").onclick=()=>{const index=state.exampleIndex%refreshExamples.length
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
 $("#parts").onclick=e=>{const button=e.target.closest("button");if(!button)return;const part=button.dataset.part;const current=selectedParts(),selected=current.includes(part);if(selected){state.manualSelected.delete(part);if(state.recommended.has(part))state.manualDeselected.add(part);}else{state.manualDeselected.delete(part);state.manualSelected.add(part);if(!current.length||!current.includes(state.part))state.part=part;}renderParts();};
 $("#primary-part").onchange=e=>{state.part=e.target.value;renderParts();};
-$("#document").onchange=async e=>{const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024){toast("文件不能超过 2MB");return;}$("#description").value=await file.text();$("#description").dispatchEvent(new Event("input"));toast("文档已导入");};
+$("#document").onchange=async e=>{const input=e.target,file=input.files[0];if(!file)return;if(file.size>10*1024*1024){input.value="";toast("文档不能超过 10MB");return;}const form=new FormData();form.append("file",file);try{const response=await fetch("/api/documents/extract",{method:"POST",body:form}),data=await response.json();if(!response.ok)throw new Error(data.detail||"文档解析失败");$("#description").value=data.text;$("#description").dispatchEvent(new Event("input"));toast(data.truncated?"文档已导入，超长内容已截取前 5000 字":"文档已导入");}catch(error){input.value="";toast(error.message);}};
+$("#reference-image").onchange=e=>{const input=e.target,file=input.files[0],label=$("#reference-image-label"),allowed=new Set(["image/png","image/jpeg","image/webp"]);if(!file){state.referenceImage=null;label.textContent="点击上传参考图片";label.removeAttribute("title");return;}if(!allowed.has(file.type)){input.value="";state.referenceImage=null;label.textContent="点击上传参考图片";toast("请选择 PNG、JPG 或 WebP 图片");return;}if(file.size>5*1024*1024){input.value="";state.referenceImage=null;label.textContent="点击上传参考图片";toast("图片不能超过 5MB");return;}state.referenceImage=file;label.textContent=file.name;label.title=file.name;toast("参考图片已选择");};
 $("#use-ai").onchange=()=>extractCoreElements($("#description").value);
 $("#generate").onclick=generate;
 $$(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));

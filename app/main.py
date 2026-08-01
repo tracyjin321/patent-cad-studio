@@ -3,11 +3,12 @@ import re
 from uuid import uuid4
 
 from dotenv import load_dotenv
-from fastapi import Body, FastAPI, HTTPException, Query
+from fastapi import Body, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .cad import generate_svg
+from .documents import extract_document_text
 from .llm import LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
@@ -21,6 +22,8 @@ GENERATED = ROOT / "generated"
 GENERATED.mkdir(exist_ok=True)
 GENERATED_LIBRARY = GENERATED / "component_library"
 GENERATED_LIBRARY.mkdir(exist_ok=True)
+MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
+MAX_DESCRIPTION_CHARS = 5000
 app = FastAPI(title="专图灵境 API", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
@@ -29,6 +32,21 @@ app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.post("/api/documents/extract")
+async def extract_document(file: UploadFile = File(...)) -> dict[str, str | bool]:
+    filename = file.filename or ""
+    content = await file.read(MAX_DOCUMENT_BYTES + 1)
+    await file.close()
+    if len(content) > MAX_DOCUMENT_BYTES:
+        raise HTTPException(status_code=413, detail="文档不能超过 10MB")
+    try:
+        text = extract_document_text(filename, content)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    truncated = len(text) > MAX_DESCRIPTION_CHARS
+    return {"text": text[:MAX_DESCRIPTION_CHARS], "truncated": truncated}
 
 
 @app.post("/api/recommend", response_model=RecommendResponse)

@@ -102,32 +102,6 @@ aside {
   border-color: var(--line);
 }
 
-.aside-intro {
-  margin-bottom: 18px;
-}
-
-.aside-intro h1 {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 0;
-  color: var(--slate-800);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 24px;
-}
-
-.aside-intro h1 .ui-icon {
-  color: var(--purple);
-}
-
-.aside-intro p {
-  margin: 4px 0 0;
-  color: var(--slate-500);
-  font-size: 12px;
-  line-height: 18px;
-}
-
 aside section {
   padding: 0;
   margin-bottom: 18px;
@@ -230,6 +204,13 @@ select:focus {
   border-color: var(--purple-300);
 }
 
+.upload-label-text {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 select {
   height: 38px;
   color: var(--slate-600);
@@ -325,13 +306,13 @@ select {
   justify-content: space-between;
   margin-bottom: 6px;
   color: var(--slate-600);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .primary-part-control label small {
   color: var(--slate-400);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 400;
 }
 

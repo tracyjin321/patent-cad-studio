@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-yaml-first">
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
   <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
-  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-disabled-actions">
+  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-primary-label-size">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
 </head>
 <body>
@@ -24,7 +24,7 @@
       <symbol id="icon-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3Z"/><path d="m9 12 2 2 4-4"/></symbol>
       <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
       <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.2 3.3a7 7 0 0 1-4.2 4.2L3 12l3.6 1.5a7 7 0 0 1 4.2 4.2L12 21l1.2-3.3a7 7 0 0 1 4.2-4.2L21 12l-3.6-1.5a7 7 0 0 1-4.2-4.2Z"/></symbol>
-      <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7h-5V2M4 17h5v5"/><path d="M5.1 9A8 8 0 0 1 18.5 5.5L20 7M4 17l1.5 1.5A8 8 0 0 0 18.9 15"/></symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></symbol>
     </defs>
   </svg>
   <header>
@@ -33,15 +33,18 @@
   </header>
   <main>
     <aside>
-      <div class="aside-intro"><h1><svg class="ui-icon"><use href="#icon-sparkles"></use></svg>文生图</h1><p>输入技术描述或上传技术文档，系统将解析结构参数并生成专利附图</p></div>
       <section>
         <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-file-text"></use></svg>技术描述</strong><span id="counter">0/5000</span></div>
         <textarea id="description" maxlength="5000" placeholder="请输入零件用途、结构和关键尺寸。例如：生成深沟球轴承，外径100mm，内径45mm，宽25mm，10个滚珠。"></textarea>
         <div class="hint-row"><button id="example" class="text-button"><svg class="ui-icon"><use href="#icon-refresh"></use></svg>刷新示例</button><button id="clear" class="text-button">清空</button></div>
       </section>
       <section>
-        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-upload"></use></svg>文档上传</strong><span>TXT/MD，≤2MB</span></div>
-        <label class="upload"><svg class="ui-icon"><use href="#icon-upload"></use></svg>点击导入技术描述<input id="document" type="file" accept=".txt,.md,text/plain"></label>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-upload"></use></svg>文档上传</strong><span>PDF/DOCX/TXT，≤10MB</span></div>
+        <label class="upload"><svg class="ui-icon"><use href="#icon-upload"></use></svg>点击上传专利文档<input id="document" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"></label>
+      </section>
+      <section>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-image"></use></svg>参考图片</strong><span>PNG/JPG，≤5MB</span></div>
+        <label class="upload" for="reference-image"><svg class="ui-icon"><use href="#icon-upload"></use></svg><span id="reference-image-label" class="upload-label-text">点击上传参考图片</span><input id="reference-image" type="file" accept="image/png,image/jpeg,image/webp"></label>
       </section>
       <section>
         <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-layers"></use></svg>核心图元</strong><span id="recommendation-status">自动推荐，可人工补充</span></div>
@@ -58,7 +61,7 @@
         </div>
       </section>
       <label class="ai-toggle"><input id="use-ai" type="checkbox" checked><span class="ai-title">使用 Moonshot 智能提取参数</span><small>不可用时自动回退本地解析</small></label>
-      <button id="generate" class="primary"><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg><span>生成附图</span></button>
+      <button id="generate" class="primary"><span>生成附图</span></button>
       <section class="history-section">
         <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-clock"></use></svg>历史记录</strong><button id="clear-history" class="text-button">清空</button></div>
         <div id="history" class="history"><p class="empty-small">暂无生成记录</p></div>
@@ -113,6 +116,6 @@
       <div id="toast" role="status" aria-live="polite"></div>
     </article>
   </main>
-  <script type="module" src="/static/app.js?v=20260801-compliance-state"></script>
+  <script type="module" src="/static/app.js?v=20260801-document-formats"></script>
 </body>
 </html>

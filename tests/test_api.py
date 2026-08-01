@@ -1,7 +1,9 @@
 import importlib
+from io import BytesIO
 
 import pytest
 import yaml
+from docx import Document
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
@@ -140,6 +142,43 @@ async def test_health():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/health")
     assert response.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_extract_txt_patent_document():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/documents/extract",
+            files={"file": ("patent.txt", "一种法兰连接结构。".encode(), "text/plain")},
+        )
+    assert response.status_code == 200
+    assert response.json() == {"text": "一种法兰连接结构。", "truncated": False}
+
+
+@pytest.mark.asyncio
+async def test_extract_docx_patent_document():
+    stream = BytesIO()
+    document = Document()
+    document.add_paragraph("一种轴承支撑结构。")
+    document.save(stream)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/documents/extract",
+            files={"file": ("patent.docx", stream.getvalue(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+        )
+    assert response.status_code == 200
+    assert response.json()["text"] == "一种轴承支撑结构。"
+
+
+@pytest.mark.asyncio
+async def test_extract_document_rejects_unsupported_format():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/api/documents/extract",
+            files={"file": ("patent.md", b"unsupported", "text/markdown")},
+        )
+    assert response.status_code == 422
+    assert response.json()["detail"] == "仅支持 PDF、DOCX 和 TXT 文档"
 
 
 @pytest.mark.asyncio

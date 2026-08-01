@@ -10,7 +10,7 @@ from .cad import generate_svg
 from .llm import LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
-from .model3d import write_step
+from .model3d import build_shape, write_step
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -36,9 +36,11 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
 @app.post("/api/generate", response_model=GenerateResponse)
 async def generate(request: GenerateRequest) -> GenerateResponse:
     parameters, parser, parser_detail = await parse_parameters(request.description, request.part_type, request.use_ai)
-    svg = generate_svg(request.part_type, parameters)
+    title = f"{LABELS[request.part_type]}技术附图"
+    shape = build_shape(request.part_type, parameters)
+    svg = generate_svg(shape, title, request.part_type, parameters)
     result_id = str(uuid4())
-    model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", request.part_type, parameters)
+    model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
     checks = [
         {"name": "封闭轮廓", "passed": svg.count('class="o"') >= 2},
         {"name": "中心线/尺寸标注", "passed": 'class="h"' in svg and 'class="d"' in svg},
@@ -47,7 +49,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     ]
     return GenerateResponse(
         id=result_id,
-        title=f"{LABELS[request.part_type]}技术附图",
+        title=title,
         part_type=request.part_type,
         svg=svg,
         parameters=parameters,

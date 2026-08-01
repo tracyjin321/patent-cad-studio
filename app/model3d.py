@@ -36,7 +36,7 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"type":"tube","r":float(p["outer_diameter"])/2,"inner":float(p["inner_diameter"])/2,"depth":float(p["width"]),"color":"#6f7e90"}]
 
 
-def _occ_shape(part: str, p: dict[str, Any]):
+def build_shape(part: str, p: dict[str, Any]):
     from OCP.BRep import BRep_Builder
     from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeTorus
@@ -112,6 +112,7 @@ def _occ_shape(part: str, p: dict[str, Any]):
         return compound(shapes)
     if part=="coupling":
         r=float(p["outer_diameter"])/2;length=float(p["length"]);inner=float(p["bore"])/2
+        inner=min(inner,r*.82)
         return fuse([tube(r,inner,length*.22,z=-length*.38),tube(r,inner,length*.22,z=length*.38),tube(r*.68,inner,length*.68)])
     return tube(float(p["outer_diameter"])/2,float(p["inner_diameter"])/2,float(p["width"]))
 
@@ -145,10 +146,9 @@ def _shape_mesh(shape: object) -> dict[str, Any]:
     return {"type":"mesh","positions":positions,"indices":indices,"color":"#8d9bab"}
 
 
-def write_step(path: Path, title: str, part: str, parameters: dict[str, Any]) -> list[dict[str, Any]]:
+def write_step(path: Path, title: str, shape: object) -> list[dict[str, Any]]:
     from OCP.IFSelect import IFSelect_RetDone
     from OCP.STEPControl import STEPControl_AsIs, STEPControl_Writer
-    shape=_occ_shape(part,parameters)
     writer=STEPControl_Writer()
     if writer.Transfer(shape,STEPControl_AsIs) != IFSelect_RetDone:
         raise RuntimeError(f"OpenCascade could not transfer {title}")

@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import os
 import re
 from typing import Any
@@ -41,6 +42,47 @@ ELEMENT_PATTERNS = {
     "coupling": r"联轴器|联轴节|轴联接|coupling",
     "seal": r"密封件|密封圈|油封|密封环|密封唇|seal",
 }
+
+COUNT_LIMITS = {
+    "rolling_elements": (6, 18),
+    "bolt_holes": (4, 16),
+    "ports": (2, 8),
+    "steps": (3, 6),
+    "teeth": (10, 64),
+    "starts": (1, 3),
+    "bolts": (4, 12),
+    "lip_count": (1, 3),
+}
+
+
+def normalize_parameters(part_type: str, values: dict[str, Any]) -> dict[str, Any]:
+    """Return the exact safe dimensions used by SVG, mesh and STEP generation."""
+    defaults = DEFAULTS[part_type]
+    normalized: dict[str, Any] = {}
+    for key, default in defaults.items():
+        candidate = values.get(key, default)
+        try:
+            number = float(candidate)
+        except (TypeError, ValueError):
+            number = float(default)
+        if not math.isfinite(number) or number <= 0:
+            number = float(default)
+        if key in COUNT_LIMITS:
+            lower, upper = COUNT_LIMITS[key]
+            normalized[key] = max(lower, min(upper, int(round(number))))
+        elif isinstance(default, int):
+            normalized[key] = int(round(number))
+        else:
+            normalized[key] = round(number, 6)
+
+    if part_type in {"bearing", "flange", "seal"}:
+        normalized["inner_diameter"] = min(normalized["inner_diameter"], normalized["outer_diameter"] * .9)
+    elif part_type == "coupling":
+        normalized["bore"] = min(normalized["bore"], normalized["outer_diameter"] * .82)
+    elif part_type == "gear":
+        root_diameter = normalized["module"] * normalized["teeth"] * .84
+        normalized["bore"] = min(normalized["bore"], root_diameter * .8)
+    return normalized
 
 
 def local_recommend(description: str) -> list[str]:
@@ -96,7 +138,7 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
         if key in params and (match := re.search(pattern, description)):
             value = next(group for group in match.groups() if group is not None)
             params[key] = int(float(value))
-    return params
+    return normalize_parameters(part_type, params)
 
 
 async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tuple[dict[str, Any], str, str | None]:
@@ -125,7 +167,8 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
             parsed = json.loads(content)
-            return {key: parsed.get(key, value) for key, value in fallback.items()}, "moonshot", None
+            extracted = {key: parsed.get(key, value) for key, value in fallback.items()}
+            return normalize_parameters(part_type, extracted), "moonshot", None
     except httpx.TimeoutException as exc:
         logger.warning("Moonshot parameter parsing timed out: %s", type(exc).__name__)
         return fallback, "local-fallback", "Kimi 请求超时"

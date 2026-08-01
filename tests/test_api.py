@@ -1,8 +1,13 @@
+import importlib
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 from app import llm
+
+
+main_module = importlib.import_module("app.main")
 
 
 PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal"]
@@ -30,6 +35,49 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
     assert all(item["passed"] for item in data["compliance"])
     assert step.status_code == 200
     assert step.content.startswith(b"ISO-10303-21;")
+
+
+@pytest.mark.asyncio
+async def test_svg_and_step_share_the_same_brep_shape(monkeypatch):
+    shape = object()
+    received: dict[str, object] = {}
+    svg = '<svg><style>.o{stroke:#17202a}</style><rect fill="#fff"/><path class="o"/><path class="o"/><path class="h"/><path class="d"/></svg>'
+
+    monkeypatch.setattr(main_module, "build_shape", lambda part, parameters: shape)
+
+    def fake_svg(candidate, title, part, parameters):
+        received["svg"] = candidate
+        return svg
+
+    def fake_step(path, title, candidate):
+        received["step"] = candidate
+        return [{"type": "mesh", "positions": [], "indices": []}]
+
+    monkeypatch.setattr(main_module, "generate_svg", fake_svg)
+    monkeypatch.setattr(main_module, "write_step", fake_step)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={
+            "description": "生成外径100、内径45的法兰。",
+            "part_type": "flange",
+            "use_ai": False,
+        })
+    assert response.status_code == 200
+    assert received == {"svg": shape, "step": shape}
+
+
+@pytest.mark.asyncio
+async def test_flange_svg_is_an_occ_entity_projection():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={
+            "description": "法兰外径50，内径16，厚度70，8个螺栓孔。",
+            "part_type": "flange",
+            "use_ai": False,
+        })
+    assert response.status_code == 200
+    svg = response.json()["svg"]
+    assert "轴侧图（实体投影）" in svg
+    assert "⌀50 · 8孔 · T 70" in svg
+    assert svg.count('class="o"') >= 8
 
 
 @pytest.mark.asyncio
@@ -62,6 +110,19 @@ async def test_timeout_fallback_reports_reason(monkeypatch):
     _, parser, detail = await llm.parse_parameters("生成一个轴承", "bearing", True)
     assert parser == "local-fallback"
     assert detail == "Kimi 请求超时"
+
+
+def test_invalid_dimensions_are_normalized_before_geometry_generation():
+    flange = llm.normalize_parameters("flange", {
+        "outer_diameter": 0,
+        "inner_diameter": 999,
+        "thickness": -1,
+        "bolt_holes": 100,
+    })
+    assert flange["outer_diameter"] == llm.DEFAULTS["flange"]["outer_diameter"]
+    assert flange["inner_diameter"] < flange["outer_diameter"]
+    assert flange["thickness"] == llm.DEFAULTS["flange"]["thickness"]
+    assert flange["bolt_holes"] == 16
 
 
 @pytest.mark.asyncio

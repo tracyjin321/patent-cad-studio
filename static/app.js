@@ -3,6 +3,35 @@ import { CadModelViewer } from "/static/model-viewer.js";
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const HISTORY_KEY = "cad-history";
+const HEALTH_CHECK_INTERVAL = 30000;
+
+function renderServiceStatus(state, message) {
+  const status = $("#service-status");
+  status.className = `status ${state}`;
+  status.querySelector("span").textContent = message;
+}
+
+async function checkServiceHealth(showChecking = false) {
+  if (showChecking) renderServiceStatus("checking", "正在连接生成服务…");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const response = await fetch("/api/health", {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`健康检查返回 ${response.status}`);
+    const health = await response.json();
+    if (health.status !== "ok") throw new Error("生成服务状态异常");
+    renderServiceStatus("online", "生成服务已连接");
+  } catch (error) {
+    renderServiceStatus("offline", "生成服务暂不可用");
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function historySummary(item) {
   const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time}=item;
   return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time};
@@ -105,17 +134,17 @@ async function generate() {
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
   const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=[...state.recommended].find(part=>coreElements.includes(part))||coreElements[0];state.part=primaryPart;
   const button=$("#generate");button.disabled=true;button.classList.add("is-loading");button.setAttribute("aria-busy","true");button.innerHTML='<span class="button-spinner" aria-hidden="true"></span><span>正在生成附图…</span>';
-  const progress=$("#generation-progress"), stages=[["正在解析结构参数","识别零件类型、尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格指纹…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG、网格和 STEP…"]];
+  const progress=$("#generation-progress"), stages=[["正在解析技术描述","识别零件类型、结构尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格一致性…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG 附图、3D 预览和 STEP 文件…"]];
   let progressValue=0;
   const renderProgress=()=>{const stage=progressValue<28?0:progressValue<54?1:progressValue<79?2:3;const [title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${progressValue}%`;$("#progress-percent").textContent=`${Math.round(progressValue)}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;};
   progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
     const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,field:$("#field").value,use_ai:$("#use-ai").checked})});
-    if(!response.ok) throw new Error(`生成失败 (${response.status})`);
-    const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="3D 模型与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
-    state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast(`${labels[primaryPart]}附图已生成`);
-  } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请检查后端服务后重试</small></div>`;toast(error.message); }
+    if(!response.ok) throw new Error(`附图生成失败（错误码：${response.status}）`);
+    const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
+    state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
+  } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span aria-hidden="true">⌁</span><span>生成附图</span>';}
 }
 
@@ -136,3 +165,8 @@ $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result
 $("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
 renderHistory();
 renderParts();
+checkServiceHealth(true);
+setInterval(checkServiceHealth, HEALTH_CHECK_INTERVAL);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") checkServiceHealth();
+});

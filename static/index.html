@@ -13,7 +13,7 @@
 <body>
   <header>
     <div class="brand"><span class="brand-mark">⌬</span><strong>专图灵境</strong><span class="divider">|</span><span>智能附图生成工作区</span></div>
-    <div class="status"><i></i> 参数化生成引擎就绪</div>
+    <div id="service-status" class="status checking" role="status" aria-live="polite" aria-atomic="true"><i></i><span>正在连接生成服务…</span></div>
   </header>
   <main>
     <aside>
@@ -83,12 +83,12 @@
             </svg>
             <span class="cad-orbit cad-orbit-one"></span><span class="cad-orbit cad-orbit-two"></span>
             <div class="cad-scan"></div>
-            <div class="cad-readout"><span>ISO</span><span>BREP</span><span>STEP</span></div>
+            <div class="cad-readout"><span>PARAM</span><span>B-REP</span><span>STEP</span></div>
           </div>
-          <div class="cad-phases" aria-hidden="true"><span>参数解析</span><span>轴测投影</span><span>实体建模</span><span>格式封装</span></div>
-          <strong id="progress-title">正在解析结构参数</strong>
+          <div class="cad-phases" aria-hidden="true"><span>参数解析</span><span>规格生成</span><span>实体建模</span><span>附图输出</span></div>
+          <strong id="progress-title">正在解析技术描述</strong>
           <p id="progress-detail">准备参数化生成任务…</p>
-          <div class="progress-meta"><span>ENGINE / CAD-KERNEL</span><small id="progress-percent">0%</small></div>
+          <div class="progress-meta"><span>PARAMETRIC CAD ENGINE</span><small id="progress-percent">0%</small></div>
           <div class="progress-track"><span id="progress-bar"></span></div>
         </div>
       </div>

@@ -60,7 +60,35 @@
       </div>
       <div id="params" class="panel"><div id="parameter-content" class="parameter-content"></div></div>
       <div id="generation-progress" class="progress-overlay" aria-live="polite">
-        <div class="progress-card"><div class="cad-loader"><i></i><i></i><i></i></div><strong id="progress-title">正在解析结构参数</strong><p id="progress-detail">准备参数化生成任务…</p><div class="progress-track"><span id="progress-bar"></span></div><small id="progress-percent">0%</small></div>
+        <div class="progress-card">
+          <div class="cad-engine" aria-hidden="true">
+            <div class="cad-grid"></div>
+            <svg class="cad-blueprint" viewBox="0 0 220 142">
+              <g class="cad-measurements">
+                <path d="M35 116H181M35 111V121M181 111V121M24 27V111M19 27H29M19 111H29"/>
+                <path d="M41 122L35 116L41 110M175 122L181 116L175 110M18 33L24 27L30 33M18 105L24 111L30 105"/>
+              </g>
+              <g class="cad-wire cad-wire-back">
+                <path d="M61 37L108 12L160 40L112 67Z"/><path d="M61 37V73L112 102V67M112 102L160 75V40"/><path d="M84 42L108 29L136 44L111 58Z"/>
+              </g>
+              <g class="cad-wire cad-wire-front">
+                <path d="M75 52L108 34L145 54L111 73Z"/><path d="M75 52V68L111 88V73M111 88L145 69V54"/><path d="M94 53L108 46L125 55L110 64Z"/>
+              </g>
+              <g class="cad-nodes">
+                <circle cx="61" cy="37" r="3"/><circle cx="108" cy="12" r="3"/><circle cx="160" cy="40" r="3"/><circle cx="112" cy="102" r="3"/><circle cx="75" cy="68" r="3"/><circle cx="145" cy="69" r="3"/>
+              </g>
+              <g class="cad-axis"><path d="M42 92L110 55L188 97"/><path d="M110 55V7"/></g>
+            </svg>
+            <span class="cad-orbit cad-orbit-one"></span><span class="cad-orbit cad-orbit-two"></span>
+            <div class="cad-scan"></div>
+            <div class="cad-readout"><span>ISO</span><span>BREP</span><span>STEP</span></div>
+          </div>
+          <div class="cad-phases" aria-hidden="true"><span>参数解析</span><span>轴测投影</span><span>实体建模</span><span>格式封装</span></div>
+          <strong id="progress-title">正在解析结构参数</strong>
+          <p id="progress-detail">准备参数化生成任务…</p>
+          <div class="progress-meta"><span>ENGINE / CAD-KERNEL</span><small id="progress-percent">0%</small></div>
+          <div class="progress-track"><span id="progress-bar"></span></div>
+        </div>
       </div>
       <div id="toast" role="status" aria-live="polite"></div>
     </article>

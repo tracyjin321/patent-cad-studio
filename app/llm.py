@@ -23,7 +23,7 @@ LABELS = {
 
 DEFAULTS: dict[str, dict[str, float | int | str]] = {
     "bearing": {"outer_diameter": 100, "inner_diameter": 45, "width": 25, "rolling_elements": 10},
-    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8},
+    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8, "neck_height": 0},
     "valve": {"nominal_diameter": 80, "body_length": 210, "height": 240, "ports": 2},
     "shaft": {"total_length": 280, "max_diameter": 70, "steps": 4, "keyway_width": 12},
     "gear": {"module": 3, "teeth": 24, "bore": 32, "face_width": 28},
@@ -122,22 +122,28 @@ async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[
 
 def local_parse(description: str, part_type: str) -> dict[str, Any]:
     params = dict(DEFAULTS[part_type])
-    numbers = [float(v) for v in re.findall(r"(?<![A-Za-z])(\d+(?:\.\d+)?)\s*(?:mm|毫米)?", description, re.I)]
+    numbers = [float(v) for v in re.findall(r"(?<![A-Za-z0-9])(\d+(?:\.\d+)?)(?:\s*(?:mm|毫米))?(?![A-Za-z0-9])", description, re.I)]
     keys = list(params)
     for key, value in zip(keys, numbers):
         params[key] = int(value) if float(value).is_integer() else value
     patterns = {
         "outer_diameter": r"(?:外径|外圆直径)[^\d]*(\d+(?:\.\d+)?)",
         "inner_diameter": r"(?:内径|孔径)[^\d]*(\d+(?:\.\d+)?)",
+        "thickness": r"(?:厚度|盘厚|厚)[^\d]*(\d+(?:\.\d+)?)",
         "length": r"(?:长度|总长)[^\d]*(\d+(?:\.\d+)?)",
         "total_length": r"(?:长度|总长)[^\d]*(\d+(?:\.\d+)?)",
         "teeth": r"(?:齿数|(\d+)\s*齿)[^\d]*(\d+)?",
-        "bolt_holes": r"(?:螺栓孔|孔数)[^\d]*(\d+)",
+        "bolt_holes": r"(?:(?:螺栓孔|连接孔|安装孔|孔数)[^\d]*(\d+)|(\d+)\s*个?(?:螺栓孔|连接孔|安装孔|孔))",
     }
     for key, pattern in patterns.items():
         if key in params and (match := re.search(pattern, description)):
             value = next(group for group in match.groups() if group is not None)
             params[key] = int(float(value))
+    if part_type == "flange":
+        if match := re.search(r"(?:公称直径\s*(?:DN)?|DN)\s*(\d+(?:\.\d+)?)", description, re.I):
+            params["inner_diameter"] = float(match.group(1))
+        if re.search(r"带颈|对焊|高颈|weld\s*neck", description, re.I):
+            params["neck_height"] = max(float(params["thickness"]) * 2.5, float(params["outer_diameter"]) * .28)
     return normalize_parameters(part_type, params)
 
 
@@ -168,7 +174,10 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
             content = response.json()["choices"][0]["message"]["content"]
             parsed = json.loads(content)
             extracted = {key: parsed.get(key, value) for key, value in fallback.items()}
-            return normalize_parameters(part_type, extracted), "moonshot", None
+            normalized = normalize_parameters(part_type, extracted)
+            if part_type == "flange" and fallback.get("neck_height", 0) > 0:
+                normalized["neck_height"] = max(normalized["neck_height"], fallback["neck_height"])
+            return normalized, "moonshot", None
     except httpx.TimeoutException as exc:
         logger.warning("Moonshot parameter parsing timed out: %s", type(exc).__name__)
         return fallback, "local-fallback", "Kimi 请求超时"

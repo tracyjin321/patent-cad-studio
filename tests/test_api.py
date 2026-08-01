@@ -41,7 +41,7 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
 async def test_svg_and_step_share_the_same_brep_shape(monkeypatch):
     shape = object()
     received: dict[str, object] = {}
-    svg = '<svg><style>.o{stroke:#17202a}</style><rect fill="#fff"/><path class="o"/><path class="o"/><path class="h"/><path class="d"/></svg>'
+    svg = '<svg><style>.o{stroke:#000}</style><rect fill="#fff"/><path class="o"/><path class="o"/><path class="h"/><text class="f">图1</text></svg>'
 
     monkeypatch.setattr(main_module, "build_shape", lambda part, parameters: shape)
 
@@ -75,9 +75,34 @@ async def test_flange_svg_is_an_occ_entity_projection():
         })
     assert response.status_code == 200
     svg = response.json()["svg"]
-    assert "轴侧图（实体投影）" in svg
-    assert "⌀50 · 8孔 · T 70" in svg
+    assert 'viewBox="0 0 794 1123"' in svg
+    assert ">图1</text>" in svg
+    assert 'class="c"' not in svg
+    assert 'class="d"' not in svg
+    assert "⌀50 · 8孔 · T 70" not in svg
+    assert "轴侧图（实体投影）" not in svg
+    assert "OpenCascade" not in svg
     assert svg.count('class="o"') >= 8
+
+
+@pytest.mark.asyncio
+async def test_weld_neck_flange_prompt_preserves_dn_neck_and_connection_holes():
+    description = "设计高压对焊法兰，公称直径DN100，外径220mm，带颈结构，配置8个连接孔。"
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={
+            "description": description,
+            "part_type": "flange",
+            "use_ai": False,
+        })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["parameters"]["outer_diameter"] == 220
+    assert data["parameters"]["inner_diameter"] == 100
+    assert data["parameters"]["bolt_holes"] == 8
+    assert data["parameters"]["neck_height"] > 0
+    assert data["svg"].count('class="o"') >= 20
+    assert len(data["model"][0]["positions"]) > 1000
+    assert next(item for item in data["compliance"] if item["name"] == "法兰连接孔轮廓")["passed"]
 
 
 @pytest.mark.asyncio

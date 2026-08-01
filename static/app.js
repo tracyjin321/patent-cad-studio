@@ -2,7 +2,28 @@ import { CadModelViewer } from "/static/model-viewer.js";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { part: "bearing", result: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: JSON.parse(localStorage.getItem("cad-history") || "[]") };
+const HISTORY_KEY = "cad-history";
+function historySummary(item) {
+  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,core_elements,time}=item;
+  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,core_elements,time};
+}
+function loadHistory() {
+  try {
+    const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+    const summaries=(Array.isArray(parsed)?parsed:[]).slice(0,12).map(historySummary);
+    localStorage.setItem(HISTORY_KEY,JSON.stringify(summaries));
+    return summaries;
+  } catch(error) {
+    console.warn("历史记录读取失败，已清理本地缓存",error);
+    localStorage.removeItem(HISTORY_KEY);
+    return [];
+  }
+}
+function persistHistory(items) {
+  try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12).map(historySummary)));return true;}
+  catch(error) {console.warn("历史摘要保存失败",error);return false;}
+}
+const state = { part: "bearing", result: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: loadHistory() };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -62,8 +83,8 @@ function renderHistory() {
   const el=$("#history");
   if (!state.history.length) { el.innerHTML='<p class="empty-small">暂无生成记录</p>'; return; }
   const sourceLabel=item=>item.parser==="moonshot"?"Kimi K2.6":item.parser==="local"?"本地解析":`智能解析降级${item.parser_detail?`：${item.parser_detail}`:""}`;
-  el.innerHTML=state.history.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}</small></div>`).join("");
-  $$(".history-item").forEach(el=>el.onclick=()=>showResult(state.history[Number(el.dataset.index)]));
+  el.innerHTML=state.history.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}${item.svg&&item.model?"":" · 参数摘要"}</small></div>`).join("");
+  $$(".history-item").forEach(el=>el.onclick=()=>{const item=state.history[Number(el.dataset.index)];if(item.svg&&item.model)showResult(item);else{renderParams(item);setTab("params");toast("该历史记录仅保留参数摘要，请重新生成预览");}});
 }
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":result.parser==="local-fallback"?`本地确定性解析（${result.parser_detail||"智能解析暂不可用"}）`:"本地确定性解析";
@@ -82,14 +103,16 @@ async function generate() {
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
   const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=[...state.recommended].find(part=>coreElements.includes(part))||coreElements[0];state.part=primaryPart;
   const button=$("#generate");button.disabled=true;button.innerHTML='<span class="spinner"></span>';
-  const progress=$("#generation-progress"), stages=[[12,"正在解析结构参数","识别零件类型、尺寸与工程约束…"],[38,"正在生成轴侧附图","构建等轴测轮廓、中心线和尺寸标注…"],[68,"正在构建 3D 几何","生成参数化实体与可视化网格…"],[88,"正在封装 STEP","写入 ISO 10303 交换格式…"]];
-  progress.classList.add("show");let stage=0;const update=()=>{const [value,title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${value}%`;$("#progress-percent").textContent=`${value}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;stage=Math.min(stage+1,stages.length-1)};update();const timer=setInterval(update,650);
+  const progress=$("#generation-progress"), stages=[["正在解析结构参数","识别零件类型、尺寸与工程约束…"],["正在生成轴侧附图","从同一 B-Rep 实体计算可见轮廓与隐藏线…"],["正在构建 3D 几何","生成参数化实体与可视化网格…"],["正在封装 STEP","写入 ISO 10303 交换格式…"]];
+  let progressValue=0;
+  const renderProgress=()=>{const stage=progressValue<28?0:progressValue<54?1:progressValue<79?2:3;const [title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${progressValue}%`;$("#progress-percent").textContent=`${Math.round(progressValue)}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;};
+  progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
     const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,field:$("#field").value,use_ai:$("#use-ai").checked})});
     if(!response.ok) throw new Error(`生成失败 (${response.status})`);
-    const result=await response.json();clearInterval(timer);progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="3D 模型与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,500));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
-    state.history.unshift(result);state.history=state.history.slice(0,12);localStorage.setItem("cad-history",JSON.stringify(state.history));renderHistory();showResult(result);toast(`${labels[primaryPart]}附图已生成`);
+    const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="3D 模型与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
+    state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast(`${labels[primaryPart]}附图已生成`);
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请检查后端服务后重试</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.innerHTML="<span>⌁</span> 生成附图";}
 }
@@ -107,7 +130,7 @@ $("#zoom-out").onclick=()=>{state.zoom=Math.max(.5,state.zoom-.1);applyZoom();};
 $("#reset").onclick=()=>{state.zoom=1;applyZoom();};
 $("#compliance").onclick=()=>{setTab("params");toast(state.result.compliance.every(c=>c.passed)?"全部合规检查通过":"存在未通过项目");};
 $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"}),`${state.result.part_type}-${state.result.id.slice(0,8)}.svg`);
-$("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=1800;canvas.height=1240;canvas.getContext("2d").drawImage(image,0,0,1800,1240);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
-$("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem("cad-history");renderHistory();toast("历史记录已清空");};
+$("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=2480;canvas.height=3508;canvas.getContext("2d").drawImage(image,0,0,2480,3508);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
+$("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
 renderHistory();
 renderParts();

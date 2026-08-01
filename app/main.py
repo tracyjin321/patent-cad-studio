@@ -42,9 +42,11 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     result_id = str(uuid4())
     model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
     checks = [
-        {"name": "封闭轮廓", "passed": svg.count('class="o"') >= 2},
-        {"name": "中心线/尺寸标注", "passed": 'class="h"' in svg and 'class="d"' in svg},
-        {"name": "黑白线稿规范", "passed": "stroke:#17202a" in svg and 'fill="#fff"' in svg},
+        {"name": "结构轮廓清晰", "passed": svg.count('class="o"') >= 2},
+        {"name": "法兰连接孔轮廓", "passed": request.part_type != "flange" or svg.count('class="o"') >= int(parameters["bolt_holes"]) * 2},
+        {"name": "无多余中心线/尺寸线", "passed": 'class="c"' not in svg and 'class="d"' not in svg},
+        {"name": "黑白线稿规范", "passed": "stroke:#000" in svg and 'fill="#fff"' in svg},
+        {"name": "附图编号", "passed": ">图1</text>" in svg},
         {"name": "参数完整", "passed": all(value is not None for value in parameters.values())},
     ]
     return GenerateResponse(
@@ -148,7 +150,10 @@ def validate_component_spec(spec_path: str) -> dict[str, object]:
 
 @app.get("/")
 def index() -> FileResponse:
-    return FileResponse(ROOT / "static" / "index.html")
+    return FileResponse(
+        ROOT / "static" / "index.html",
+        headers={"Cache-Control": "no-store, must-revalidate"},
+    )
 
 
 @app.get("/favicon.ico", include_in_schema=False)

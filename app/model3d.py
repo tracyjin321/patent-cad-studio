@@ -18,7 +18,12 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
         ]
     if part == "flange":
         count=max(4,min(16,int(p["bolt_holes"])))
-        return [{"type":"flange","r":od/2,"inner":bore/2,"depth":float(p["thickness"]),"holes":count,"hole_r":max(3,od*.035),"pcd":od*.37,"color":"#929fad"}]
+        depth=float(p["thickness"]);neck_height=float(p.get("neck_height",0));radial=(od-bore)/2
+        hole_r=max(3,min(od*.035,radial*.18));pcd=bore/2+radial*.62
+        items=[{"type":"flange","r":od/2,"inner":bore/2,"depth":depth,"holes":count,"hole_r":hole_r,"pcd":pcd,"color":"#929fad"}]
+        if neck_height>0:
+            items.append({"type":"tube","r":min(pcd-hole_r*1.8,max(bore*.68,bore/2+depth*.55)),"inner":bore/2,"depth":neck_height,"at":[0,0,(depth+neck_height)/2],"color":"#8795a5"})
+        return items
     if part == "valve":
         nd=float(p["nominal_diameter"]); length=float(p["body_length"]); height=float(p["height"])
         return [{"type":"sphere","r":nd*.75,"scale":[1.25,1,1],"color":"#8c9aaa"},{"type":"cylinder","r":nd/2,"depth":length,"rotate":[0,90,0],"color":"#64758a"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[-length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"cylinder","r":nd*.13,"depth":height*.52,"at":[0,0,height*.32],"color":"#64758a"},{"type":"torus","r":nd*.57,"tube":nd*.065,"at":[0,0,height*.72],"rotate":[90,0,0],"color":"#a6b0bc"}]
@@ -39,7 +44,7 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
 def build_shape(part: str, p: dict[str, Any]):
     from OCP.BRep import BRep_Builder
     from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
-    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeTorus
+    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCone, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeTorus
     from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
     from OCP.TopoDS import TopoDS_Compound
 
@@ -74,10 +79,18 @@ def build_shape(part: str, p: dict[str, Any]):
         shapes += [BRepPrimAPI_MakeSphere(gp_Pnt(math.cos(i*2*math.pi/n)*pitch,math.sin(i*2*math.pi/n)*pitch,0),ball).Shape() for i in range(n)]
         return compound(shapes)
     if part=="flange":
-        od=float(p["outer_diameter"]);bore=float(p["inner_diameter"]);depth=float(p["thickness"]);count=int(p["bolt_holes"])
-        shape=tube(od/2,bore/2,depth);pcd=od*.37
+        od=float(p["outer_diameter"]);bore=float(p["inner_diameter"]);depth=float(p["thickness"]);count=int(p["bolt_holes"]);neck_height=float(p.get("neck_height",0))
+        outer_r=od/2;bore_r=bore/2;radial=max(outer_r-bore_r,1);hole_r=max(3,min(od*.035,radial*.18));pcd=bore_r+radial*.62
+        body=cylinder(outer_r,depth)
+        if neck_height>0:
+            neck_base=min(pcd-hole_r*1.8,max(bore_r*1.36,bore_r+depth*.55))
+            neck_top=min(neck_base*.84,max(bore_r*1.12,bore_r+depth*.18))
+            neck=BRepPrimAPI_MakeCone(gp_Ax2(gp_Pnt(0,0,depth/2-.05),gp_Dir(0,0,1)),neck_base,neck_top,neck_height+.05).Shape()
+            body=fuse([body,neck])
+        bore_depth=depth+neck_height+2
+        shape=BRepAlgoAPI_Cut(body,cylinder(bore_r,bore_depth,z=neck_height/2)).Shape()
         for i in range(count):
-            hole=cylinder(max(3,od*.035),depth*1.2,math.cos(i*2*math.pi/count)*pcd,math.sin(i*2*math.pi/count)*pcd)
+            hole=cylinder(hole_r,depth*1.2,math.cos(i*2*math.pi/count)*pcd,math.sin(i*2*math.pi/count)*pcd)
             shape=BRepAlgoAPI_Cut(shape,hole).Shape()
         return shape
     if part=="valve":

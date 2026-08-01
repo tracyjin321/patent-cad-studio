@@ -1,6 +1,7 @@
 import importlib
 
 import pytest
+import yaml
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
@@ -39,11 +40,8 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
 
 @pytest.mark.asyncio
 async def test_svg_and_step_share_the_same_brep_shape(monkeypatch):
-    shape = object()
     received: dict[str, object] = {}
     svg = '<svg><style>.o{stroke:#000}</style><rect fill="#fff"/><path class="o"/><path class="o"/><path class="h"/><text class="f">图1</text></svg>'
-
-    monkeypatch.setattr(main_module, "build_shape", lambda part, parameters: shape)
 
     def fake_svg(candidate, title, part, parameters):
         received["svg"] = candidate
@@ -62,7 +60,39 @@ async def test_svg_and_step_share_the_same_brep_shape(monkeypatch):
             "use_ai": False,
         })
     assert response.status_code == 200
-    assert received == {"svg": shape, "step": shape}
+    assert received["svg"] is received["step"]
+
+
+@pytest.mark.asyncio
+async def test_generate_writes_yaml_before_step_and_reuses_exact_spec(monkeypatch, tmp_path):
+    generated = tmp_path / "generated"
+    generated_library = generated / "component_library"
+    generated.mkdir()
+    generated_library.mkdir()
+    monkeypatch.setattr(main_module, "GENERATED", generated)
+    monkeypatch.setattr(main_module, "GENERATED_LIBRARY", generated_library)
+    payload = {
+        "description": "法兰外径160mm，内径76mm，厚度18mm，8个连接孔。",
+        "part_type": "flange",
+        "use_ai": False,
+    }
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        first = await client.post("/api/generate", json=payload)
+        second = await client.post("/api/generate", json=payload)
+        yaml_response = await client.get(first.json()["spec_url"])
+    assert first.status_code == second.status_code == 200
+    first_data, second_data = first.json(), second.json()
+    assert first_data["generation_source"] == "generated"
+    assert second_data["generation_source"] == "cache"
+    assert first_data["spec_id"] == second_data["spec_id"]
+    assert first_data["spec_fingerprint"] == second_data["spec_fingerprint"]
+    assert yaml_response.status_code == 200
+    spec = yaml.safe_load(yaml_response.text)
+    assert spec["geometry"]["representation"] == "parametric_brep"
+    assert spec["geometry"]["generator"]["mode"] == "parametric"
+    assert spec["geometry"]["generator"]["generator_id"] == "flange"
+    assert spec["artifacts"]["reference_step"]["sha256"]
+    assert next(item for item in first_data["compliance"] if item["name"] == "参数化 YAML 规范")["passed"]
 
 
 @pytest.mark.asyncio

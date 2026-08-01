@@ -3,6 +3,18 @@ from pathlib import Path
 from typing import Any
 
 
+GENERATOR_VERSIONS = {
+    "bearing": "1.0.0",
+    "flange": "1.1.0",
+    "valve": "1.0.0",
+    "shaft": "1.0.0",
+    "gear": "1.0.0",
+    "screw": "1.0.0",
+    "coupling": "1.0.0",
+    "seal": "1.0.0",
+}
+
+
 def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
     od = float(p.get("outer_diameter", p.get("max_diameter", p.get("diameter", 100))))
     bore = float(p.get("inner_diameter", p.get("bore", od * .35)))
@@ -42,6 +54,8 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_shape(part: str, p: dict[str, Any]):
+    if part not in GENERATOR_VERSIONS:
+        raise ValueError(f"未注册的参数化生成器: {part}")
     from OCP.BRep import BRep_Builder
     from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCone, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeTorus
@@ -167,4 +181,8 @@ def write_step(path: Path, title: str, shape: object) -> list[dict[str, Any]]:
         raise RuntimeError(f"OpenCascade could not transfer {title}")
     if writer.Write(str(path)) != IFSelect_RetDone:
         raise RuntimeError(f"OpenCascade could not write {path.name}")
+    return shape_to_model(shape)
+
+
+def shape_to_model(shape: object) -> list[dict[str, Any]]:
     return [_shape_mesh(shape)]

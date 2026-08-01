@@ -121,7 +121,10 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
                 errors.append(f"端口 {port_id} 的 axis/up 必须正交且 origin 为三维坐标")
         except (KeyError, TypeError, ValueError):
             errors.append(f"端口 {port_id} 的 frame 无效")
-    placement = spec.get("geometry", {}).get("placement")
+    geometry = spec.get("geometry", {})
+    generator = geometry.get("generator", {})
+    generator_mode = generator.get("mode")
+    placement = geometry.get("placement")
     if placement is not None:
         try:
             _validate_matrix(placement)
@@ -136,8 +139,34 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
             errors.append(f"reference STEP 不存在: {source}")
         elif artifact.get("sha256") and _sha256(source) != artifact["sha256"]:
             errors.append("reference STEP SHA-256 不匹配")
-    if spec.get("geometry", {}).get("representation") != "reference_brep":
-        warnings.append("当前转换器仅完整支持 reference_brep；其他配方需专用生成器")
+    if generator_mode == "reference_step":
+        if geometry.get("representation") != "reference_brep":
+            errors.append("reference_step 模式必须使用 reference_brep")
+    elif generator_mode == "parametric":
+        if geometry.get("representation") != "parametric_brep":
+            errors.append("parametric 模式必须使用 parametric_brep")
+        try:
+            from .llm import DEFAULTS, normalize_parameters
+            from .model3d import GENERATOR_VERSIONS
+
+            generator_id = generator["generator_id"]
+            if generator_id not in GENERATOR_VERSIONS:
+                errors.append(f"未注册的参数化生成器: {generator_id}")
+            else:
+                if generator.get("generator_version") != GENERATOR_VERSIONS[generator_id]:
+                    errors.append(f"生成器版本不匹配: {generator_id}")
+                values = {item["name"]: item.get("default") for item in parameters if isinstance(item, dict) and item.get("name")}
+                if set(values) != set(DEFAULTS[generator_id]):
+                    errors.append(f"参数集与生成器 {generator_id} 不匹配")
+                elif normalize_parameters(generator_id, values) != values:
+                    errors.append("参数未通过归一化约束")
+        except (KeyError, TypeError, ValueError) as exc:
+            errors.append(f"参数化生成器定义无效: {exc}")
+        filename = artifact.get("file")
+        if filename and Path(filename).name != filename:
+            errors.append("参数化 reference STEP 必须与 YAML 位于同一目录")
+    else:
+        errors.append("geometry.generator.mode 必须为 reference_step 或 parametric")
     return {"errors": errors, "warnings": warnings}
 
 
@@ -273,7 +302,17 @@ def spec_to_step(spec_path: Path, output: Path, *, verify_checksum: bool = True,
         raise ValueError(f"reference STEP 校验和不匹配: {source}")
     output.parent.mkdir(parents=True, exist_ok=True)
     placement = spec.get("geometry", {}).get("placement")
-    if placement is not None or force_reexport:
+    generator_mode = spec.get("geometry", {}).get("generator", {}).get("mode")
+    if generator_mode == "parametric":
+        from .parametric_spec import build_shape_from_spec
+
+        shape = build_shape_from_spec(spec)
+        if placement is not None:
+            from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+
+            shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
+        write_shape_step(shape, output)
+    elif placement is not None or force_reexport:
         from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
 
         shape = read_step(source)

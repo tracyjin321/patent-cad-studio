@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 from uuid import uuid4
 
 from dotenv import load_dotenv
@@ -10,13 +11,16 @@ from .cad import generate_svg
 from .llm import LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
-from .model3d import build_shape, write_step
+from .model3d import write_step
+from .parametric_spec import resolve_parametric_component
 
 
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 GENERATED = ROOT / "generated"
 GENERATED.mkdir(exist_ok=True)
+GENERATED_LIBRARY = GENERATED / "component_library"
+GENERATED_LIBRARY.mkdir(exist_ok=True)
 app = FastAPI(title="专图灵境 API", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
@@ -37,7 +41,14 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
 async def generate(request: GenerateRequest) -> GenerateResponse:
     parameters, parser, parser_detail = await parse_parameters(request.description, request.part_type, request.use_ai)
     title = f"{LABELS[request.part_type]}技术附图"
-    shape = build_shape(request.part_type, parameters)
+    resolved = resolve_parametric_component(
+        request.part_type,
+        parameters,
+        request.description,
+        formal_library=ROOT / "component_library",
+        generated_library=GENERATED_LIBRARY,
+    )
+    shape = resolved.shape
     svg = generate_svg(shape, title, request.part_type, parameters)
     result_id = str(uuid4())
     model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
@@ -48,6 +59,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         {"name": "黑白线稿规范", "passed": "stroke:#000" in svg and 'fill="#fff"' in svg},
         {"name": "附图编号", "passed": ">图1</text>" in svg},
         {"name": "参数完整", "passed": all(value is not None for value in parameters.values())},
+        {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]},
     ]
     return GenerateResponse(
         id=result_id,
@@ -60,6 +72,10 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         parser_detail=parser_detail,
         model=model,
         step_url=f"/api/models/{result_id}/step",
+        spec_id=resolved.component_id,
+        spec_url=f"/api/components/{resolved.component_id}/yaml",
+        generation_source=resolved.source,
+        spec_fingerprint=resolved.fingerprint,
         core_elements=request.core_elements or [request.part_type],
     )
 
@@ -72,6 +88,20 @@ def download_step(model_id: str) -> Response:
     if not path.exists():
         return Response(status_code=404)
     return FileResponse(path, media_type="application/step", filename=f"part-{model_id[:8]}.step")
+
+
+@app.get("/api/components/{component_id}/yaml")
+def download_component_yaml(component_id: str) -> Response:
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,127}", component_id):
+        return Response(status_code=404)
+    candidates = [
+        ROOT / "component_library" / component_id / "component.yaml",
+        GENERATED_LIBRARY / component_id / "component.yaml",
+    ]
+    path = next((candidate for candidate in candidates if candidate.is_file()), None)
+    if path is None:
+        return Response(status_code=404)
+    return FileResponse(path, media_type="application/yaml", filename=f"{component_id}.yaml")
 
 
 def _safe_spec_path(relative: str) -> Path:

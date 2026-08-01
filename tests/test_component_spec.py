@@ -1,10 +1,12 @@
 import hashlib
+import shutil
 from pathlib import Path
 
 import pytest
 import yaml
 
 from app.component_spec import dump_spec, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
+from app.parametric_spec import resolve_parametric_component
 from scripts.rebuild_component_catalog import build_catalog
 
 
@@ -78,3 +80,54 @@ def test_invalid_port_frame_is_rejected():
     spec["ports"][0]["frame"]["up"] = spec["ports"][0]["frame"]["axis"]
     result = validate_spec(spec)
     assert any("正交" in message for message in result["errors"])
+
+
+def test_parametric_yaml_materializes_and_rebuilds_step(tmp_path):
+    generated_library = tmp_path / "generated-library"
+    resolved = resolve_parametric_component(
+        "flange",
+        {"outer_diameter": 220, "inner_diameter": 100, "thickness": 22, "bolt_holes": 8, "neck_height": 62},
+        "设计 DN100 带颈对焊法兰",
+        formal_library=tmp_path / "empty-library",
+        generated_library=generated_library,
+    )
+    assert resolved.source == "generated"
+    assert resolved.spec_path.exists()
+    assert resolved.reference_step.exists()
+    spec = load_spec(resolved.spec_path)
+    assert spec["geometry"]["generator"] == {
+        "mode": "parametric",
+        "generator_id": "flange",
+        "generator_version": "1.1.0",
+        "preferred_engine": "OpenCascade",
+        "parameters_source": "parameters[].default",
+    }
+    assert validate_spec(spec, spec_path=resolved.spec_path)["errors"] == []
+    assert spec["ports"][0]["frame"]["axis"] == [0.0, 0.0, -1.0]
+    assert spec["ports"][1]["frame"]["axis"] == [0.0, 0.0, 1.0]
+    rebuilt = tmp_path / "rebuilt.step"
+    measured = spec_to_step(resolved.spec_path, rebuilt)
+    assert rebuilt.read_bytes().startswith(b"ISO-10303-21;")
+    assert measured["bounding_box"]["size"] == pytest.approx(
+        spec["validation"]["geometry"]["measured"]["bounding_box"]["size"], abs=1e-5
+    )
+    cached = resolve_parametric_component(
+        "flange",
+        {"outer_diameter": 220, "inner_diameter": 100, "thickness": 22, "bolt_holes": 8, "neck_height": 62},
+        "不同表述但参数相同",
+        formal_library=tmp_path / "empty-library",
+        generated_library=generated_library,
+    )
+    assert cached.source == "cache"
+    assert cached.component_id == resolved.component_id
+    formal_library = tmp_path / "formal-library"
+    shutil.copytree(resolved.spec_path.parent, formal_library / resolved.component_id)
+    library_hit = resolve_parametric_component(
+        "flange",
+        {"outer_diameter": 220, "inner_diameter": 100, "thickness": 22, "bolt_holes": 8, "neck_height": 62},
+        "正式库命中",
+        formal_library=formal_library,
+        generated_library=tmp_path / "unused-cache",
+    )
+    assert library_hit.source == "library"
+    assert library_hit.component_id == resolved.component_id

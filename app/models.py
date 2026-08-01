@@ -36,6 +36,10 @@ class GenerateResponse(BaseModel):
     parser_detail: str | None = None
     model: list[dict[str, Any]]
     step_url: str
+    spec_id: str
+    spec_url: str
+    generation_source: Literal["library", "cache", "generated"]
+    spec_fingerprint: str
     core_elements: list[PartType] = Field(default_factory=list)
 
 

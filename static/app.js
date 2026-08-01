@@ -4,8 +4,8 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const HISTORY_KEY = "cad-history";
 function historySummary(item) {
-  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,core_elements,time}=item;
-  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,core_elements,time};
+  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time}=item;
+  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time};
 }
 function loadHistory() {
   try {
@@ -88,12 +88,14 @@ function renderHistory() {
 }
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":result.parser==="local-fallback"?`本地确定性解析（${result.parser_detail||"智能解析暂不可用"}）`:"本地确定性解析";
+  const sourceText={generated:"新建 YAML 并物化 STEP",cache:"命中参数化缓存",library:"命中正式图元库"}[result.generation_source]||"旧版直接建模";
   const coreText=(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、");
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p><p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
   modelViewer.setModel(result.model); $("#step").href=result.step_url; $("#step").classList.remove("disabled");
+  if(result.spec_url){$("#yaml").href=result.spec_url;$("#yaml").classList.remove("disabled");}else{$("#yaml").removeAttribute("href");$("#yaml").classList.add("disabled");}
   ["#compliance","#png","#svg"].forEach(id=>$(id).disabled=false); state.zoom=1; applyZoom(); setTab("model");
 }
 function applyZoom(){ const svg=$("#canvas svg"); if(svg) svg.style.transform=`scale(${state.zoom})`; $("#zoom-label").textContent=`${Math.round(state.zoom*100)}%`; }
@@ -103,7 +105,7 @@ async function generate() {
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
   const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=[...state.recommended].find(part=>coreElements.includes(part))||coreElements[0];state.part=primaryPart;
   const button=$("#generate");button.disabled=true;button.innerHTML='<span class="spinner"></span>';
-  const progress=$("#generation-progress"), stages=[["正在解析结构参数","识别零件类型、尺寸与工程约束…"],["正在生成轴侧附图","从同一 B-Rep 实体计算可见轮廓与隐藏线…"],["正在构建 3D 几何","生成参数化实体与可视化网格…"],["正在封装 STEP","写入 ISO 10303 交换格式…"]];
+  const progress=$("#generation-progress"), stages=[["正在解析结构参数","识别零件类型、尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格指纹…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG、网格和 STEP…"]];
   let progressValue=0;
   const renderProgress=()=>{const stage=progressValue<28?0:progressValue<54?1:progressValue<79?2:3;const [title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${progressValue}%`;$("#progress-percent").textContent=`${Math.round(progressValue)}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;};
   progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>专图灵境 · 智能附图生成工作区</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20260801-history-quota">
-  <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-history-quota">
+  <link rel="stylesheet" href="/static/styles.css?v=20260801-yaml-first">
+  <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-yaml-first">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
 </head>
 <body>
@@ -48,7 +48,7 @@
       <nav class="tabs"><button data-tab="model">3D 预览</button><button data-tab="preview" class="active">附图预览</button><button data-tab="params">参数文档</button></nav>
       <div class="toolbar">
         <div><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
-        <div><a id="step" class="toolbar-link disabled" download>下载 STEP</a><button id="compliance" disabled>合规校验</button><button id="png" disabled>导出 PNG</button><button id="svg" disabled>导出 SVG</button></div>
+        <div><a id="yaml" class="toolbar-link disabled" download>下载 YAML</a><a id="step" class="toolbar-link disabled" download>下载 STEP</a><button id="compliance" disabled>合规校验</button><button id="png" disabled>导出 PNG</button><button id="svg" disabled>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
         <div class="model-stage"><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
@@ -93,6 +93,6 @@
       <div id="toast" role="status" aria-live="polite"></div>
     </article>
   </main>
-  <script type="module" src="/static/app.js?v=20260801-history-quota"></script>
+  <script type="module" src="/static/app.js?v=20260801-yaml-first"></script>
 </body>
 </html>

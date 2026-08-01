@@ -10,6 +10,81 @@
   --purple-800: #5b21b6;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+main {
+  height: calc(100dvh - 56px);
+  min-height: 0;
+  overflow: hidden;
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+aside {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-padding-bottom: 24px;
+}
+
+article {
+  min-height: 0;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.panel,
+.canvas,
+.model-stage {
+  min-height: 0;
+}
+
+.tabs,
+.toolbar {
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+#model.panel.active,
+#preview.panel.active,
+#params.panel.active {
+  padding: 20px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.canvas,
+.model-stage,
+.parameter-content {
+  height: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px #1018280d;
+}
+
+.canvas.empty {
+  background: #f8fafc80;
+  border-style: dashed;
+}
+
+.canvas,
+#params.panel.active {
+  overscroll-behavior: contain;
+}
+
+.parameter-content {
+  max-width: none;
+  overflow-y: auto;
+}
+
 .status {
   display: inline-flex;
   align-items: center;
@@ -46,6 +121,42 @@
 @keyframes service-status-pulse {
   50% {
     opacity: 0.45;
+  }
+}
+
+@media (max-width: 850px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+  }
+
+  body {
+    overflow-y: auto;
+  }
+
+  main {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  aside {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  article {
+    height: clamp(560px, calc(100dvh - 56px), 720px);
+    min-height: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  #model.panel.active,
+  #preview.panel.active,
+  #params.panel.active {
+    padding: 12px;
   }
 }
 

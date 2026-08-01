@@ -7,31 +7,48 @@
   <link rel="stylesheet" href="/static/styles.css?v=20260801-yaml-first">
   <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-yaml-first">
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
-  <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-demo-palette">
+  <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
+  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-ui-system-5">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
 </head>
 <body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <defs>
+      <symbol id="icon-cube" viewBox="0 0 24 24"><path d="m21 16-9 5-9-5V8l9-5 9 5Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></symbol>
+      <symbol id="icon-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></symbol>
+      <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+      <symbol id="icon-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+      <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12.8 2.2 8 4a1.3 1.3 0 0 1 0 2.3l-8 4a1.8 1.8 0 0 1-1.6 0l-8-4a1.3 1.3 0 0 1 0-2.3l8-4a1.8 1.8 0 0 1 1.6 0Z"/><path d="m22 12.5-9.2 4.6a1.8 1.8 0 0 1-1.6 0L2 12.5M22 17l-9.2 4.6a1.8 1.8 0 0 1-1.6 0L2 17"/></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="icon-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+      <symbol id="icon-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+      <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.2 3.3a7 7 0 0 1-4.2 4.2L3 12l3.6 1.5a7 7 0 0 1 4.2 4.2L12 21l1.2-3.3a7 7 0 0 1 4.2-4.2L21 12l-3.6-1.5a7 7 0 0 1-4.2-4.2Z"/></symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7h-5V2M4 17h5v5"/><path d="M5.1 9A8 8 0 0 1 18.5 5.5L20 7M4 17l1.5 1.5A8 8 0 0 0 18.9 15"/></symbol>
+    </defs>
+  </svg>
   <header>
-    <div class="brand"><span class="brand-mark">⌬</span><strong>专图灵境</strong><span class="divider">|</span><span>智能附图生成工作区</span></div>
+    <div class="brand"><span class="brand-mark"><svg class="ui-icon"><use href="#icon-cube"></use></svg></span><span class="brand-copy"><strong>专图灵境</strong><small>智能附图生成工作区</small></span></div>
     <div id="service-status" class="status checking" role="status" aria-live="polite" aria-atomic="true"><i></i><span>正在连接生成服务…</span></div>
   </header>
   <main>
     <aside>
+      <div class="aside-intro"><h1><svg class="ui-icon"><use href="#icon-sparkles"></use></svg>文生图</h1><p>输入技术描述或上传技术文档，系统将解析结构参数并生成专利附图</p></div>
       <section>
-        <div class="section-title"><strong>技术描述</strong><span id="counter">0/5000</span></div>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-file-text"></use></svg>技术描述</strong><span id="counter">0/5000</span></div>
         <textarea id="description" maxlength="5000" placeholder="请输入零件用途、结构和关键尺寸。例如：生成深沟球轴承，外径100mm，内径45mm，宽25mm，10个滚珠。"></textarea>
-        <div class="hint-row"><button id="example" class="text-button">⟳ 刷新示例</button><button id="clear" class="text-button">清空</button></div>
+        <div class="hint-row"><button id="example" class="text-button"><svg class="ui-icon"><use href="#icon-refresh"></use></svg>刷新示例</button><button id="clear" class="text-button">清空</button></div>
       </section>
       <section>
-        <div class="section-title"><strong>文档上传</strong><span>TXT/MD，≤2MB</span></div>
-        <label class="upload">⇧ 点击导入技术描述<input id="document" type="file" accept=".txt,.md,text/plain"></label>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-upload"></use></svg>文档上传</strong><span>TXT/MD，≤2MB</span></div>
+        <label class="upload"><svg class="ui-icon"><use href="#icon-upload"></use></svg>点击导入技术描述<input id="document" type="file" accept=".txt,.md,text/plain"></label>
       </section>
       <section>
-        <div class="section-title"><strong>工程领域</strong></div>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-sliders"></use></svg>工程领域</strong></div>
         <select id="field"><option>机械结构</option><option>能源装备</option><option>化工装置</option><option>纺织机械</option></select>
       </section>
       <section>
-        <div class="section-title"><strong>核心图元</strong><span id="recommendation-status">自动推荐，可人工补充</span></div>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-layers"></use></svg>核心图元</strong><span id="recommendation-status">自动推荐，可人工补充</span></div>
         <div id="parts" class="parts">
           <button data-part="bearing" class="active">轴承</button><button data-part="flange">法兰</button>
           <button data-part="valve">阀门</button><button data-part="shaft">轴系</button>
@@ -39,25 +56,25 @@
           <button data-part="coupling">联轴器</button><button data-part="seal">密封件</button>
         </div>
       </section>
-      <label class="ai-toggle"><input id="use-ai" type="checkbox" checked><span>使用 Moonshot 智能提取参数</span><small>不可用时自动回退本地解析</small></label>
-      <button id="generate" class="primary"><span aria-hidden="true">⌁</span><span>生成附图</span></button>
+      <label class="ai-toggle"><input id="use-ai" type="checkbox" checked><span class="ai-title">使用 Moonshot 智能提取参数</span><small>不可用时自动回退本地解析</small></label>
+      <button id="generate" class="primary"><svg class="ui-icon" aria-hidden="true"><use href="#icon-sparkles"></use></svg><span>生成附图</span></button>
       <section class="history-section">
-        <div class="section-title"><strong>历史记录</strong><button id="clear-history" class="text-button">清空</button></div>
+        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-clock"></use></svg>历史记录</strong><button id="clear-history" class="text-button">清空</button></div>
         <div id="history" class="history"><p class="empty-small">暂无生成记录</p></div>
       </section>
     </aside>
     <article>
-      <nav class="tabs"><button data-tab="model">3D 预览</button><button data-tab="preview" class="active">附图预览</button><button data-tab="params">参数文档</button></nav>
+      <nav class="tabs"><button data-tab="model"><svg class="ui-icon"><use href="#icon-cube"></use></svg>3D 预览</button><button data-tab="preview" class="active"><svg class="ui-icon"><use href="#icon-image"></use></svg>附图预览</button><button data-tab="params"><svg class="ui-icon"><use href="#icon-file-text"></use></svg>参数文档</button></nav>
       <div class="toolbar">
-        <div><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
-        <div><a id="yaml" class="toolbar-link disabled" download>下载 YAML</a><a id="step" class="toolbar-link disabled" download>下载 STEP</a><button id="compliance" disabled>合规校验</button><button id="png" disabled>导出 PNG</button><button id="svg" disabled>导出 SVG</button></div>
+        <div class="toolbar-zoom"><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
+        <div class="toolbar-actions"><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="compliance" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>合规校验</button><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
         <div class="model-stage"><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
       </div>
       <div id="preview" class="panel active">
         <div id="canvas" class="canvas empty">
-          <div class="placeholder"><span>▧</span><p>在左侧描述零件并点击“生成附图”</p><small>系统将在此展示参数化轴侧附图</small></div>
+          <div class="placeholder"><svg class="placeholder-icon"><use href="#icon-image"></use></svg><p>在左侧描述零件并点击“生成附图”</p><small>系统将在此展示参数化轴侧附图</small></div>
         </div>
       </div>
       <div id="params" class="panel"><div id="parameter-content" class="parameter-content"></div></div>
@@ -95,6 +112,6 @@
       <div id="toast" role="status" aria-live="polite"></div>
     </article>
   </main>
-  <script type="module" src="/static/app.js?v=20260801-yaml-first"></script>
+  <script type="module" src="/static/app.js?v=20260801-ui-system"></script>
 </body>
 </html>

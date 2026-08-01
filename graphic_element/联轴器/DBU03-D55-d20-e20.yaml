@@ -1,0 +1,231 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: oldham-dbu03-d55-d20-e20
+  name: 十字环联轴器
+  name_en: Oldham Coupling
+  type: coupling
+  subtype: oldham
+  family: shafting
+  standard: null
+  description: 由现有 DBU03-D55-d20-e20.stp 无损转换的固定规格图元。
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-07-31'
+  updated_at: '2026-07-31'
+  status: draft
+  tags:
+  - 联轴器
+  - 十字环联轴器
+  - DBU03-D55-d20-e20
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - -28.5
+  - 0.0
+  - 0.0
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 沿原始 STEP +Z
+  zero_rotation_definition: 沿原始 STEP +X
+parameters:
+- name: outer_diameter
+  label: 外径
+  type: float
+  unit: mm
+  default: 55.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: bore_diameter
+  label: 轴孔直径
+  type: float
+  unit: mm
+  default: 20.0
+  required: true
+  editable: false
+  affects_geometry: true
+- name: length
+  label: 总长
+  type: float
+  unit: mm
+  default: 59.535
+  required: true
+  editable: false
+  affects_geometry: true
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: end_a
+  name: 轴向端口 A
+  type: shaft_bore
+  role: mechanical_connection
+  frame:
+    origin:
+    - -28.5
+    - -29.767518
+    - 0.0
+    axis:
+    - -0.0
+    - -1.0
+    - -0.0
+    up: &id001
+    - 1.0
+    - 0.0
+    - 0.0
+  interface: {}
+  compatible_with:
+    port_types:
+    - shaft_end
+    - shaft_bore
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+- id: end_b
+  name: 轴向端口 B
+  type: shaft_bore
+  role: mechanical_connection
+  frame:
+    origin:
+    - -28.5
+    - 29.767518
+    - 0.0
+    axis:
+    - 0.0
+    - 1.0
+    - 0.0
+    up: *id001
+  interface: {}
+  compatible_with:
+    port_types:
+    - shaft_end
+    - shaft_bore
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: DBU03-D55-d20-e20.stp
+  output:
+    format: STEP
+    application_protocol: source_preserved
+    preserve_names: true
+    preserve_colors: true
+    filename_template: oldham-dbu03-d55-d20-e20.step
+presets:
+- name: reference
+  source_ref: DBU03-D55-d20-e20.stp
+  verification_status: geometry_measured
+  params:
+    outer_diameter: 55.0
+    bore_diameter: 20.0
+    length: 59.535
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 3
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -57.001733
+        - -29.767518
+        - -29.767518
+        max:
+        - 0.001733
+        - 29.767518
+        - 29.767518
+        size:
+        - 57.003466
+        - 59.535036
+        - 59.535036
+      topology:
+        solids: 3
+        shells: 3
+        faces: 68
+        edges: 352
+        vertices: 705
+        compounds: 1
+      volume_mm3: 106592.177546
+      center_of_mass:
+      - -28.500017
+      - -0.215407
+      - -0.215417
+      valid_solid: true
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: source_preserved
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+  review:
+    geometry_reviewer: null
+    data_reviewer: null
+    reviewed_at: null
+    release_blocked_when_pending: true
+artifacts:
+  reference_step:
+    file: DBU03-D55-d20-e20.stp
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: AP214
+    length_unit: mm
+    sha256: 939db0956c38a82dfd8440a230e2bd289ba799e4a842c163e00e4a3c03d91dac
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: null
+    required: false
+    sha256: null
+provenance:
+  source_type: imported_step
+  standard_refs: []
+  data_entry_method: imported
+  verified_by: null
+  verified_at: null

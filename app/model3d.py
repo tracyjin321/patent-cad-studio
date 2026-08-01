@@ -38,7 +38,7 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
 
 def _occ_shape(part: str, p: dict[str, Any]):
     from OCP.BRep import BRep_Builder
-    from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder, BRepPrimAPI_MakeSphere, BRepPrimAPI_MakeTorus
     from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
     from OCP.TopoDS import TopoDS_Compound
@@ -54,6 +54,18 @@ def _occ_shape(part: str, p: dict[str, Any]):
     def compound(shapes):
         result=TopoDS_Compound();builder=BRep_Builder();builder.MakeCompound(result)
         for shape in shapes: builder.Add(result,shape)
+        return result
+
+    def fuse(shapes):
+        """Build a single B-Rep where primitives overlap; fail loudly on bad geometry."""
+        iterator = iter(shapes)
+        result = next(iterator)
+        for item in iterator:
+            operation = BRepAlgoAPI_Fuse(result, item)
+            operation.Build()
+            if not operation.IsDone():
+                raise RuntimeError("OpenCascade boolean fuse failed")
+            result = operation.Shape()
         return result
 
     if part=="bearing":
@@ -73,10 +85,13 @@ def _occ_shape(part: str, p: dict[str, Any]):
         return compound([BRepPrimAPI_MakeSphere(gp_Pnt(0,0,0),nd*.75).Shape(),cylinder(nd/2,length,axis="x"),cylinder(nd*.13,height*.52,z=height*.32),BRepPrimAPI_MakeTorus(gp_Ax2(gp_Pnt(0,0,height*.72),gp_Dir(0,0,1)),nd*.57,nd*.065).Shape()])
     if part=="shaft":
         length=float(p["total_length"]);steps=max(3,min(6,int(p["steps"])));maximum=float(p["max_diameter"])
-        return compound([cylinder(maximum/2*(.62+.38*math.sin(math.pi*(i+1)/(steps+1))),length/steps,x=-length/2+length*(i+.5)/steps,axis="x") for i in range(steps)])
+        # Tiny overlap avoids coincident-face compounds and yields one machinable solid.
+        overlap = min(0.02, length / steps * 0.001)
+        return fuse([cylinder(maximum/2*(.62+.38*math.sin(math.pi*(i+1)/(steps+1))),length/steps+2*overlap,x=-length/2+length*(i+.5)/steps,axis="x") for i in range(steps)])
     if part=="gear":
         module=float(p["module"]);teeth=max(10,min(64,int(p["teeth"])));outer=module*teeth/2;root=outer*.84;depth=float(p["face_width"]);bore=float(p["bore"])/2
-        shapes=[tube(root,bore,depth)]
+        core=cylinder(root,depth)
+        teeth_shapes=[]
         tooth_w=2*math.pi*outer/teeth*.52
         for i in range(teeth):
             angle=i*2*math.pi/teeth;x=math.cos(angle)*(root+(outer-root)/2);y=math.sin(angle)*(root+(outer-root)/2)
@@ -84,8 +99,9 @@ def _occ_shape(part: str, p: dict[str, Any]):
             from OCP.gp import gp_Trsf
             from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
             tr=gp_Trsf();tr.SetRotation(gp_Ax2(gp_Pnt(0,0,0),gp_Dir(0,0,1)).Axis(),angle-math.pi/2);rot=BRepBuilderAPI_Transform(box,tr,True).Shape()
-            move=gp_Trsf();move.SetTranslation(gp_Pnt(0,0,0),gp_Pnt(x,y,0));shapes.append(BRepBuilderAPI_Transform(rot,move,True).Shape())
-        return compound(shapes)
+            move=gp_Trsf();move.SetTranslation(gp_Pnt(0,0,0),gp_Pnt(x,y,0));teeth_shapes.append(BRepBuilderAPI_Transform(rot,move,True).Shape())
+        body=fuse([core, *teeth_shapes])
+        return BRepAlgoAPI_Cut(body,cylinder(bore,depth*1.1)).Shape()
     if part=="screw":
         diameter=float(p["diameter"]);length=float(p["length"]);lead=max(2,float(p["lead"]))
         shapes=[cylinder(diameter/2,length,axis="x")]
@@ -96,7 +112,7 @@ def _occ_shape(part: str, p: dict[str, Any]):
         return compound(shapes)
     if part=="coupling":
         r=float(p["outer_diameter"])/2;length=float(p["length"]);inner=float(p["bore"])/2
-        return compound([tube(r,inner,length*.22,z=-length*.38),tube(r,inner,length*.22,z=length*.38),tube(r*.68,inner,length*.64)])
+        return fuse([tube(r,inner,length*.22,z=-length*.38),tube(r,inner,length*.22,z=length*.38),tube(r*.68,inner,length*.68)])
     return tube(float(p["outer_diameter"])/2,float(p["inner_diameter"])/2,float(p["width"]))
 
 

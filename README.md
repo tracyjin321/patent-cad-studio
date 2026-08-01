@@ -30,3 +30,49 @@ cp .env.example .env
 ```
 
 API Key 只从环境变量读取，不会发送给浏览器，也不应提交到仓库。
+
+## STEP / ComponentSpec YAML
+
+`graphic_element` 中每个 STEP 都配有一份 ComponentSpec v1.3 YAML。导入模型采用
+`reference_brep` 表示：参数、坐标系、装配端口和实测拓扑写入 YAML，原始 STEP 作为
+几何真值，因此未变换的 YAML → STEP 是字节级无损的。
+
+```bash
+# 重新扫描并生成 YAML（已有文件默认跳过）
+./.venv/bin/python scripts/convert_components.py
+
+# 任意 STEP 建立一份可搬移的 YAML + reference STEP 交付对
+./.venv/bin/python scripts/component_cli.py step-to-yaml input.step component.yaml \
+  --id my-component --name "我的图元" --type shaft
+
+# YAML 恢复 STEP，并校验 SHA-256
+./.venv/bin/python scripts/component_cli.py yaml-to-step \
+  graphic_element/轴承/深沟球轴承-BAU6201Z.yaml /tmp/bearing.step
+
+# 查看包围盒、体积和拓扑
+./.venv/bin/python scripts/component_cli.py inspect /tmp/bearing.step
+
+# 校验规范/引用文件，以及执行 OpenCascade 重导出一致性检查
+./.venv/bin/python scripts/component_cli.py validate component.yaml
+./.venv/bin/python scripts/component_cli.py roundtrip component.yaml --output checked.step
+```
+
+服务端同时提供：
+
+- `POST /api/convert/step-to-yaml?filename=part.step`：请求体为 STEP 二进制，返回 YAML 与 reference STEP 下载地址。
+- `POST /api/convert/yaml-to-step`：传入 `{"spec_path":"graphic_element/...yaml","reexport":true}` 生成 STEP。
+- `GET /api/component-spec/validate?spec_path=graphic_element/...yaml`：校验 YAML、端口、引用文件及校验和。
+
+端口装配使用 JSON 清单。第一项固定，后续项的 `port` 会与 `target` 指定组件的
+`mate_to` 端口原点重合、轴向相反、up 方向对齐：
+
+```json
+{"components": [
+  {"spec": "graphic_element/传动轴/二阶形轴-MCM01-D30-L70-E45-F45-A20-B20-G18-V18-P12-Q12.yaml"},
+  {"spec": "graphic_element/轴承/深沟球轴承-BAU6201Z.yaml", "port": "end_a", "target": 0, "mate_to": "end_b"}
+]}
+```
+
+```bash
+./.venv/bin/python scripts/component_cli.py assemble assembly.json assembly.step
+```

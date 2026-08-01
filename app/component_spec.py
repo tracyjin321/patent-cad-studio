@@ -1,0 +1,421 @@
+"""ComponentSpec v1.3 STEP/YAML conversion and assembly utilities.
+
+Imported STEP files use a lossless ``reference_brep`` recipe: YAML records the
+source artifact, checksum, measured geometry and assembly ports.  Rebuilding
+without a transform copies the original bytes; transformed parts are imported
+and exported by OpenCascade.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import math
+import re
+import shutil
+from datetime import date
+from pathlib import Path
+from typing import Any, Iterable
+
+import yaml
+
+
+IDENTITY_MATRIX = [[1.0 if row == column else 0.0 for column in range(4)] for row in range(4)]
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def read_step(path: Path):
+    from OCP.IFSelect import IFSelect_RetDone
+    from OCP.STEPControl import STEPControl_Reader
+
+    reader = STEPControl_Reader()
+    if reader.ReadFile(str(path)) != IFSelect_RetDone:
+        raise ValueError(f"无法读取 STEP: {path}")
+    if reader.TransferRoots() == 0:
+        raise ValueError(f"STEP 中没有可转换的形状: {path}")
+    return reader.OneShape()
+
+
+def inspect_shape(shape: object) -> dict[str, Any]:
+    from OCP.BRep import BRep_Tool
+    from OCP.BRepGProp import BRepGProp
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    from OCP.GProp import GProp_GProps
+    from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_EDGE, TopAbs_FACE, TopAbs_SHELL, TopAbs_SOLID, TopAbs_VERTEX
+    from OCP.TopExp import TopExp_Explorer
+
+    box = Bnd_Box()
+    BRepBndLib.Add_s(shape, box)
+    bounds = [round(float(value), 6) for value in box.Get()]
+    counts = {}
+    for name, kind in (("solids", TopAbs_SOLID), ("shells", TopAbs_SHELL), ("faces", TopAbs_FACE),
+                       ("edges", TopAbs_EDGE), ("vertices", TopAbs_VERTEX), ("compounds", TopAbs_COMPOUND)):
+        explorer, count = TopExp_Explorer(shape, kind), 0
+        while explorer.More():
+            count += 1
+            explorer.Next()
+        counts[name] = count
+    props = GProp_GProps()
+    BRepGProp.VolumeProperties_s(shape, props)
+    center = props.CentreOfMass()
+    valid = not bool(BRep_Tool.IsClosed_s(shape)) if counts["solids"] == 0 else True
+    return {
+        "bounding_box": {
+            "min": bounds[:3], "max": bounds[3:],
+            "size": [round(bounds[i + 3] - bounds[i], 6) for i in range(3)],
+        },
+        "topology": counts,
+        "volume_mm3": round(float(props.Mass()), 6),
+        "center_of_mass": [round(float(center.X()), 6), round(float(center.Y()), 6), round(float(center.Z()), 6)],
+        "valid_solid": valid,
+    }
+
+
+def inspect_step(path: Path) -> dict[str, Any]:
+    return inspect_shape(read_step(path))
+
+
+def load_spec(path: Path) -> dict[str, Any]:
+    with path.open(encoding="utf-8") as stream:
+        spec = yaml.safe_load(stream)
+    if not isinstance(spec, dict) or spec.get("schema_version") != "1.3":
+        raise ValueError(f"{path} 不是 ComponentSpec v1.3")
+    return spec
+
+
+def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dict[str, list[str]]:
+    """Validate the interoperable subset of ComponentSpec v1.3."""
+    errors: list[str] = []
+    warnings: list[str] = []
+    if spec.get("schema_version") != "1.3":
+        errors.append("schema_version 必须为 1.3")
+    if spec.get("spec_type") != "component":
+        errors.append("spec_type 必须为 component")
+    identity = spec.get("identity")
+    if not isinstance(identity, dict) or not identity.get("id") or not identity.get("name") or not identity.get("type"):
+        errors.append("identity.id/name/type 均为必填")
+    parameters = spec.get("parameters", [])
+    names = [item.get("name") for item in parameters if isinstance(item, dict)]
+    if len(names) != len(set(names)) or any(not name for name in names):
+        errors.append("parameters.name 必须非空且唯一")
+    for item in parameters:
+        if item.get("required") and item.get("default") is None:
+            errors.append(f"必填参数 {item.get('name')} 缺少 default")
+    port_ids: set[str] = set()
+    for port in spec.get("ports", []):
+        port_id = port.get("id")
+        if not port_id or port_id in port_ids:
+            errors.append("ports.id 必须非空且唯一")
+        port_ids.add(port_id)
+        frame = port.get("frame", {})
+        try:
+            axis, up = _normalize(frame["axis"]), _normalize(frame["up"])
+            if len(frame["origin"]) != 3 or abs(sum(a*b for a, b in zip(axis, up))) > 1e-6:
+                errors.append(f"端口 {port_id} 的 axis/up 必须正交且 origin 为三维坐标")
+        except (KeyError, TypeError, ValueError):
+            errors.append(f"端口 {port_id} 的 frame 无效")
+    placement = spec.get("geometry", {}).get("placement")
+    if placement is not None:
+        try:
+            _validate_matrix(placement)
+        except (TypeError, ValueError) as exc:
+            errors.append(f"geometry.placement 无效: {exc}")
+    artifact = spec.get("artifacts", {}).get("reference_step", {})
+    if not artifact.get("file"):
+        errors.append("artifacts.reference_step.file 为必填")
+    elif spec_path is not None:
+        source = _artifact_path(spec_path, spec)
+        if not source.exists():
+            errors.append(f"reference STEP 不存在: {source}")
+        elif artifact.get("sha256") and _sha256(source) != artifact["sha256"]:
+            errors.append("reference STEP SHA-256 不匹配")
+    if spec.get("geometry", {}).get("representation") != "reference_brep":
+        warnings.append("当前转换器仅完整支持 reference_brep；其他配方需专用生成器")
+    return {"errors": errors, "warnings": warnings}
+
+
+def dump_spec(spec: dict[str, Any], path: Path) -> None:
+    result = validate_spec(spec)
+    if result["errors"]:
+        raise ValueError("YAML 规范校验失败: " + "; ".join(result["errors"]))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump(spec, allow_unicode=True, sort_keys=False, width=120), encoding="utf-8")
+
+
+def _slug(value: str) -> str:
+    result = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return result or hashlib.sha1(value.encode()).hexdigest()[:12]
+
+
+def step_to_spec(step_path: Path, output: Path, *, identity: dict[str, str] | None = None,
+                 copy_reference: bool = True) -> dict[str, Any]:
+    """Create a portable ComponentSpec for any STEP file.
+
+    By default the reference STEP is copied next to the YAML, making the pair
+    relocatable. Existing same-path artifacts are never overwritten.
+    """
+    measured = inspect_step(step_path)
+    info = identity or {}
+    component_id = info.get("id", _slug(step_path.stem))
+    reference = output.with_suffix(step_path.suffix.lower()) if copy_reference else step_path.resolve()
+    if copy_reference and reference.resolve() != step_path.resolve():
+        if reference.exists() and _sha256(reference) != _sha256(step_path):
+            raise FileExistsError(f"目标 reference STEP 已存在且内容不同: {reference}")
+        reference.parent.mkdir(parents=True, exist_ok=True)
+        if not reference.exists():
+            shutil.copyfile(step_path, reference)
+    bbox, size = measured["bounding_box"], measured["bounding_box"]["size"]
+    axis_index = size.index(max(size))
+    axis = [0.0, 0.0, 0.0]
+    axis[axis_index] = 1.0
+    up = [1.0, 0.0, 0.0] if axis_index != 0 else [0.0, 1.0, 0.0]
+    center = [(bbox["min"][i] + bbox["max"][i]) / 2 for i in range(3)]
+    low, high = center.copy(), center.copy()
+    low[axis_index], high[axis_index] = bbox["min"][axis_index], bbox["max"][axis_index]
+    artifact_file = reference.name if reference.parent.resolve() == output.parent.resolve() else str(reference)
+    today = date.today().isoformat()
+    spec = {
+        "schema_version": "1.3", "spec_type": "component",
+        "identity": {"id": component_id, "name": info.get("name", step_path.stem),
+                     "name_en": info.get("name_en"), "type": info.get("type", "generic"),
+                     "subtype": info.get("subtype", "imported_step"), "family": info.get("family", "generic"),
+                     "standard": None, "description": f"由 {step_path.name} 转换的固定几何图元。",
+                     "license": "源文件许可见 STEP 元数据", "version": "1.0.0", "created_at": today,
+                     "updated_at": today, "status": "draft", "tags": [step_path.stem],
+                     "default_preset": "reference", "default_color": "#8D9BAB"},
+        "coordinate_system": {"length_unit": "mm", "angle_unit": "deg", "handedness": "right_handed",
+                              "origin": [round(v, 6) for v in center], "x_axis": [1.0, 0.0, 0.0],
+                              "y_axis": [0.0, 1.0, 0.0], "z_axis": [0.0, 0.0, 1.0],
+                              "origin_definition": "STEP 包围盒中心", "z_axis_definition": "原始 STEP +Z",
+                              "zero_rotation_definition": "原始 STEP +X"},
+        "parameters": [], "derived_parameters": [], "constraints": {"expression_language": "CEL", "rules": []},
+        "ports": [
+            {"id": "end_a", "name": "轴向端口 A", "type": "mechanical_interface", "role": "mechanical_connection",
+             "frame": {"origin": [round(v, 6) for v in low], "axis": [-v for v in axis], "up": up},
+             "interface": {}, "compatible_with": {"port_types": ["mechanical_interface"], "rules": []},
+             "allowed_mates": ["coincident_concentric"]},
+            {"id": "end_b", "name": "轴向端口 B", "type": "mechanical_interface", "role": "mechanical_connection",
+             "frame": {"origin": [round(v, 6) for v in high], "axis": axis, "up": up},
+             "interface": {}, "compatible_with": {"port_types": ["mechanical_interface"], "rules": []},
+             "allowed_mates": ["coincident_concentric"]},
+        ],
+        "geometry": {"representation": "reference_brep", "modeling_kernel": "OpenCascade",
+                     "generator": {"mode": "reference_step", "preferred_engine": "OpenCascade",
+                                   "engine_version": "7.8.x", "script_required_for_release": False},
+                     "construction": [{"id": "import_reference", "operation": "import_step", "source": artifact_file}],
+                     "output": {"format": "STEP", "application_protocol": "AP242", "preserve_names": True,
+                                "preserve_colors": True, "filename_template": f"{component_id}.step"}},
+        "presets": [{"name": "reference", "source_ref": step_path.name,
+                     "verification_status": "geometry_measured", "params": {}}],
+        "validation": {"parameter_validation": {"required_parameters_complete": True, "enum_validation": True,
+                                                  "constraint_validation": True},
+                       "topology": {"expected_body_count": measured["topology"]["solids"], "solid_required": True,
+                                    "closed_shell_required": True, "manifold_required": True,
+                                    "self_intersection_allowed": False},
+                       "geometry": {"dimensional_tolerance": 0.01, "angular_tolerance": 0.1,
+                                    "positive_volume_required": True, "measured": measured},
+                       "ports": {"validate_frame_orthogonality": True, "validate_axis_normalized": True,
+                                 "validate_origin_on_interface": True},
+                       "step_roundtrip": {"required": True, "application_protocol": "AP242",
+                                          "preserve_product_name": True, "preserve_color": True,
+                                          "preserve_units": True}},
+        "artifacts": {"reference_step": {"file": artifact_file, "role": "固定规格几何与往返转换基准",
+                                           "format": "STEP", "application_protocol": "source_preserved",
+                                           "length_unit": "mm", "sha256": _sha256(reference)},
+                      "generator_source": {"file": None, "required": False, "sha256": None},
+                      "preview_model": {"file": None, "required": False, "sha256": None},
+                      "thumbnail": {"file": None, "required": False, "sha256": None}},
+        "provenance": {"source_type": "imported_step", "standard_refs": [], "data_entry_method": "imported",
+                       "verified_by": None, "verified_at": None},
+    }
+    dump_spec(spec, output)
+    return spec
+
+
+def _artifact_path(spec_path: Path, spec: dict[str, Any]) -> Path:
+    filename = spec.get("artifacts", {}).get("reference_step", {}).get("file")
+    if not filename:
+        raise ValueError("YAML 缺少 artifacts.reference_step.file")
+    result = Path(filename)
+    return result if result.is_absolute() else spec_path.parent / result
+
+
+def write_shape_step(shape: object, path: Path) -> None:
+    from OCP.IFSelect import IFSelect_RetDone
+    from OCP.Interface import Interface_Static
+    from OCP.STEPControl import STEPControl_AsIs, STEPControl_Writer
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Interface_Static.SetCVal_s("write.step.schema", "AP242DIS")
+    writer = STEPControl_Writer()
+    if writer.Transfer(shape, STEPControl_AsIs) != IFSelect_RetDone or writer.Write(str(path)) != IFSelect_RetDone:
+        raise RuntimeError(f"OpenCascade 无法写入 {path}")
+
+
+def spec_to_step(spec_path: Path, output: Path, *, verify_checksum: bool = True,
+                 force_reexport: bool = False) -> dict[str, Any]:
+    spec = load_spec(spec_path)
+    validation = validate_spec(spec, spec_path=spec_path)
+    if validation["errors"]:
+        raise ValueError("YAML 规范校验失败: " + "; ".join(validation["errors"]))
+    source = _artifact_path(spec_path, spec)
+    expected = spec["artifacts"]["reference_step"].get("sha256")
+    if verify_checksum and expected and _sha256(source) != expected:
+        raise ValueError(f"reference STEP 校验和不匹配: {source}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    placement = spec.get("geometry", {}).get("placement")
+    if placement is not None or force_reexport:
+        from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+
+        shape = read_step(source)
+        if placement is not None:
+            shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
+        write_shape_step(shape, output)
+    elif source.resolve() != output.resolve():
+        shutil.copyfile(source, output)
+    return inspect_step(output)
+
+
+def roundtrip_report(spec_path: Path, output: Path | None = None) -> dict[str, Any]:
+    """Re-export a spec and compare invariant geometry with its reference."""
+    import tempfile
+
+    spec = load_spec(spec_path)
+    source = _artifact_path(spec_path, spec)
+    original = inspect_step(source)
+    if output is None:
+        with tempfile.TemporaryDirectory(prefix="component-roundtrip-") as directory:
+            target = Path(directory) / "roundtrip.step"
+            rebuilt = spec_to_step(spec_path, target, force_reexport=True)
+    else:
+        rebuilt = spec_to_step(spec_path, output, force_reexport=True)
+    tolerance = float(spec.get("validation", {}).get("geometry", {}).get("dimensional_tolerance", 0.01))
+    # STEP writers may re-approximate analytic/B-spline surfaces. A ppm-level
+    # relative tolerance catches real geometry changes without rejecting that
+    # harmless serialization noise (notably on the imported Oldham coupling).
+    volume_relative_tolerance = float(
+        spec.get("validation", {}).get("geometry", {}).get("volume_relative_tolerance", 1e-6)
+    )
+    volume_tolerance = max(1e-6, abs(original["volume_mm3"]) * volume_relative_tolerance)
+    size_delta = [abs(a - b) for a, b in zip(original["bounding_box"]["size"], rebuilt["bounding_box"]["size"])]
+    checks = {
+        "solid_count": original["topology"]["solids"] == rebuilt["topology"]["solids"],
+        "face_count": original["topology"]["faces"] == rebuilt["topology"]["faces"],
+        "volume": abs(original["volume_mm3"] - rebuilt["volume_mm3"]) <= volume_tolerance,
+        "bounding_box_size": all(delta <= tolerance for delta in size_delta),
+    }
+    return {"passed": all(checks.values()), "checks": checks, "size_delta_mm": size_delta,
+            "volume_delta_mm3": abs(original["volume_mm3"] - rebuilt["volume_mm3"]),
+            "volume_tolerance_mm3": volume_tolerance,
+            "original": original, "rebuilt": rebuilt}
+
+
+def _normalize(vector: Iterable[float]) -> list[float]:
+    values = [float(v) for v in vector]
+    length = math.sqrt(sum(v * v for v in values))
+    if length < 1e-12:
+        raise ValueError("端口方向向量不能为零")
+    return [v / length for v in values]
+
+
+def _cross(a: list[float], b: list[float]) -> list[float]:
+    return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+
+def _frame_matrix(frame: dict[str, Any], reverse_axis: bool = False) -> list[list[float]]:
+    x = _normalize(frame["up"])
+    z = _normalize(frame["axis"])
+    if reverse_axis:
+        z = [-v for v in z]
+    y = _normalize(_cross(z, x))
+    x = _normalize(_cross(y, z))
+    origin = [float(v) for v in frame["origin"]]
+    return [[x[r], y[r], z[r], origin[r]] for r in range(3)] + [[0.0, 0.0, 0.0, 1.0]]
+
+
+def _inverse_rigid(m: list[list[float]]) -> list[list[float]]:
+    result = [[m[j][i] if i < 3 and j < 3 else 0.0 for j in range(4)] for i in range(4)]
+    result[3] = [0.0, 0.0, 0.0, 1.0]
+    for i in range(3):
+        result[i][3] = -sum(result[i][j] * m[j][3] for j in range(3))
+    return result
+
+
+def _matmul(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
+    return [[sum(a[i][k] * b[k][j] for k in range(4)) for j in range(4)] for i in range(4)]
+
+
+def _validate_matrix(matrix: Any) -> None:
+    if not isinstance(matrix, list) or len(matrix) != 4 or any(not isinstance(row, list) or len(row) != 4 for row in matrix):
+        raise ValueError("必须是 4x4 矩阵")
+    values = [[float(value) for value in row] for row in matrix]
+    if any(abs(values[3][i] - IDENTITY_MATRIX[3][i]) > 1e-9 for i in range(4)):
+        raise ValueError("最后一行必须为 [0, 0, 0, 1]")
+    axes = [[values[row][column] for row in range(3)] for column in range(3)]
+    for index, axis in enumerate(axes):
+        if abs(sum(value * value for value in axis) - 1.0) > 1e-6:
+            raise ValueError(f"旋转轴 {index} 未归一化")
+    if any(abs(sum(axes[a][i] * axes[b][i] for i in range(3))) > 1e-6 for a in range(3) for b in range(a + 1, 3)):
+        raise ValueError("旋转矩阵不正交")
+
+
+def mate_transform(fixed_frame: dict[str, Any], moving_frame: dict[str, Any]):
+    """Return an OCC transform making port origins coincide and axes oppose."""
+    matrix = _matmul(_frame_matrix(fixed_frame, reverse_axis=True), _inverse_rigid(_frame_matrix(moving_frame)))
+    return _trsf_from_matrix(matrix)
+
+
+def _trsf_from_matrix(matrix: list[list[float]]):
+    from OCP.gp import gp_Trsf
+
+    transform = gp_Trsf()
+    transform.SetValues(*[matrix[i][j] for i in range(3) for j in range(4)])
+    return transform
+
+
+def _port(spec: dict[str, Any], port_id: str) -> dict[str, Any]:
+    for port in spec.get("ports", []):
+        if port.get("id") == port_id:
+            return port
+    raise ValueError(f"找不到端口 {port_id}")
+
+
+def assemble(components: list[dict[str, Any]], output: Path) -> dict[str, Any]:
+    """Assemble ComponentSpecs. First component is fixed; later ones mate to it."""
+    from OCP.BRep import BRep_Builder
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+    from OCP.TopoDS import TopoDS_Compound
+
+    if not components:
+        raise ValueError("装配至少需要一个组件")
+    loaded: list[tuple[dict[str, Any], object, list[list[float]]]] = []
+    for item in components:
+        spec_path = Path(item["spec"])
+        spec = load_spec(spec_path)
+        shape = read_step(_artifact_path(spec_path, spec))
+        if item.get("mate_to"):
+            target_index = int(item.get("target", 0))
+            fixed_spec, _, fixed_world = loaded[target_index]
+            relation = _matmul(
+                _frame_matrix(_port(fixed_spec, item["mate_to"])["frame"], reverse_axis=True),
+                _inverse_rigid(_frame_matrix(_port(spec, item["port"])["frame"])),
+            )
+            world = _matmul(fixed_world, relation)
+            transform = _trsf_from_matrix(world)
+            shape = BRepBuilderAPI_Transform(shape, transform, True).Shape()
+        else:
+            world = IDENTITY_MATRIX
+        loaded.append((spec, shape, world))
+    compound, builder = TopoDS_Compound(), BRep_Builder()
+    builder.MakeCompound(compound)
+    for _, shape, _ in loaded:
+        builder.Add(compound, shape)
+    write_shape_step(compound, output)
+    return inspect_shape(compound)

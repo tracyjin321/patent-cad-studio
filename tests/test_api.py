@@ -62,3 +62,29 @@ async def test_timeout_fallback_reports_reason(monkeypatch):
     _, parser, detail = await llm.parse_parameters("生成一个轴承", "bearing", True)
     assert parser == "local-fallback"
     assert detail == "Kimi 请求超时"
+
+
+@pytest.mark.asyncio
+async def test_step_to_yaml_and_yaml_to_step_api():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    source = next((root / "graphic_element" / "轴承").glob("*.stp"))
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        converted = await client.post(
+            "/api/convert/step-to-yaml?filename=bearing.stp",
+            content=source.read_bytes(),
+            headers={"content-type": "application/step"},
+        )
+        assert converted.status_code == 200, converted.text
+        yaml_response = await client.get(converted.json()["yaml_url"])
+        assert yaml_response.status_code == 200
+        reference_response = await client.get(converted.json()["reference_step_url"])
+        assert reference_response.status_code == 200
+        assert reference_response.content == source.read_bytes()
+        conversion_id = converted.json()["id"]
+        rebuilt = await client.post("/api/convert/yaml-to-step", json={"spec_path": f"generated/{conversion_id}.yaml", "reexport": True})
+        assert rebuilt.status_code == 200, rebuilt.text
+        step_response = await client.get(rebuilt.json()["step_url"])
+        assert step_response.status_code == 200
+        assert step_response.content.startswith(b"ISO-10303-21;")

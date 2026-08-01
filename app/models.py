@@ -37,3 +37,8 @@ class GenerateResponse(BaseModel):
     model: list[dict[str, Any]]
     step_url: str
     core_elements: list[PartType] = Field(default_factory=list)
+
+
+class YamlToStepRequest(BaseModel):
+    spec_path: str = Field(min_length=1, max_length=500)
+    reexport: bool = False

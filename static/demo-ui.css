@@ -388,6 +388,60 @@ select {
   font-size: 10px;
 }
 
+.history-more {
+  display: flex;
+  width: fit-content;
+  min-width: 116px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px auto 0;
+  padding: 0 18px;
+  color: #a5afbd;
+  background: #fff;
+  border: 1px solid #e9edf3;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.history-more:hover {
+  color: var(--slate-600);
+  background: #fbfcfd;
+  border-color: #d8dee8;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+.history-more:focus-visible {
+  outline: 2px solid var(--purple-300);
+  outline-offset: 2px;
+}
+
+.history-more-count {
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.history-more-chevron {
+  order: -1;
+  width: 7px;
+  height: 7px;
+  margin: -3px 1px 0 0;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .18s ease, margin .18s ease;
+}
+
+.history-more[aria-expanded="true"] .history-more-chevron {
+  margin: 3px 1px 0 0;
+  transform: rotate(225deg);
+}
+
 article {
   color: var(--slate-700);
 }

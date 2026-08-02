@@ -1,5 +1,6 @@
 import importlib
 from io import BytesIO
+from pathlib import Path
 
 import pytest
 import yaml
@@ -14,6 +15,16 @@ main_module = importlib.import_module("app.main")
 
 
 PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal"]
+
+
+def test_history_defaults_to_five_items_with_expand_control():
+    source = (Path(__file__).parents[1] / "static" / "app.js").read_text(encoding="utf-8")
+    assert 'const HISTORY_VISIBLE_LIMIT = 5;' in source
+    assert 'const HISTORY_STORAGE_LIMIT = 50;' in source
+    assert 'state.history.slice(0,HISTORY_VISIBLE_LIMIT)' in source
+    assert 'class="history-more"' in source
+    assert '收起历史记录' in source and '展开更多' in source
+    assert 'history-more-count' in source and 'history-more-chevron' in source
 
 
 @pytest.mark.asyncio

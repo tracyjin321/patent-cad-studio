@@ -3,6 +3,8 @@ import { CadModelViewer } from "/static/model-viewer.js";
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const HISTORY_KEY = "cad-history";
+const HISTORY_VISIBLE_LIMIT = 5;
+const HISTORY_STORAGE_LIMIT = 50;
 const HEALTH_CHECK_INTERVAL = 30000;
 
 function renderServiceStatus(state, message) {
@@ -40,7 +42,7 @@ function historySummary(item) {
 function loadHistory() {
   try {
     const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-    const summaries=(Array.isArray(parsed)?parsed:[]).slice(0,12).map(historySummary);
+    const summaries=(Array.isArray(parsed)?parsed:[]).slice(0,HISTORY_STORAGE_LIMIT).map(historySummary);
     localStorage.setItem(HISTORY_KEY,JSON.stringify(summaries));
     return summaries;
   } catch(error) {
@@ -50,10 +52,10 @@ function loadHistory() {
   }
 }
 function persistHistory(items) {
-  try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12).map(historySummary)));return true;}
+  try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,HISTORY_STORAGE_LIMIT).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, components: [], componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory() };
+const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, components: [], componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -159,8 +161,12 @@ function renderHistory() {
   const el=$("#history");
   if (!state.history.length) { el.innerHTML='<p class="empty-small">暂无生成记录</p>'; return; }
   const sourceLabel=item=>item.parser==="moonshot"?"Kimi K2.6":item.parser==="local"?"本地解析":`智能解析降级${item.parser_detail?`：${item.parser_detail}`:""}`;
-  el.innerHTML=state.history.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}${item.svg&&item.model?"":" · 参数摘要"}</small></div>`).join("");
-  $$(".history-item").forEach(el=>el.onclick=()=>{const item=state.history[Number(el.dataset.index)];if(item.svg&&item.model)showResult(item);else{renderParams(item);setTab("params");toast("该历史记录仅保留参数摘要，请重新生成预览");}});
+  const visible=state.historyExpanded?state.history:state.history.slice(0,HISTORY_VISIBLE_LIMIT),remaining=Math.max(0,state.history.length-HISTORY_VISIBLE_LIMIT);
+  const items=visible.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}${item.svg&&item.model?"":" · 参数摘要"}</small></div>`).join("");
+  const more=remaining?`<button type="button" class="history-more" aria-expanded="${state.historyExpanded}"><span class="history-more-label">${state.historyExpanded?"收起历史记录":"展开更多"}</span>${state.historyExpanded?"":`<span class="history-more-count">${remaining}</span>`}<i class="history-more-chevron" aria-hidden="true"></i></button>`:"";
+  el.innerHTML=items+more;
+  el.querySelectorAll(".history-item").forEach(itemEl=>itemEl.onclick=()=>{const item=state.history[Number(itemEl.dataset.index)];if(item.svg&&item.model)showResult(item);else{renderParams(item);setTab("params");toast("该历史记录仅保留参数摘要，请重新生成预览");}});
+  el.querySelector(".history-more")?.addEventListener("click",()=>{state.historyExpanded=!state.historyExpanded;renderHistory();});
 }
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":"本地确定性解析",parserDetail=result.parser==="local-fallback"?`<p>解析说明：${result.parser_detail||"智能解析暂不可用，已自动回退"}</p>`:"";
@@ -195,7 +201,7 @@ async function generate() {
     const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked})});
     if(!response.ok) throw new Error(`附图生成失败（错误码：${response.status}）`);
     const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
-    state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
+    state.history.unshift(result);state.history=state.history.slice(0,HISTORY_STORAGE_LIMIT);state.historyExpanded=false;renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';state.isGenerating=false;checkServiceHealth();}
 }
@@ -219,7 +225,7 @@ $("#reset").onclick=()=>{state.zoom=1;applyZoom();};
 $("#compliance").onclick=()=>{setTab("params");toast(state.result.compliance.every(c=>c.passed)?"全部合规检查通过":"存在未通过项目");};
 $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"}),`${state.result.part_type}-${state.result.id.slice(0,8)}.svg`);
 $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=2480;canvas.height=3508;canvas.getContext("2d").drawImage(image,0,0,2480,3508);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
-$("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
+$("#clear-history").onclick=()=>{state.history=[];state.historyExpanded=false;localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
 renderHistory();
 renderRecommendation();
 loadComponents();

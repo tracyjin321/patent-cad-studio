@@ -8,7 +8,7 @@ GENERATOR_VERSIONS = {
     "flange": "1.1.0",
     "valve": "2.0.0",
     "shaft": "2.0.0",
-    "gear": "2.0.0",
+    "gear": "2.1.0",
     "screw": "2.1.0",
     "coupling": "2.0.0",
     "seal": "2.0.0",
@@ -227,7 +227,7 @@ def build_shape(part: str, p: dict[str, Any]):
     if part=="gear":
         module=float(p["module"]);teeth=max(10,min(64,int(p["teeth"])));outer=module*teeth/2;root=outer*.84;depth=float(p["face_width"]);bore=float(p["bore"])/2
         core=cylinder(root,depth)
-        teeth_shapes=[];helix=math.radians(float(p.get("helix_angle",0)));segments=5 if abs(helix)>.01 else 1
+        teeth_shapes=[];helix=math.radians(float(p.get("helix_angle",0)));segments=3 if abs(helix)>.01 else 1
         tooth_w=2*math.pi*outer/teeth*.52
         tooth_depth=(outer-root)+module*.2
         for i in range(teeth):

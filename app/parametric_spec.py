@@ -311,4 +311,10 @@ def resolve_parametric_component(
         final_validation = validate_spec(persisted, spec_path=spec_path)
         if final_validation["errors"]:
             raise ValueError("参数化图元物化后校验失败: " + "; ".join(final_validation["errors"]))
-        return ResolvedParametricComponent(persisted, spec_path, reference, shape, "generated", fingerprint)
+        # Use the AP242 round-tripped shape on the first request as well as on
+        # cache hits.  Complex boolean compounds (notably long swept screws)
+        # are geometrically valid but can crash OCCT when exported/meshed a
+        # second time in the same worker; STEP import canonicalizes them to the
+        # stable solid that every subsequent request already receives.
+        canonical_shape = read_step(reference)
+        return ResolvedParametricComponent(persisted, spec_path, reference, canonical_shape, "generated", fingerprint)

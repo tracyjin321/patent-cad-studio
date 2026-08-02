@@ -7,6 +7,7 @@ Report: .gstack/qa-reports/qa-report-127-0-0-1-2026-08-02.md
 from app.component_spec import inspect_shape
 from app.llm import local_parse, structural_features
 from app.model3d import build_shape
+from app.parametric_spec import resolve_parametric_component
 
 
 def measured(part_type: str, description: str):
@@ -61,3 +62,24 @@ def test_ball_screw_and_implicit_seal_groove_are_bounded_and_materialized():
     plain = measured("seal", "密封件外径110mm，内径65mm，宽度16mm")
     grooved = measured("seal", "密封件外径110mm，内径65mm，宽度16mm，带环形密封槽")
     assert grooved["topology"]["faces"] > plain["topology"]["faces"]
+
+
+def test_first_materialization_returns_the_same_canonical_step_shape_as_cache(tmp_path):
+    parameters = structural_features(
+        "梯形传动丝杠，长度120mm，直径20mm，导程6mm，单头右旋螺纹",
+        "screw",
+        {"length": 120, "diameter": 20, "lead": 6, "starts": 1},
+    )
+    generated = tmp_path / "generated"
+    first = resolve_parametric_component(
+        "screw", parameters, "首次物化",
+        formal_library=tmp_path / "library", generated_library=generated,
+    )
+    cached = resolve_parametric_component(
+        "screw", parameters, "缓存命中",
+        formal_library=tmp_path / "library", generated_library=generated,
+    )
+    assert first.source == "generated"
+    assert cached.source == "cache"
+    assert first.shape.ShapeType() == cached.shape.ShapeType()
+    assert measured("screw", "梯形传动丝杠，长度120mm，直径20mm，导程6mm")["valid_solid"]

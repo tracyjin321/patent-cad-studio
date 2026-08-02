@@ -9,7 +9,7 @@ GENERATOR_VERSIONS = {
     "valve": "2.0.0",
     "shaft": "2.0.0",
     "gear": "2.0.0",
-    "screw": "2.0.0",
+    "screw": "2.1.0",
     "coupling": "2.0.0",
     "seal": "2.0.0",
 }

@@ -42,30 +42,36 @@ app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"
 
 
 @contextmanager
-def cad_resource_slot(part_type: str):
+def cad_resource_slot(part_type: str, parameters: dict[str, object] | None = None):
     """Bound memory-heavy jobs across workers while normal jobs stay 5-way parallel."""
     if part_type not in {"gear", "screw"}:
         yield
         return
     slot_dir = GENERATED / ".heavy-slots"
     slot_dir.mkdir(exist_ok=True)
-    stream = None
-    while stream is None:
+    required = HEAVY_CAD_SLOTS if part_type == "gear" and float((parameters or {}).get("helix_angle", 0)) > 0 else 1
+    streams = []
+    while len(streams) < required:
+        streams = []
         for index in range(HEAVY_CAD_SLOTS):
             candidate = (slot_dir / f"slot-{index}.lock").open("a+b")
             try:
                 fcntl.flock(candidate.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                stream = candidate
-                break
+                streams.append(candidate)
+                if len(streams) == required: break
             except BlockingIOError:
                 candidate.close()
-        if stream is None:
+        if len(streams) < required:
+            for candidate in streams:
+                fcntl.flock(candidate.fileno(), fcntl.LOCK_UN);candidate.close()
+            streams = []
             time.sleep(0.1)
     try:
         yield
     finally:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
-        stream.close()
+        for stream in streams:
+            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+            stream.close()
 
 
 @app.get("/api/health")
@@ -121,7 +127,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     def build_artifacts():
         # One OpenCascade job per interpreter; separate uvicorn processes provide
         # safe multi-user parallelism without changing geometry or meshing quality.
-        with CAD_KERNEL_LOCK, cad_resource_slot(request.part_type):
+        with CAD_KERNEL_LOCK, cad_resource_slot(request.part_type, parameters):
             resolved = resolve_parametric_component(
                 request.part_type,
                 parameters,

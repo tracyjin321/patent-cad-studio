@@ -49,7 +49,13 @@ def cad_resource_slot(part_type: str, parameters: dict[str, object] | None = Non
         return
     slot_dir = GENERATED / ".heavy-slots"
     slot_dir.mkdir(exist_ok=True)
-    required = HEAVY_CAD_SLOTS if part_type == "gear" and float((parameters or {}).get("helix_angle", 0)) > 0 else 1
+    values = parameters or {}
+    exclusive = (
+        part_type == "gear" and float(values.get("helix_angle", 0)) > 0
+    ) or (
+        part_type == "screw" and float(values.get("length", 0)) >= 400
+    )
+    required = HEAVY_CAD_SLOTS if exclusive else 1
     streams = []
     while len(streams) < required:
         streams = []

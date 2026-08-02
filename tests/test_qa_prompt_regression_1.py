@@ -4,7 +4,7 @@ Found by /qa on 2026-08-02.
 Report: .gstack/qa-reports/qa-report-127-0-0-1-2026-08-02.md
 """
 
-from app.llm import local_parse
+from app.llm import local_parse, structural_features
 
 
 def test_all_advanced_example_prompts_preserve_named_and_structural_parameters():
@@ -25,6 +25,6 @@ def test_all_advanced_example_prompts_preserve_named_and_structural_parameters()
         ("轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽宽4mm", "seal", {"groove_width": 4}),
     ]
     for description, part_type, expected in cases:
-        parsed = local_parse(description, part_type)
+        parsed = structural_features(description, part_type, local_parse(description, part_type))
         for key, value in expected.items():
             assert parsed[key] == value, (part_type, description, key, parsed)

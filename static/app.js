@@ -34,8 +34,8 @@ async function checkServiceHealth(showChecking = false) {
 }
 
 function historySummary(item) {
-  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time}=item;
-  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time};
+  const {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time}=item;
+  return {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time};
 }
 function loadHistory() {
   try {
@@ -166,7 +166,8 @@ function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":"本地确定性解析",parserDetail=result.parser==="local-fallback"?`<p>解析说明：${result.parser_detail||"智能解析暂不可用，已自动回退"}</p>`:"";
   const sourceText={generated:"新建 YAML 并物化 STEP",cache:"命中参数化缓存",library:"命中正式图元库"}[result.generation_source]||"旧版直接建模";
   const selectedComponents=result.selected_components||[];const coreText=selectedComponents.length?selectedComponents.map(component=>component.name).join("、"):(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、")+"（语义自动匹配）";
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  const documentedParameters={...result.parameters,...(result.structural_parameters||{})};
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(documentedParameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);

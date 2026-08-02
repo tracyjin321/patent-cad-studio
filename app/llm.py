@@ -22,14 +22,23 @@ LABELS = {
 }
 
 DEFAULTS: dict[str, dict[str, float | int | str]] = {
-    "bearing": {"outer_diameter": 100, "inner_diameter": 45, "width": 25, "rolling_elements": 10, "variant": 0},
-    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8, "neck_height": 0, "bolt_hole_diameter": 0, "groove_width": 0},
-    "valve": {"nominal_diameter": 80, "body_length": 210, "height": 240, "ports": 2, "variant": 0, "disc_thickness": 0, "stem_diameter": 0, "actuator": 0},
-    "shaft": {"total_length": 280, "max_diameter": 70, "steps": 4, "keyway_width": 0, "inner_diameter": 0, "spline_ends": 0},
-    "gear": {"module": 3, "teeth": 24, "bore": 32, "face_width": 28, "helix_angle": 0, "keyway_width": 0, "spline_bore": 0},
-    "screw": {"length": 300, "diameter": 32, "lead": 10, "starts": 1, "variant": 0},
-    "coupling": {"outer_diameter": 96, "length": 120, "bore": 32, "bolts": 6, "variant": 0, "bore_b": 32, "membrane_count": 0},
-    "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2, "groove_width": 0},
+    "bearing": {"outer_diameter": 100, "inner_diameter": 45, "width": 25, "rolling_elements": 10},
+    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8, "neck_height": 0},
+    "valve": {"nominal_diameter": 80, "body_length": 210, "height": 240, "ports": 2},
+    "shaft": {"total_length": 280, "max_diameter": 70, "steps": 4, "keyway_width": 12},
+    "gear": {"module": 3, "teeth": 24, "bore": 32, "face_width": 28},
+    "screw": {"length": 300, "diameter": 32, "lead": 10, "starts": 1},
+    "coupling": {"outer_diameter": 96, "length": 120, "bore": 32, "bolts": 6},
+    "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2},
+}
+
+FEATURE_DEFAULTS = {
+    "bearing": {"variant": 0}, "flange": {"bolt_hole_diameter": 0, "groove_width": 0},
+    "valve": {"variant": 0, "disc_thickness": 0, "stem_diameter": 0, "actuator": 0},
+    "shaft": {"inner_diameter": 0, "spline_ends": 0, "keyway_present": 0},
+    "gear": {"helix_angle": 0, "keyway_width": 0, "spline_bore": 0},
+    "screw": {"variant": 0}, "coupling": {"variant": 0, "bore_b": 32, "membrane_count": 0},
+    "seal": {"groove_width": 0},
 }
 
 ELEMENT_PATTERNS = {
@@ -74,6 +83,13 @@ def normalize_parameters(part_type: str, values: dict[str, Any]) -> dict[str, An
             normalized[key] = int(round(number))
         else:
             normalized[key] = round(number, 6)
+    for key, default in FEATURE_DEFAULTS.get(part_type, {}).items():
+        if key not in values:
+            continue
+        try: number = float(values[key])
+        except (TypeError, ValueError): number = float(default)
+        if not math.isfinite(number) or number < 0: number = float(default)
+        normalized[key] = int(round(number)) if isinstance(default, int) else round(number, 6)
 
     if part_type in {"bearing", "flange", "seal"}:
         normalized["inner_diameter"] = min(normalized["inner_diameter"], normalized["outer_diameter"] * .9)
@@ -222,43 +238,52 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
             params["nominal_diameter"] = float(match.group(1))
         if re.search(r"双端|两端|进出口", description):
             params["ports"] = 2
-        if re.search(r"蝶阀", description):
-            params["variant"] = 1
-        elif re.search(r"止回阀|旋启式", description):
-            params["variant"] = 2
-        params["actuator"] = int(bool(re.search(r"电动|执行器|电机", description)))
-    elif part_type == "bearing":
-        params["variant"] = int(bool(re.search(r"调心|滚子", description)))
     elif part_type == "shaft":
-        params["spline_ends"] = 2 if re.search(r"两端.*花键|花键.*两端", description) else int(bool(re.search(r"花键", description)))
-    elif part_type == "gear":
-        params["spline_bore"] = int(bool(re.search(r"花键孔|中心.*花键", description)))
-        if re.search(r"键槽", description) and not params["keyway_width"]:
-            params["keyway_width"] = max(2, float(params["bore"]) * .22)
+        if re.search(r"键槽", description) and params["keyway_width"] == DEFAULTS["shaft"]["keyway_width"]:
+            params["keyway_width"] = max(2, float(params["max_diameter"]) * .16)
     elif part_type == "screw":
-        params["variant"] = int(bool(re.search(r"滚珠丝杠|滚珠丝杆", description)))
         if re.search(r"单头", description):
             params["starts"] = 1
-    elif part_type == "coupling":
-        params["bore_b"] = params["bore"]
-        if match := re.search(r"两端轴孔分别为\s*(\d+(?:\.\d+)?)\s*(?:mm)?\s*和\s*(\d+(?:\.\d+)?)", description, re.I):
-            params["bore"], params["bore_b"] = map(float, match.groups())
-        if re.search(r"弹性", description):
-            params["variant"] = 1
-        elif re.search(r"膜片", description):
-            params["variant"] = 2
-            params["membrane_count"] = 2 if re.search(r"双膜片|两组膜片", description) else 1
     elif part_type == "seal":
         if re.search(r"双唇|主密封唇.*防尘唇", description):
             params["lip_count"] = 2
     return normalize_parameters(part_type, params)
 
 
+def structural_features(description: str, part_type: str, base: dict[str, Any]) -> dict[str, Any]:
+    features = dict(FEATURE_DEFAULTS.get(part_type, {}))
+    patterns = {
+        "bolt_hole_diameter": r"(?:直径|孔径)\s*(\d+(?:\.\d+)?)\s*(?:mm|毫米)?\s*(?:螺栓孔|连接孔|安装孔)",
+        "groove_width": r"(?:密封槽|环形密封槽)(?:宽度|宽)?[^\d]*(\d+(?:\.\d+)?)",
+        "disc_thickness": r"阀板厚度[^\d]*(\d+(?:\.\d+)?)", "stem_diameter": r"阀杆直径[^\d]*(\d+(?:\.\d+)?)",
+        "inner_diameter": r"内径[^\d]*(\d+(?:\.\d+)?)", "helix_angle": r"螺旋角[^\d]*(\d+(?:\.\d+)?)",
+    }
+    for key, pattern in patterns.items():
+        if key in features and (match := re.search(pattern, description, re.I)): features[key] = float(match.group(1))
+    if part_type == "bearing": features["variant"] = int(bool(re.search(r"调心|滚子", description)))
+    elif part_type == "valve":
+        features["variant"] = 1 if re.search(r"蝶阀", description) else 2 if re.search(r"止回阀|旋启式", description) else 0
+        features["actuator"] = int(bool(re.search(r"电动|执行器|电机", description)))
+    elif part_type == "shaft":
+        features["spline_ends"] = 2 if re.search(r"两端.*花键|花键.*两端", description) else int(bool(re.search(r"花键", description)))
+        features["keyway_present"] = int(bool(re.search(r"键槽", description)))
+    elif part_type == "gear":
+        features["spline_bore"] = int(bool(re.search(r"花键孔|中心.*花键", description)))
+        if re.search(r"键槽", description): features["keyway_width"] = max(2, float(base["bore"]) * .22)
+    elif part_type == "screw": features["variant"] = int(bool(re.search(r"滚珠丝杠|滚珠丝杆", description)))
+    elif part_type == "coupling":
+        features["bore_b"] = base["bore"]
+        if match := re.search(r"两端轴孔分别为\s*(\d+(?:\.\d+)?)\s*(?:mm)?\s*和\s*(\d+(?:\.\d+)?)", description, re.I): base["bore"], features["bore_b"] = map(float, match.groups())
+        features["variant"] = 1 if re.search(r"弹性", description) else 2 if re.search(r"膜片", description) else 0
+        features["membrane_count"] = 2 if re.search(r"双膜片|两组膜片", description) else int(bool(re.search(r"膜片", description)))
+    return normalize_parameters(part_type, {**base, **features})
+
+
 async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tuple[dict[str, Any], str, str | None]:
     fallback = local_parse(description, part_type)
     api_key = os.getenv("MOONSHOT_API_KEY")
     if not use_ai or not api_key:
-        return fallback, "local", "用户关闭智能解析" if not use_ai else "未配置 API Key"
+        return structural_features(description, part_type, fallback), "local", "用户关闭智能解析" if not use_ai else "未配置 API Key"
     prompt = (
         f"你是机械设计参数提取器。零件类型：{LABELS[part_type]}。"
         f"只返回 JSON 对象，字段必须且只能是：{list(fallback)}。"
@@ -300,12 +325,6 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
                     normalized[key] = fallback_value
             if part_type == "flange" and re.search(r"平焊", description):
                 normalized["neck_height"] = 0
-            for key in {
-                "bearing": ("variant",), "valve": ("variant", "actuator"),
-                "shaft": ("spline_ends",), "gear": ("spline_bore",),
-                "screw": ("variant",), "coupling": ("variant", "membrane_count"),
-            }.get(part_type, ()):
-                normalized[key] = fallback[key]
             if part_type == "flange" and fallback.get("neck_height", 0) > 0:
                 normalized["neck_height"] = max(normalized["neck_height"], fallback["neck_height"])
             elif part_type == "valve":
@@ -320,7 +339,7 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
                 for key, pattern in explicit_patterns.items():
                     if re.search(pattern, description, re.I):
                         normalized[key] = fallback[key]
-            return normalized, "moonshot", None
+            return structural_features(description, part_type, normalized), "moonshot", None
     except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
         logger.warning("Moonshot parameter parsing failed: %r", exc, exc_info=True)
-        return fallback, "local-fallback", _fallback_detail(exc, "智能解析")
+        return structural_features(description, part_type, fallback), "local-fallback", _fallback_detail(exc, "智能解析")

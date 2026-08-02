@@ -176,7 +176,7 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
         if geometry.get("representation") != "parametric_brep":
             errors.append("parametric 模式必须使用 parametric_brep")
         try:
-            from .llm import DEFAULTS, normalize_parameters
+            from .llm import DEFAULTS, FEATURE_DEFAULTS, normalize_parameters
             from .model3d import GENERATOR_VERSIONS
 
             generator_id = generator["generator_id"]
@@ -186,7 +186,9 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
                 if generator.get("generator_version") != GENERATOR_VERSIONS[generator_id]:
                     errors.append(f"生成器版本不匹配: {generator_id}")
                 values = {item["name"]: item.get("default") for item in parameters if isinstance(item, dict) and item.get("name")}
-                if set(values) != set(DEFAULTS[generator_id]):
+                base_keys = set(DEFAULTS[generator_id])
+                allowed_keys = base_keys | set(FEATURE_DEFAULTS.get(generator_id, {}))
+                if not base_keys.issubset(values) or not set(values).issubset(allowed_keys):
                     errors.append(f"参数集与生成器 {generator_id} 不匹配")
                 elif normalize_parameters(generator_id, values) != values:
                     errors.append("参数未通过归一化约束")

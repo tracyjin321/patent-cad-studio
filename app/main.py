@@ -12,7 +12,7 @@ from starlette.concurrency import run_in_threadpool
 
 from .cad import generate_svg
 from .documents import extract_document_text
-from .llm import LABELS, parse_parameters, recommend_core_elements
+from .llm import DEFAULTS, LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
 from .component_library import components_by_id, query_components
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
@@ -137,7 +137,8 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         title=title,
         part_type=request.part_type,
         svg=svg,
-        parameters=parameters,
+        parameters={key: parameters[key] for key in DEFAULTS[request.part_type]},
+        structural_parameters={key: value for key, value in parameters.items() if key not in DEFAULTS[request.part_type]},
         compliance=checks,
         parser=parser,
         parser_detail=parser_detail,

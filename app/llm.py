@@ -22,14 +22,14 @@ LABELS = {
 }
 
 DEFAULTS: dict[str, dict[str, float | int | str]] = {
-    "bearing": {"outer_diameter": 100, "inner_diameter": 45, "width": 25, "rolling_elements": 10},
-    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8, "neck_height": 0},
-    "valve": {"nominal_diameter": 80, "body_length": 210, "height": 240, "ports": 2},
-    "shaft": {"total_length": 280, "max_diameter": 70, "steps": 4, "keyway_width": 12},
-    "gear": {"module": 3, "teeth": 24, "bore": 32, "face_width": 28},
-    "screw": {"length": 300, "diameter": 32, "lead": 10, "starts": 1},
-    "coupling": {"outer_diameter": 96, "length": 120, "bore": 32, "bolts": 6},
-    "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2},
+    "bearing": {"outer_diameter": 100, "inner_diameter": 45, "width": 25, "rolling_elements": 10, "variant": 0},
+    "flange": {"outer_diameter": 180, "inner_diameter": 80, "thickness": 22, "bolt_holes": 8, "neck_height": 0, "bolt_hole_diameter": 0, "groove_width": 0},
+    "valve": {"nominal_diameter": 80, "body_length": 210, "height": 240, "ports": 2, "variant": 0, "disc_thickness": 0, "stem_diameter": 0, "actuator": 0},
+    "shaft": {"total_length": 280, "max_diameter": 70, "steps": 4, "keyway_width": 0, "inner_diameter": 0, "spline_ends": 0},
+    "gear": {"module": 3, "teeth": 24, "bore": 32, "face_width": 28, "helix_angle": 0, "keyway_width": 0, "spline_bore": 0},
+    "screw": {"length": 300, "diameter": 32, "lead": 10, "starts": 1, "variant": 0},
+    "coupling": {"outer_diameter": 96, "length": 120, "bore": 32, "bolts": 6, "variant": 0, "bore_b": 32, "membrane_count": 0},
+    "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2, "groove_width": 0},
 }
 
 ELEMENT_PATTERNS = {
@@ -180,10 +180,6 @@ async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[
 
 def local_parse(description: str, part_type: str) -> dict[str, Any]:
     params = dict(DEFAULTS[part_type])
-    numbers = [float(v) for v in re.findall(r"(?<![A-Za-z0-9])(\d+(?:\.\d+)?)(?:\s*(?:mm|毫米))?(?![A-Za-z0-9])", description, re.I)]
-    keys = list(params)
-    for key, value in zip(keys, numbers):
-        params[key] = int(value) if float(value).is_integer() else value
     patterns = {
         "outer_diameter": r"(?:外径|外圆直径)[^\d]*(\d+(?:\.\d+)?)",
         "inner_diameter": r"(?:内径|孔径)[^\d]*(\d+(?:\.\d+)?)",
@@ -192,13 +188,30 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
         "total_length": r"(?:长度|总长)[^\d]*(\d+(?:\.\d+)?)",
         "body_length": r"(?:阀体长度|结构长度|连接长度)[^\d]*(\d+(?:\.\d+)?)",
         "height": r"(?:总高度|阀门高度|阀高|高度)[^\d]*(\d+(?:\.\d+)?)",
+        "width": r"(?:宽度|宽)[^\d]*(\d+(?:\.\d+)?)",
+        "rolling_elements": r"(?:包含|配置|设有)?\s*(\d+)\s*个?(?:滚珠|滚子)",
+        "module": r"模数[^\d]*(\d+(?:\.\d+)?)",
         "teeth": r"(?:齿数|(\d+)\s*齿)[^\d]*(\d+)?",
+        "face_width": r"齿宽[^\d]*(\d+(?:\.\d+)?)",
+        "bore": r"(?:中心孔直径|轴孔|孔径)[^\d]*(\d+(?:\.\d+)?)",
+        "diameter": r"(?:公称直径|直径)[^\d]*(\d+(?:\.\d+)?)",
+        "lead": r"导程[^\d]*(\d+(?:\.\d+)?)",
+        "max_diameter": r"(?:最大直径|外径)[^\d]*(\d+(?:\.\d+)?)",
+        "steps": r"(?:生成|设计|构造)?\s*([三四五六]|\d+)\s*段(?:阶梯轴)?",
+        "keyway_width": r"键槽(?:宽度|宽)?[^\d]*(\d+(?:\.\d+)?)",
+        "inner_diameter": r"内径[^\d]*(\d+(?:\.\d+)?)",
+        "bolt_hole_diameter": r"(?:直径|孔径)\s*(\d+(?:\.\d+)?)\s*(?:mm|毫米)?\s*(?:螺栓孔|连接孔|安装孔)",
+        "groove_width": r"(?:密封槽|环形密封槽)(?:宽度|宽)?[^\d]*(\d+(?:\.\d+)?)",
+        "disc_thickness": r"阀板厚度[^\d]*(\d+(?:\.\d+)?)",
+        "stem_diameter": r"阀杆直径[^\d]*(\d+(?:\.\d+)?)",
+        "helix_angle": r"螺旋角[^\d]*(\d+(?:\.\d+)?)",
         "bolt_holes": r"(?:(?:螺栓孔|连接孔|安装孔|孔数)[^\d]*(\d+)|(\d+)\s*个?(?:螺栓孔|连接孔|安装孔|孔))",
     }
     for key, pattern in patterns.items():
         if key in params and (match := re.search(pattern, description)):
             value = next(group for group in match.groups() if group is not None)
-            params[key] = int(float(value))
+            chinese = {"三": 3, "四": 4, "五": 5, "六": 6}
+            params[key] = chinese[value] if value in chinese else int(float(value))
     if part_type == "flange":
         if match := re.search(r"(?:公称直径\s*(?:DN)?|DN)\s*(\d+(?:\.\d+)?)", description, re.I):
             params["inner_diameter"] = float(match.group(1))
@@ -209,6 +222,35 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
             params["nominal_diameter"] = float(match.group(1))
         if re.search(r"双端|两端|进出口", description):
             params["ports"] = 2
+        if re.search(r"蝶阀", description):
+            params["variant"] = 1
+        elif re.search(r"止回阀|旋启式", description):
+            params["variant"] = 2
+        params["actuator"] = int(bool(re.search(r"电动|执行器|电机", description)))
+    elif part_type == "bearing":
+        params["variant"] = int(bool(re.search(r"调心|滚子", description)))
+    elif part_type == "shaft":
+        params["spline_ends"] = 2 if re.search(r"两端.*花键|花键.*两端", description) else int(bool(re.search(r"花键", description)))
+    elif part_type == "gear":
+        params["spline_bore"] = int(bool(re.search(r"花键孔|中心.*花键", description)))
+        if re.search(r"键槽", description) and not params["keyway_width"]:
+            params["keyway_width"] = max(2, float(params["bore"]) * .22)
+    elif part_type == "screw":
+        params["variant"] = int(bool(re.search(r"滚珠丝杠|滚珠丝杆", description)))
+        if re.search(r"单头", description):
+            params["starts"] = 1
+    elif part_type == "coupling":
+        params["bore_b"] = params["bore"]
+        if match := re.search(r"两端轴孔分别为\s*(\d+(?:\.\d+)?)\s*(?:mm)?\s*和\s*(\d+(?:\.\d+)?)", description, re.I):
+            params["bore"], params["bore_b"] = map(float, match.groups())
+        if re.search(r"弹性", description):
+            params["variant"] = 1
+        elif re.search(r"膜片", description):
+            params["variant"] = 2
+            params["membrane_count"] = 2 if re.search(r"双膜片|两组膜片", description) else 1
+    elif part_type == "seal":
+        if re.search(r"双唇|主密封唇.*防尘唇", description):
+            params["lip_count"] = 2
     return normalize_parameters(part_type, params)
 
 
@@ -251,6 +293,19 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
             if any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in parsed.values()):
                 raise TypeError("参数响应必须全部为数值")
             normalized = normalize_parameters(part_type, parsed)
+            # Explicit deterministic extraction is authoritative for every value
+            # named in the prompt, including structural variant flags.
+            for key, fallback_value in fallback.items():
+                if fallback_value != DEFAULTS[part_type][key]:
+                    normalized[key] = fallback_value
+            if part_type == "flange" and re.search(r"平焊", description):
+                normalized["neck_height"] = 0
+            for key in {
+                "bearing": ("variant",), "valve": ("variant", "actuator"),
+                "shaft": ("spline_ends",), "gear": ("spline_bore",),
+                "screw": ("variant",), "coupling": ("variant", "membrane_count"),
+            }.get(part_type, ()):
+                normalized[key] = fallback[key]
             if part_type == "flange" and fallback.get("neck_height", 0) > 0:
                 normalized["neck_height"] = max(normalized["neck_height"], fallback["neck_height"])
             elif part_type == "valve":

@@ -306,6 +306,18 @@ def test_complex_brep_uses_stable_polygonal_hlr(monkeypatch):
     assert calls == []
 
 
+def test_long_screw_uses_parameter_driven_engineering_projection(monkeypatch):
+    from app import cad
+    monkeypatch.setattr(cad, "_edge_count", lambda shape: (_ for _ in ()).throw(AssertionError("HLR must not run")))
+    svg = cad.generate_svg(
+        object(), "梯形丝杠", "screw",
+        {"length": 420, "diameter": 28, "lead": 6, "starts": 1},
+    )
+    assert svg.startswith("<svg")
+    assert svg.count('class="o"') > 20
+    assert ">图1</text>" in svg
+
+
 def test_valve_uses_stable_polygonal_hlr_for_fused_curved_surfaces(monkeypatch):
     from app import cad
     calls: list[str] = []

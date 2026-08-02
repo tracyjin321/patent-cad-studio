@@ -163,11 +163,61 @@ def _svg_path(points: list[tuple[float, float]], transform, css: str) -> str:
     return f'<path class="{css}" d="{data}"/>'
 
 
+def _long_screw_svg(title: str, parameters: dict[str, Any]) -> str:
+    """Draw a stable engineering projection for long, highly periodic screws.
+
+    The 3D model and STEP still use the exact B-Rep.  OCCT's Exact/Poly HLR can
+    segfault while classifying hundreds of intersecting helical edges, so the
+    patent figure is constructed from the same nominal dimensions instead.
+    """
+    length = max(1.0, float(parameters.get("length", 1)))
+    diameter = max(1.0, float(parameters.get("diameter", 1)))
+    lead = max(0.1, float(parameters.get("lead", diameter / 4)))
+    starts = max(1, int(parameters.get("starts", 1)))
+    left, right = 82.0, 712.0
+    center_y = 520.0
+    body_height = min(180.0, max(42.0, 630.0 * diameter / length))
+    top, bottom = center_y - body_height / 2, center_y + body_height / 2
+    journal_length = min(length * .12, max(diameter * 1.35, length * .08))
+    journal_px = 630.0 * journal_length / length
+    journal_height = body_height * .64
+    jt, jb = center_y - journal_height / 2, center_y + journal_height / 2
+    thread_left, thread_right = left + journal_px, right - journal_px
+    pitch_px = max(5.0, 630.0 * lead / length)
+
+    paths = [
+        f'<path class="o" d="M{thread_left:.2f} {top:.2f}H{thread_right:.2f}V{bottom:.2f}H{thread_left:.2f}Z"/>',
+        f'<path class="o" d="M{left:.2f} {jt:.2f}H{thread_left:.2f}V{top:.2f}M{left:.2f} {jb:.2f}H{thread_left:.2f}V{bottom:.2f}"/>',
+        f'<path class="o" d="M{thread_right:.2f} {top:.2f}V{jt:.2f}H{right:.2f}M{thread_right:.2f} {bottom:.2f}V{jb:.2f}H{right:.2f}"/>',
+        f'<path class="o" d="M{left:.2f} {jt:.2f}V{jb:.2f}M{right:.2f} {jt:.2f}V{jb:.2f}"/>',
+    ]
+    # Rising strokes from left to right are the conventional visible cue for a
+    # right-hand thread.  Multiple starts are represented by phase offsets.
+    for start in range(starts):
+        x = thread_left - start * pitch_px / starts
+        while x <= thread_right:
+            x0 = max(thread_left, x)
+            x1 = min(thread_right, x + pitch_px * .72)
+            if x1 > x0:
+                fraction0 = (x0 - x) / (pitch_px * .72)
+                fraction1 = (x1 - x) / (pitch_px * .72)
+                y0 = bottom - body_height * .82 * fraction0
+                y1 = bottom - body_height * .82 * fraction1
+                paths.append(f'<path class="o" d="M{x0:.2f} {y0:.2f}L{x1:.2f} {y1:.2f}"/>')
+            x += pitch_px
+    safe_title = html.escape(title)
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}主视图">
+<defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
+<rect width="794" height="1123" fill="#fff"/>{''.join(paths)}<text class="f" x="397" y="660" text-anchor="middle">图1</text></svg>'''
+
+
 def generate_svg(shape: object, title: str, part_type: str, parameters: dict[str, Any]) -> str:
     # Exact HLR in OCCT 7.x can segfault on long swept helices. PolyHLR still
     # projects the same B-Rep and preserves the established preview tolerance.
     # Fused valve bodies contain sphere/cylinder/torus intersection curves that
     # also trigger native Exact-HLR failures despite a modest edge count.
+    if part_type == "screw" and float(parameters.get("length", 0)) >= 400:
+        return _long_screw_svg(title, parameters)
     projector = _project_poly_edges if part_type == "valve" or _edge_count(shape) > 400 else _project_edges
     visible, hidden, _ = projector(shape)
     transform, scale = _fit_transform([*visible, *hidden])

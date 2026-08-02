@@ -52,3 +52,12 @@ def test_coupling_variants_and_seal_features_materialize_as_geometry():
     plain = measured("seal", "密封件外径110mm，内径65mm，宽度16mm")
     grooved = measured("seal", "轴端密封件外径110mm，内径65mm，宽度16mm，带环形密封槽宽4mm")
     assert grooved["topology"]["faces"] > plain["topology"]["faces"]
+
+
+def test_ball_screw_and_implicit_seal_groove_are_bounded_and_materialized():
+    ball_screw = measured("screw", "滚珠丝杠，长度600mm，公称直径32mm，导程10mm，两端包含支承轴颈")
+    assert ball_screw["topology"]["solids"] == 1
+    assert ball_screw["bounding_box"]["size"][1] < 40
+    plain = measured("seal", "密封件外径110mm，内径65mm，宽度16mm")
+    grooved = measured("seal", "密封件外径110mm，内径65mm，宽度16mm，带环形密封槽")
+    assert grooved["topology"]["faces"] > plain["topology"]["faces"]

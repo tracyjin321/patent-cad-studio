@@ -24,6 +24,8 @@ cp .env.example .env
 可按 CPU 和内存继续提高并发数，例如 `CAD_WORKERS=8 ./.venv/bin/python -m app.server`。
 每个 worker 同时只运行一个 OpenCascade 内核任务，避免线程并发导致几何损坏；
 不同 worker 可并行服务不同用户或浏览器窗口。建议每个 worker 至少预留 1.5 GB 内存。
+齿轮和长丝杠属于高内存任务，默认最多 2 路并行，可通过 `HEAVY_CAD_SLOTS` 调整；
+普通模型仍按 `CAD_WORKERS` 的 5 路或更高容量并行。
 
 打开 <http://127.0.0.1:8000>。
 

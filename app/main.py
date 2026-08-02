@@ -1,6 +1,9 @@
 from pathlib import Path
+from contextlib import contextmanager
+import fcntl
 import os
 import re
+import time
 from threading import Lock
 from uuid import uuid4
 
@@ -32,9 +35,37 @@ MAX_DESCRIPTION_CHARS = 5000
 # Keep one CAD job per worker, and scale with isolated uvicorn worker processes.
 CAD_KERNEL_LOCK = Lock()
 CAD_WORKERS = max(1, int(os.getenv("CAD_WORKERS", "5")))
+HEAVY_CAD_SLOTS = max(2, int(os.getenv("HEAVY_CAD_SLOTS", "2")))
 app = FastAPI(title="专图灵境 API", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
+
+
+@contextmanager
+def cad_resource_slot(part_type: str):
+    """Bound memory-heavy jobs across workers while normal jobs stay 5-way parallel."""
+    if part_type not in {"gear", "screw"}:
+        yield
+        return
+    slot_dir = GENERATED / ".heavy-slots"
+    slot_dir.mkdir(exist_ok=True)
+    stream = None
+    while stream is None:
+        for index in range(HEAVY_CAD_SLOTS):
+            candidate = (slot_dir / f"slot-{index}.lock").open("a+b")
+            try:
+                fcntl.flock(candidate.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                stream = candidate
+                break
+            except BlockingIOError:
+                candidate.close()
+        if stream is None:
+            time.sleep(0.1)
+    try:
+        yield
+    finally:
+        fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+        stream.close()
 
 
 @app.get("/api/health")
@@ -90,7 +121,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     def build_artifacts():
         # One OpenCascade job per interpreter; separate uvicorn processes provide
         # safe multi-user parallelism without changing geometry or meshing quality.
-        with CAD_KERNEL_LOCK:
+        with CAD_KERNEL_LOCK, cad_resource_slot(request.part_type):
             resolved = resolve_parametric_component(
                 request.part_type,
                 parameters,

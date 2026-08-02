@@ -258,6 +258,10 @@ def build_shape(part: str, p: dict[str, Any]):
             cylinder(diameter*.56,shoulder_width,x=-thread_length/2,axis="x"),
             cylinder(diameter*.56,shoulder_width,x=thread_length/2,axis="x"),
         ])
+        if int(p.get("variant",0)) == 1:
+            ring_count=max(3,int(thread_length/lead));tube_r=min(lead*.08,diameter*.04)
+            races=[BRepPrimAPI_MakeTorus(gp_Ax2(gp_Pnt(-thread_length/2+(i+.5)*thread_length/ring_count,0,0),gp_Dir(1,0,0)),diameter*.49,tube_r).Shape() for i in range(ring_count)]
+            return fuse([core,compound(races)])
         thread=trapezoidal_helix(diameter/2*.985,thread_length,lead,int(p.get("starts",1)),-thread_length/2)
         return fuse([core,thread])
     if part=="coupling":

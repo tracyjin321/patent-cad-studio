@@ -260,6 +260,9 @@ def structural_features(description: str, part_type: str, base: dict[str, Any]) 
     }
     for key, pattern in patterns.items():
         if key in features and (match := re.search(pattern, description, re.I)): features[key] = float(match.group(1))
+    if "groove_width" in features and re.search(r"密封槽|环形密封槽", description) and not features["groove_width"]:
+        reference = float(base.get("width", base.get("thickness", 10)))
+        features["groove_width"] = max(2, reference * .2)
     if part_type == "bearing": features["variant"] = int(bool(re.search(r"调心|滚子", description)))
     elif part_type == "valve":
         features["variant"] = 1 if re.search(r"蝶阀", description) else 2 if re.search(r"止回阀|旋启式", description) else 0

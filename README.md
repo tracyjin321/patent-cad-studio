@@ -17,8 +17,13 @@ python3 -m venv .venv
 npm install
 cp .env.example .env
 # 将 MOONSHOT_API_KEY 写入 .env（本机已配置时无需重复设置）
-./.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+# 默认启动 5 个相互隔离的 CAD worker，支持至少五个生成请求并行执行
+./.venv/bin/python -m app.server
 ```
+
+可按 CPU 和内存继续提高并发数，例如 `CAD_WORKERS=8 ./.venv/bin/python -m app.server`。
+每个 worker 同时只运行一个 OpenCascade 内核任务，避免线程并发导致几何损坏；
+不同 worker 可并行服务不同用户或浏览器窗口。建议每个 worker 至少预留 1.5 GB 内存。
 
 打开 <http://127.0.0.1:8000>。
 

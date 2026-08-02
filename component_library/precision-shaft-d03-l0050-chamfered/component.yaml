@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: precision-shaft-d03-l0050-chamfered
-  name: Precision shaft, D3 x 50 mm
-  name_en: null
+  name: 精密光轴
+  name_en: Precision shaft, D3 x 50 mm
   type: shaft
   subtype: ground_shaft
   family: ground-shaft
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 1f165e5815584de7b1613b4a13272e7136b6e095f75d21ba406d20d3cf0e4d96
+      engineering_geometry_sha256: ff41a1bd1322eb2fc0e10b3236e3dba49d8df93d368b5c66279877b07d88ee13
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

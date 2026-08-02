@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: bearing-flanged-f608-simple
-  name: Flanged ball bearings, F608
-  name_en: null
+  name: 法兰轴承
+  name_en: Flanged ball bearings, F608
   type: bearing
   subtype: flanged_ball
   family: flanged-ball-bearing
@@ -161,6 +161,9 @@ validation:
       - -0.0
       - 4.152493
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 52ad316e6096a5efb9f76e7fb403071c07d88f7fd2f49577764eb0829af7eab6
+      engineering_geometry_sha256: b2b7327cf17c50bcaf3f0ea57e46a6f6dc1cd232e36faaf242a1cf71d89aab9c
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

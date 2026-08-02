@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: vslot-2020-l0100
-  name: Aluminum extrusions, 100 mm
-  name_en: null
+  name: V型槽铝型材
+  name_en: Aluminum extrusions, 100 mm
   type: profile
   subtype: v_slot_extrusion
   family: v-slot-extrusion
@@ -161,6 +161,9 @@ validation:
       - -0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 7c6ba5957a74387299d6d435aeab0b98019efda106759b1d52127e367346253a
+      engineering_geometry_sha256: 41c449d4136e1e414da80a8199efbfbbb682c883eac434b1512d9bfdc5027c22
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

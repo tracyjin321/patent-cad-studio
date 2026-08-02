@@ -26,15 +26,16 @@ async function checkServiceHealth(showChecking = false) {
     if (health.status !== "ok") throw new Error("生成服务状态异常");
     renderServiceStatus("online", "生成服务已连接");
   } catch (error) {
-    renderServiceStatus("offline", "生成服务暂不可用");
+    if(state.isGenerating)renderServiceStatus("busy", "正在执行几何建模");
+    else renderServiceStatus("offline", "生成服务暂不可用");
   } finally {
     clearTimeout(timeout);
   }
 }
 
 function historySummary(item) {
-  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time}=item;
-  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,time};
+  const {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time}=item;
+  return {id,title,part_type,parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time};
 }
 function loadHistory() {
   try {
@@ -52,7 +53,7 @@ function persistHistory(items) {
   try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, referenceImage: null, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, manualSelected: new Set(), manualDeselected: new Set(), history: loadHistory() };
+const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, components: [], componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory() };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -86,35 +87,71 @@ const elementPatterns = {
   coupling: /联轴器|联轴节|轴联接|coupling/i,
   seal: /密封件|密封圈|油封|密封环|密封唇|seal/i
 };
+const componentTypeToPart = {bearing:"bearing",shaft:"shaft",hub:"shaft",gear:"gear",pulley:"gear",sprocket:"gear",screw:"screw",nut:"screw",coupling:"coupling",seal:"seal",flange:"flange",valve:"valve"};
+const componentIconPaths = {
+  fastener:'<path d="M12 2 7 5v5l3 2v10h4V12l3-2V5Z"/><path d="M8 6h8M10 14h4M10 17h4M10 20h4"/>',
+  nut:'<path d="m5 8 4-4h6l4 4v8l-4 4H9l-4-4Z"/><circle cx="12" cy="12" r="3"/>',
+  spacer:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
+  bearing:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="5.5" r="1"/><circle cx="18.5" cy="12" r="1"/><circle cx="12" cy="18.5" r="1"/><circle cx="5.5" cy="12" r="1"/>',
+  gear:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/><circle cx="12" cy="12" r="8"/>',
+  pulley:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M6.5 7.5c3 2 8 2 11 0M6.5 16.5c3-2 8-2 11 0"/>',
+  screw:'<path d="M5 17 17 5l2 2L7 19Z"/><path d="m14 6 4 4M7 15l2 2M9 13l2 2M11 11l2 2"/>',
+  shaft:'<path d="M3 10h15l3 2-3 2H3Z"/><path d="M7 10v4M17 10v4"/>',
+  coupling:'<path d="M3 9h7v6H3ZM14 9h7v6h-7Z"/><path d="M10 11h4M10 13h4"/>',
+  pin:'<path d="M5 15 17 5l2 2L7 17Z"/><circle cx="6" cy="16" r="2"/>',
+  actuator:'<rect x="4" y="7" width="12" height="10" rx="2"/><path d="M16 10h5v4h-5M8 7V4M12 7V4"/>',
+  profile:'<path d="M4 4h16v4h-6v8h6v4H4v-4h6V8H4Z"/>',
+  stock:'<path d="m4 7 8-4 8 4-8 4Z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/>',
+  motion:'<path d="M3 8h18v8H3Z"/><path d="M7 8v8M17 8v8M5 5h14M7 3 5 5l2 2M17 3l2 2-2 2"/>',
+  hardware:'<path d="M5 4h14v16H5Z"/><path d="M9 4v16M15 4v16M5 9h14M5 15h14"/>'
+};
+function componentIcon(type){const icon=document.createElement("span");icon.className="component-icon";icon.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${componentIconPaths[type]||componentIconPaths.stock}</svg>`;return icon;}
 const modelViewer = new CadModelViewer($("#model-canvas"));
 
-function selectedParts(){return Object.keys(labels).filter(part=>(state.recommended.has(part)||state.manualSelected.has(part))&&!state.manualDeselected.has(part));}
+function selectedParts(){const explicit=[...state.selectedComponentIds].map(id=>componentTypeToPart[state.componentIndex.get(id)?.type]).filter(Boolean);return [...new Set([...explicit,...state.recommended])];}
 function renderPrimaryPartControl(parts){
   const selector=$("#primary-part"),hint=$("#primary-part-hint");
-  if(!parts.length){selector.innerHTML="<option>请先选择核心图元</option>";selector.disabled=true;hint.textContent="请选择至少一个核心图元，并指定主要生成对象。";return;}
+  if(!parts.length){selector.innerHTML="<option>语义自动匹配</option>";selector.disabled=true;hint.textContent="未选择图元时，将根据技术描述自动确定主要生成对象。";return;}
   if(!parts.includes(state.part))state.part=parts[0];
   selector.disabled=false;selector.innerHTML=parts.map(part=>`<option value="${part}">${labels[part]}</option>`).join("");selector.value=state.part;
   const related=parts.filter(part=>part!==state.part).map(part=>labels[part]);
   hint.textContent=related.length?`已选图元：${[labels[state.part],...related].join("、")}。当前以${labels[state.part]}为主要生成对象。`:`当前以${labels[state.part]}为主要生成对象。`;
 }
-function renderParts(){
-  const selected=new Set(selectedParts());
-  if(selected.size&&!selected.has(state.part))state.part=[...selected][0];
-  $$("#parts button").forEach(button=>{const part=button.dataset.part,isSelected=selected.has(part),isPrimary=isSelected&&state.part===part;button.classList.toggle("active",isSelected);button.classList.toggle("primary-part",isPrimary);button.classList.toggle("related-part",isSelected&&!isPrimary);button.classList.toggle("recommended",state.recommended.has(part));button.setAttribute("aria-pressed",isSelected);button.setAttribute("aria-label",`${labels[part]}${isPrimary?"，主图元":isSelected?"，相关图元":""}`);button.replaceChildren();const label=document.createElement("span");label.className="part-label";label.textContent=labels[part];button.appendChild(label);if(isPrimary){const badge=document.createElement("span");badge.className="primary-part-badge";badge.textContent="主";button.appendChild(badge);}else if(isSelected){const badge=document.createElement("span");badge.className="related-part-badge";badge.textContent="相关";button.appendChild(badge);}else if(state.recommended.has(part)){const badge=document.createElement("span");badge.className="recommend-badge";badge.textContent="✦";badge.title="智能推荐";badge.setAttribute("aria-label","智能推荐");button.appendChild(badge);}});
-  renderPrimaryPartControl([...selected]);
+function renderRecommendation(){
   const status=$("#recommendation-status"),recommendedNames=[...state.recommended].map(part=>labels[part]);status.className="";
+  status.classList.add("component-recommendation");
   if(state.recommendationSource==="loading"){status.classList.add("recognizing");status.innerHTML='<i></i>正在智能识别核心图元<span class="status-dots"><b>.</b><b>.</b><b>.</b></span>';}
   else if(recommendedNames.length){status.classList.add("recognized");status.textContent=`✓ 已推荐：${recommendedNames.join("、")}`;status.title=`已自动推荐 ${recommendedNames.join("、")}，可人工调整`;}
-  else if($("#description").value.trim()){status.textContent="未识别到图元，请手动选择";}
-  else{status.textContent="自动推荐，可人工补充";}
+  else if($("#description").value.trim()){status.textContent="暂未识别到匹配类型，可直接选择图元";}
+  else{status.textContent="未选择时将根据技术描述自动匹配";}
+  renderPrimaryPartControl(selectedParts());
 }
 async function fetchModelRecommendations(description){
-  state.recommendationController?.abort();const controller=new AbortController(),startedAt=Date.now();state.recommendationController=controller;state.recommendationSource="loading";renderParts();
+  state.recommendationController?.abort();const controller=new AbortController(),startedAt=Date.now();state.recommendationController=controller;state.recommendationSource="loading";renderRecommendation();
   const holdLoading=()=>new Promise(resolve=>setTimeout(resolve,Math.max(0,2000-(Date.now()-startedAt))));
-  try{const response=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,use_ai:true}),signal:controller.signal});if(!response.ok)throw new Error(`推荐接口返回 ${response.status}`);const data=await response.json();await holdLoading();if(controller.signal.aborted||$("#description").value!==description)return;state.recommended=new Set(data.elements);state.recommendationSource=data.parser;state.recommendationDetail=data.parser_detail;const candidates=selectedParts();if(candidates.length&&!candidates.includes(state.part))state.part=candidates[0];renderParts();}
-  catch(error){if(error.name==="AbortError")return;await holdLoading();if(controller.signal.aborted)return;state.recommendationSource="local-fallback";state.recommendationDetail=error.message;renderParts();}
+  try{const response=await fetch("/api/recommend",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,use_ai:true}),signal:controller.signal});if(!response.ok)throw new Error(`推荐接口返回 ${response.status}`);const data=await response.json();await holdLoading();if(controller.signal.aborted||$("#description").value!==description)return;state.recommended=new Set(data.elements);state.recommendationSource=data.parser;state.recommendationDetail=data.parser_detail;if(state.recommended.size)state.part=[...state.recommended][0];renderRecommendation();renderComponents();}
+  catch(error){if(error.name==="AbortError")return;await holdLoading();if(controller.signal.aborted)return;state.recommendationSource="local-fallback";state.recommendationDetail=error.message;renderRecommendation();}
 }
-function extractCoreElements(description){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(current.length&&!current.includes(state.part))state.part=current[0];renderParts();if(description.trim().length>=2&&$("#use-ai").checked)state.recommendationTimer=setTimeout(()=>fetchModelRecommendations(description),500);}
+function extractCoreElements(description){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderRecommendation();renderComponents();if(description.trim().length>=2&&$("#use-ai").checked)state.recommendationTimer=setTimeout(()=>fetchModelRecommendations(description),500);}
+
+function renderComponents(){
+  const container=$("#component-groups");container.replaceChildren();
+  $("#component-selection-count").textContent=`（可选，${state.selectedComponentIds.size} 已选）`;
+  if(!state.components.length){const empty=document.createElement("p");empty.className="empty-small";empty.textContent="没有找到匹配图元";container.appendChild(empty);return;}
+  const groups=state.components.reduce((map,item)=>{const list=map.get(item.category)||[];list.push(item);map.set(item.category,list);return map;},new Map());
+  for(const [category,components] of groups){
+    const group=document.createElement("section");group.className="component-group";
+    const title=document.createElement("div");title.className="component-group-title";const strong=document.createElement("strong"),categoryIndex=state.componentCategories.findIndex(item=>item.id===category);strong.textContent=`${String(Math.max(0,categoryIndex)+1).padStart(2,"0")} ${components[0].category_label}`;const count=document.createElement("span");count.textContent=components.length;title.append(strong,count);group.appendChild(title);
+    const grid=document.createElement("div");grid.className="component-grid";
+    for(const component of components){const button=document.createElement("button");button.type="button";button.className="component-card";button.dataset.componentId=component.id;const selected=state.selectedComponentIds.has(component.id),part=componentTypeToPart[component.type];button.classList.toggle("selected",selected);button.classList.toggle("recommended",Boolean(part&&state.recommended.has(part)));button.setAttribute("aria-pressed",String(selected));button.setAttribute("aria-label",`${component.name}，悬停查看详情`);const text=document.createElement("span");text.className="component-card-text";const name=document.createElement("strong");name.textContent=component.name;const code=document.createElement("small");code.textContent=component.id;text.append(name,code);const detail=document.createElement("span");detail.className="component-card-detail";const detailTitle=document.createElement("strong");detailTitle.textContent=component.name;const english=document.createElement("span");english.textContent=component.name_en||"暂无英文原名";const meta=document.createElement("small");meta.textContent=`${component.subtype_label||component.type} · v${component.version||"1.0.0"}`;const description=document.createElement("small");description.textContent=component.description||"component_library 标准装配图元";detail.append(detailTitle,english,meta,description);button.append(componentIcon(component.type),text,detail);grid.appendChild(button);}
+    group.appendChild(grid);container.appendChild(group);
+  }
+}
+async function loadComponents(){
+  state.componentController?.abort();const controller=new AbortController();state.componentController=controller;const params=new URLSearchParams();const q=$("#component-search").value.trim(),category=$("#component-category").value;if(q)params.set("q",q);if(category)params.set("category",category);
+  try{const response=await fetch(`/api/components?${params}`,{signal:controller.signal});if(!response.ok)throw new Error(`图元目录加载失败 (${response.status})`);const data=await response.json();state.components=data.items;for(const component of data.items)state.componentIndex.set(component.id,component);if(!state.componentCategories.length){state.componentCategories=data.categories;for(const item of data.categories){const option=document.createElement("option");option.value=item.id;option.textContent=`${item.label} (${item.count})`;$("#component-category").appendChild(option);}}renderComponents();}
+  catch(error){if(error.name==="AbortError")return;$("#component-groups").innerHTML='<p class="empty-small">component_library 暂时无法加载</p>';toast(error.message);}
+}
 
 function toast(message) { const el=$("#toast"); el.textContent=message; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2200); }
 function setTab(name) { $$(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name)); $$(".panel").forEach(p=>p.classList.toggle("active",p.id===name)); }
@@ -128,8 +165,8 @@ function renderHistory() {
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":"本地确定性解析",parserDetail=result.parser==="local-fallback"?`<p>解析说明：${result.parser_detail||"智能解析暂不可用，已自动回退"}</p>`:"";
   const sourceText={generated:"新建 YAML 并物化 STEP",cache:"命中参数化缓存",library:"命中正式图元库"}[result.generation_source]||"旧版直接建模";
-  const coreParts=result.core_elements||[result.part_type],relatedText=coreParts.filter(part=>part!==result.part_type).map(part=>labels[part]).join("、");
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>主生成图元：${labels[result.part_type]}${relatedText?` · 相关图元：${relatedText}`:""}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  const selectedComponents=result.selected_components||[];const coreText=selectedComponents.length?selectedComponents.map(component=>component.name).join("、"):(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、")+"（语义自动匹配）";
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(result.parameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
@@ -144,28 +181,32 @@ function download(blob,name){ const url=URL.createObjectURL(blob); const a=docum
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
-  const coreElements=selectedParts();if(!coreElements.length){toast("请选择至少一个核心图元");return;}const primaryPart=coreElements.includes(state.part)?state.part:coreElements[0];state.part=primaryPart;
+  const coreElements=selectedParts();const primaryPart=coreElements.includes(state.part)?state.part:coreElements[0]||state.part||"bearing";state.part=primaryPart;
+  state.isGenerating=true;renderServiceStatus("busy","正在执行几何建模");
   $("#compliance").disabled=true;$("#compliance").classList.remove("is-passed");$("#compliance").removeAttribute("title");
   const button=$("#generate");button.disabled=true;button.classList.add("is-loading");button.setAttribute("aria-busy","true");button.innerHTML='<span class="button-spinner" aria-hidden="true"></span><span>正在生成附图…</span>';
-  const progress=$("#generation-progress"), stages=[["正在解析技术描述","识别零件类型、结构尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格一致性…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG 附图、3D 预览和 STEP 文件…"]];
+  const progress=$("#generation-progress"), stages=[["正在解析技术描述","识别零件类型、结构尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格一致性…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep；复杂螺旋可能需要约 1 分钟…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG 附图、3D 预览和 STEP 文件…"]];
   let progressValue=0;
-  const renderProgress=()=>{const stage=progressValue<28?0:progressValue<54?1:progressValue<79?2:3;const [title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${progressValue}%`;$("#progress-percent").textContent=`${Math.round(progressValue)}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;};
+  const renderProgress=()=>{const stage=progressValue<28?0:progressValue<54?1:progressValue<79?2:3;const [title,detail]=stages[stage];progress.dataset.stage=stage;$$('.cad-phases span').forEach((item,index)=>{item.classList.toggle("active",index===stage);item.classList.toggle("done",index<stage)});$("#progress-bar").style.width=`${progressValue}%`;$("#progress-percent").textContent=progressValue>=95?"处理中":`${Math.round(progressValue)}%`;$("#progress-title").textContent=title;$("#progress-detail").textContent=detail;};
   progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
-    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,use_ai:$("#use-ai").checked})});
+    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked})});
     if(!response.ok) throw new Error(`附图生成失败（错误码：${response.status}）`);
     const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
     state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
-  finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';}
+  finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';state.isGenerating=false;checkServiceHealth();}
 }
 
 $("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length}/5000`;extractCoreElements(e.target.value);};
 $("#example").onclick=()=>{const index=state.exampleIndex%refreshExamples.length;$("#description").value=refreshExamples[index];state.exampleIndex=(index+1)%refreshExamples.length;$("#description").dispatchEvent(new Event("input"));};
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
-$("#parts").onclick=e=>{const button=e.target.closest("button");if(!button)return;const part=button.dataset.part;const current=selectedParts(),selected=current.includes(part);if(selected){state.manualSelected.delete(part);if(state.recommended.has(part))state.manualDeselected.add(part);}else{state.manualDeselected.delete(part);state.manualSelected.add(part);if(!current.length||!current.includes(state.part))state.part=part;}renderParts();};
-$("#primary-part").onchange=e=>{state.part=e.target.value;renderParts();};
+$("#component-toggle").onclick=()=>{const open=$("#component-toggle").getAttribute("aria-expanded")==="true";$("#component-toggle").setAttribute("aria-expanded",String(!open));$("#component-panel").hidden=open;};
+$("#component-groups").onclick=e=>{const button=e.target.closest("[data-component-id]");if(!button)return;const id=button.dataset.componentId;if(state.selectedComponentIds.has(id))state.selectedComponentIds.delete(id);else state.selectedComponentIds.add(id);renderComponents();renderRecommendation();};
+$("#component-search").oninput=()=>{clearTimeout(state.componentQueryTimer);state.componentQueryTimer=setTimeout(loadComponents,220);};
+$("#component-category").onchange=loadComponents;
+$("#primary-part").onchange=e=>{state.part=e.target.value;renderPrimaryPartControl(selectedParts());};
 $("#document").onchange=async e=>{const input=e.target,file=input.files[0];if(!file)return;if(file.size>10*1024*1024){input.value="";toast("文档不能超过 10MB");return;}const form=new FormData();form.append("file",file);try{const response=await fetch("/api/documents/extract",{method:"POST",body:form}),data=await response.json();if(!response.ok)throw new Error(data.detail||"文档解析失败");$("#description").value=data.text;$("#description").dispatchEvent(new Event("input"));toast(data.truncated?"文档已导入，超长内容已截取前 5000 字":"文档已导入");}catch(error){input.value="";toast(error.message);}};
 $("#reference-image").onchange=e=>{const input=e.target,file=input.files[0],label=$("#reference-image-label"),allowed=new Set(["image/png","image/jpeg","image/webp"]);if(!file){state.referenceImage=null;label.textContent="点击上传参考图片";label.removeAttribute("title");return;}if(!allowed.has(file.type)){input.value="";state.referenceImage=null;label.textContent="点击上传参考图片";toast("请选择 PNG、JPG 或 WebP 图片");return;}if(file.size>5*1024*1024){input.value="";state.referenceImage=null;label.textContent="点击上传参考图片";toast("图片不能超过 5MB");return;}state.referenceImage=file;label.textContent=file.name;label.title=file.name;toast("参考图片已选择");};
 $("#use-ai").onchange=()=>extractCoreElements($("#description").value);
@@ -179,7 +220,8 @@ $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"
 $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=2480;canvas.height=3508;canvas.getContext("2d").drawImage(image,0,0,2480,3508);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
 $("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
 renderHistory();
-renderParts();
+renderRecommendation();
+loadComponents();
 checkServiceHealth(true);
 setInterval(checkServiceHealth, HEALTH_CHECK_INTERVAL);
 document.addEventListener("visibilitychange", () => {

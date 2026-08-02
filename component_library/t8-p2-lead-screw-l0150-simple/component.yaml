@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: t8-p2-lead-screw-l0150-simple
-  name: t8 p2 lead screw L0150 simple
-  name_en: null
+  name: 梯形丝杠
+  name_en: t8 p2 lead screw L0150 simple
   type: screw
   subtype: lead_screw
   family: lead-screw
@@ -160,6 +160,9 @@ validation:
       - -0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 3a53cf1b4d56dccf81906681b45fa1583f3259f18b526a9472790f126069581f
+      engineering_geometry_sha256: 20dd8cc2ac9924c13b8544bac4906e260cf70eb7b46874b554a50b807cc92aa1
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

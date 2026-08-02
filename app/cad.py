@@ -99,6 +99,46 @@ def _project_edges(shape: object) -> tuple[list[list[tuple[float, float]]], list
     return visible, hidden, projector
 
 
+def _edge_count(shape: object) -> int:
+    from OCP.TopAbs import TopAbs_EDGE
+    from OCP.TopExp import TopExp_Explorer
+
+    count = 0
+    explorer = TopExp_Explorer(shape, TopAbs_EDGE)
+    while explorer.More():
+        count += 1
+        explorer.Next()
+    return count
+
+
+def _project_poly_edges(shape: object) -> tuple[list[list[tuple[float, float]]], list[list[tuple[float, float]]], object]:
+    """Stable HLR for very complex B-Reps using the preview mesh tolerance."""
+    from OCP.BRepMesh import BRepMesh_IncrementalMesh
+    from OCP.HLRBRep import HLRBRep_PolyAlgo, HLRBRep_PolyHLRToShape
+
+    projector = _projector()
+    BRepMesh_IncrementalMesh(shape, 0.35, False, 0.22, True)
+    algorithm = HLRBRep_PolyAlgo()
+    algorithm.Load(shape)
+    algorithm.Projector(projector)
+    algorithm.Update()
+    result = HLRBRep_PolyHLRToShape()
+    result.Update(algorithm)
+    visible = _unique_paths([
+        _edge_points(result.VCompound()),
+        _edge_points(result.OutLineVCompound()),
+    ])
+    hidden = _unique_paths([
+        _edge_points(result.HCompound()),
+        _edge_points(result.OutLineHCompound()),
+    ])
+    visible_keys = {_path_key(points) for points in visible}
+    hidden = [points for points in hidden if _path_key(points) not in visible_keys]
+    if not visible:
+        raise RuntimeError("OpenCascade polygonal hidden-line projection returned no visible edges")
+    return visible, hidden, projector
+
+
 def _fit_transform(paths: Iterable[list[tuple[float, float]]]):
     points = [point for path in paths for point in path]
     min_x = min(point[0] for point in points)
@@ -124,7 +164,12 @@ def _svg_path(points: list[tuple[float, float]], transform, css: str) -> str:
 
 
 def generate_svg(shape: object, title: str, part_type: str, parameters: dict[str, Any]) -> str:
-    visible, hidden, _ = _project_edges(shape)
+    # Exact HLR in OCCT 7.x can segfault on long swept helices. PolyHLR still
+    # projects the same B-Rep and preserves the established preview tolerance.
+    # Fused valve bodies contain sphere/cylinder/torus intersection curves that
+    # also trigger native Exact-HLR failures despite a modest edge count.
+    projector = _project_poly_edges if part_type == "valve" or _edge_count(shape) > 400 else _project_edges
+    visible, hidden, _ = projector(shape)
     transform, scale = _fit_transform([*visible, *hidden])
     visible_svg = "".join(_svg_path(points, transform, "o") for points in visible)
     hidden_svg = "".join(_svg_path(points, transform, "h") for points in hidden)

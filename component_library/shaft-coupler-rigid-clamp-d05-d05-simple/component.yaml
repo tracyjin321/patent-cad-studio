@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: shaft-coupler-rigid-clamp-d05-d05-simple
-  name: Shaft couplers, 5 mm to 5 mm
-  name_en: null
+  name: 轴联轴器
+  name_en: Shaft couplers, 5 mm to 5 mm
   type: coupling
   subtype: shaft_coupling
   family: shaft-coupling
@@ -160,6 +160,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 211941b6a80ffe67acf7a4715eac25ef5dbb99c798f77aaef1bc289619b354a4
+      engineering_geometry_sha256: cf325535794cebc6e9ac679b1b1a0021054c059e8c20fa15dfbb09f035087fdd
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: flat-washer-normal-m3-simple
-  name: ISO 7089 flat washer, M3
-  name_en: null
+  name: 平垫圈
+  name_en: ISO 7089 flat washer, M3
   type: fastener
   subtype: flat_washer
   family: flat-washer
@@ -161,6 +161,9 @@ validation:
       - -0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: fc3b55e77a4a7c3c98cf83c896562e21d9008ddece5bd59cbbe1d845f6aa9d77
+      engineering_geometry_sha256: 40070164581794184a0eae254f0a83ebadefe1438f445466a18f99fffac2933d
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

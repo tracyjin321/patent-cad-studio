@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: precision-shaft-d03-l0025-chamfered
-  name: Precision shaft, D3 x 25 mm
-  name_en: null
+  name: 精密光轴
+  name_en: Precision shaft, D3 x 25 mm
   type: shaft
   subtype: ground_shaft
   family: ground-shaft
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 567294e4fe3491bea7984662daf305e302c56d5bc1b69072012fd90b0dd7fed2
+      engineering_geometry_sha256: b7f7056af99c26558462ffbed498553b39426e6a3925a6ead882a1055de3d6c9
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

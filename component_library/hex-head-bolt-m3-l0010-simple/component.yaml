@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: hex-head-bolt-m3-l0010-simple
-  name: ISO 4017 hex-head bolt, M3 x 10 mm
-  name_en: null
+  name: 六角头螺栓
+  name_en: ISO 4017 hex-head bolt, M3 x 10 mm
   type: fastener
   subtype: hex_head_cap_screw
   family: hex-head-cap-screw
@@ -161,6 +161,9 @@ validation:
       - 0.0
       - -1.658434
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 624365d3674ee704fd9907461a26677f01577dc1826c8e8caf4979e91e5fd8c0
+      engineering_geometry_sha256: f764b427a961e12d75842e186bf93e4ea566309f5c6858c5a8f1b4b73896433a
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

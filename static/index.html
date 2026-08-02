@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
   <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
   <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-primary-label-size">
+  <link rel="stylesheet" href="/static/component-library.css?v=20260801-component-library">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
 </head>
 <body>
@@ -46,13 +47,18 @@
         <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-image"></use></svg>参考图片</strong><span>PNG/JPG，≤5MB</span></div>
         <label class="upload" for="reference-image"><svg class="ui-icon"><use href="#icon-upload"></use></svg><span id="reference-image-label" class="upload-label-text">点击上传参考图片</span><input id="reference-image" type="file" accept="image/png,image/jpeg,image/webp"></label>
       </section>
-      <section>
-        <div class="section-title"><strong><svg class="ui-icon"><use href="#icon-layers"></use></svg>核心图元</strong><span id="recommendation-status">自动推荐，可人工补充</span></div>
-        <div id="parts" class="parts">
-          <button data-part="bearing" class="active">轴承</button><button data-part="flange">法兰</button>
-          <button data-part="valve">阀门</button><button data-part="shaft">轴系</button>
-          <button data-part="gear">齿轮</button><button data-part="screw">丝杠</button>
-          <button data-part="coupling">联轴器</button><button data-part="seal">密封件</button>
+      <section class="component-section">
+        <button id="component-toggle" class="component-toggle" type="button" aria-expanded="true" aria-controls="component-panel">
+          <span><strong><svg class="ui-icon"><use href="#icon-layers"></use></svg>核心图元</strong><small id="component-selection-count">（可选，0 已选）</small></span><i aria-hidden="true">⌃</i>
+        </button>
+        <div id="component-panel">
+          <div class="component-tools">
+            <label class="component-search"><span aria-hidden="true">⌕</span><input id="component-search" type="search" placeholder="搜索图元名称 / 编码…" autocomplete="off"></label>
+            <select id="component-category" aria-label="图元分类"><option value="">全部目录</option></select>
+          </div>
+          <div id="component-groups" class="component-groups" aria-live="polite"><p class="empty-small">正在加载 component_library…</p></div>
+          <p class="component-helper">不勾选时由语义理解节点自动匹配；勾选后将以所选图元为约束进行组装。</p>
+          <p id="recommendation-status" class="component-recommendation">自动推荐，可人工补充</p>
         </div>
         <div class="primary-part-control">
           <label for="primary-part"><span>主要生成对象</span><small>从已选图元中指定</small></label>
@@ -116,6 +122,6 @@
       <div id="toast" role="status" aria-live="polite"></div>
     </article>
   </main>
-  <script type="module" src="/static/app.js?v=20260801-document-formats"></script>
+  <script type="module" src="/static/app.js?v=20260802-service-status"></script>
 </body>
 </html>

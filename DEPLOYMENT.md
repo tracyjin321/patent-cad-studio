@@ -107,9 +107,7 @@ MOONSHOT_BASE_URL=https://api.moonshot.cn/v1
 
 ```bash
 cd /opt/patent-cad-studio
-./.venv/bin/uvicorn app.main:app \
-  --host 127.0.0.1 \
-  --port 8000
+CAD_WORKERS=5 ./.venv/bin/python -m app.server
 ```
 
 另开一个终端检查：
@@ -121,7 +119,7 @@ curl http://127.0.0.1:8000/api/health
 预期返回：
 
 ```json
-{"status":"ok"}
+{"status":"ok","generation":"available","worker_busy":false,"worker_pid":12345,"configured_workers":5}
 ```
 
 然后按 `Ctrl+C` 停止临时进程。
@@ -147,11 +145,12 @@ Type=simple
 User=ubuntu
 Group=ubuntu
 WorkingDirectory=/opt/patent-cad-studio
-ExecStart=/opt/patent-cad-studio/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+ExecStart=/opt/patent-cad-studio/.venv/bin/python -m app.server
 Restart=always
 RestartSec=3
 TimeoutStopSec=30
 Environment=PYTHONUNBUFFERED=1
+Environment=CAD_WORKERS=5
 
 # 基础安全限制
 NoNewPrivileges=true

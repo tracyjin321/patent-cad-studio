@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: stepper-motor-nema17-l0028-single-shaft
-  name: NEMA stepper motors, body length 28 mm
-  name_en: null
+  name: 步进电机
+  name_en: NEMA stepper motors, body length 28 mm
   type: actuator
   subtype: nema_stepper
   family: nema-stepper-motor
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - 14.365713
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 8c86434ef083222f678417d01c3e9cd617b1602ee17eba8c2c89c66d7e97ebde
+      engineering_geometry_sha256: 311181005b230c6717ee87e940094c2b30239ca042a1ed82e0ad155300766125
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

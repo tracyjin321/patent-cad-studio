@@ -233,6 +233,9 @@ validation:
       - -0.0
       - -35.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: ca1978cfefe329adf016c1d7a33e9bbade6cc4a506e6e842d605bc7c1e25e5fb
+      engineering_geometry_sha256: b4edfa6260b3119733baa31a08e8db3f8395ea1a76e35384bb692ed2c9e95813
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -275,3 +278,4 @@ provenance:
   verified_by: null
   verified_at: null
   source_material_directory: null
+  semantic_recovery: authoritative_sidecar

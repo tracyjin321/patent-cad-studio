@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: spur-gear-m1-0-30t-bore8
-  name: spur gear M1.0 30t bore8
-  name_en: null
+  name: 直齿圆柱齿轮
+  name_en: spur gear M1.0 30t bore8
   type: gear
   subtype: spur_gear
   family: spur
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 6c74fe400b8615dc81caa8551b78cca9a6d99c373397cf93fbf25efc605d62c6
+      engineering_geometry_sha256: 553969162e9580e3b76ae3aa3c77c75f6029d9b2950155e5d8d12e697a66505a
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

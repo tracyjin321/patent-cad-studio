@@ -107,6 +107,18 @@ article {
   box-shadow: 0 0 0 3px #12b76a1a;
 }
 
+.status.busy {
+  color: #7a4f01;
+  background: #fffaeb;
+  border-color: #fedf89;
+}
+
+.status.busy i {
+  background: #f79009;
+  box-shadow: 0 0 0 3px #f790091f;
+  animation: service-status-pulse 1.2s ease-in-out infinite;
+}
+
 .status.offline {
   color: #b42318;
   background: #fff4f2;

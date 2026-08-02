@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: socket-head-cap-screw-m2-l0025-simple
-  name: ISO 4762 socket head cap screw, M2 x 25 mm
-  name_en: null
+  name: 圆柱头内六角螺钉
+  name_en: ISO 4762 socket head cap screw, M2 x 25 mm
   type: fastener
   subtype: socket_head_cap_screw
   family: socket-head-cap-screw
@@ -161,6 +161,9 @@ validation:
       - 0.0
       - -8.170515
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 3e178223bebea472e036b4859d4dce42ef4784c5f7f2ba506d18bc752ae238c5
+      engineering_geometry_sha256: 86b5883f03bebd947a3bd2f0cd6ef42e883e165128a15209d5e71785acc9a584
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

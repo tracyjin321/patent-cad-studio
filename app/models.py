@@ -11,6 +11,7 @@ class GenerateRequest(BaseModel):
     part_type: PartType
     use_ai: bool = True
     core_elements: list[PartType] = Field(default_factory=list)
+    component_ids: list[str] = Field(default_factory=list, max_length=32)
 
 
 class RecommendRequest(BaseModel):
@@ -40,6 +41,7 @@ class GenerateResponse(BaseModel):
     generation_source: Literal["library", "cache", "generated"]
     spec_fingerprint: str
     core_elements: list[PartType] = Field(default_factory=list)
+    selected_components: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class YamlToStepRequest(BaseModel):

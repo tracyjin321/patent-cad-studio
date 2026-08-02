@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: standoff-hex-male-female-m3-l0006-simple
-  name: Standoffs and spacers, M3, 6 mm body
-  name_en: null
+  name: 六角隔离柱
+  name_en: Standoffs and spacers, M3, 6 mm body
   type: spacer
   subtype: threaded_standoff
   family: threaded-standoff
@@ -160,6 +160,9 @@ validation:
       - -0.0
       - 3.561017
       valid_solid: true
+    signatures:
+      strict_topology_sha256: be299e7fb3b599254ad87017038db92c130a7c1e45e9f89553cabacb1abd8910
+      engineering_geometry_sha256: 94b75c4c98f1d966ee7959c0aaff0996ef9e1c038971939bab79abee12d7b731
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

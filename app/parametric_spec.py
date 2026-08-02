@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import fcntl
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -253,6 +255,19 @@ def _find_library_hit(library: Path, fingerprint: str) -> ResolvedParametricComp
     return None
 
 
+@contextmanager
+def _fingerprint_lock(generated_library: Path, fingerprint: str):
+    """Serialize only identical cache materializations across worker processes."""
+    lock_dir = generated_library / ".locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    with (lock_dir / f"{fingerprint}.lock").open("a+b") as stream:
+        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+
+
 def resolve_parametric_component(
     part_type: str,
     parameters: dict[str, Any],
@@ -273,23 +288,27 @@ def resolve_parametric_component(
     if resolved := _validated_hit(spec_path, fingerprint, "cache"):
         return resolved
 
-    component_dir.mkdir(parents=True, exist_ok=True)
-    dump_spec(draft, spec_path)
-    persisted = load_spec(spec_path)
-    shape = build_shape_from_spec(persisted)
-    reference = component_dir / persisted["artifacts"]["reference_step"]["file"]
-    write_shape_step(shape, reference)
-    measured = inspect_shape(shape)
-    persisted["identity"]["status"] = "generated"
-    persisted["identity"]["updated_at"] = date.today().isoformat()
-    persisted["ports"] = _default_ports(measured, part_type)
-    persisted["presets"][0]["verification_status"] = "geometry_measured"
-    persisted["validation"]["topology"]["expected_body_count"] = measured["topology"]["solids"]
-    persisted["validation"]["geometry"]["measured"] = measured
-    persisted["artifacts"]["reference_step"]["sha256"] = _file_sha256(reference)
-    persisted["provenance"]["verified_at"] = date.today().isoformat()
-    dump_spec(persisted, spec_path)
-    final_validation = validate_spec(persisted, spec_path=spec_path)
-    if final_validation["errors"]:
-        raise ValueError("参数化图元物化后校验失败: " + "; ".join(final_validation["errors"]))
-    return ResolvedParametricComponent(persisted, spec_path, reference, shape, "generated", fingerprint)
+    with _fingerprint_lock(generated_library, fingerprint):
+        # Another worker may have completed the same component while we waited.
+        if resolved := _validated_hit(spec_path, fingerprint, "cache"):
+            return resolved
+        component_dir.mkdir(parents=True, exist_ok=True)
+        dump_spec(draft, spec_path)
+        persisted = load_spec(spec_path)
+        shape = build_shape_from_spec(persisted)
+        reference = component_dir / persisted["artifacts"]["reference_step"]["file"]
+        write_shape_step(shape, reference)
+        measured = inspect_shape(shape)
+        persisted["identity"]["status"] = "generated"
+        persisted["identity"]["updated_at"] = date.today().isoformat()
+        persisted["ports"] = _default_ports(measured, part_type)
+        persisted["presets"][0]["verification_status"] = "geometry_measured"
+        persisted["validation"]["topology"]["expected_body_count"] = measured["topology"]["solids"]
+        persisted["validation"]["geometry"]["measured"] = measured
+        persisted["artifacts"]["reference_step"]["sha256"] = _file_sha256(reference)
+        persisted["provenance"]["verified_at"] = date.today().isoformat()
+        dump_spec(persisted, spec_path)
+        final_validation = validate_spec(persisted, spec_path=spec_path)
+        if final_validation["errors"]:
+            raise ValueError("参数化图元物化后校验失败: " + "; ".join(final_validation["errors"]))
+        return ResolvedParametricComponent(persisted, spec_path, reference, shape, "generated", fingerprint)

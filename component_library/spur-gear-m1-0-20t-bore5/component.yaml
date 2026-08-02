@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: spur-gear-m1-0-20t-bore5
-  name: spur gear M1.0 20t bore5
-  name_en: null
+  name: 直齿圆柱齿轮
+  name_en: spur gear M1.0 20t bore5
   type: gear
   subtype: spur_gear
   family: spur
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - -0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: c85904940ca244b788bba85b800036b3a880638ab98463674179d59c294fb578
+      engineering_geometry_sha256: cd67872ff5d63f8d0e901566f39dffabe610c326322f772169941e63b7229f50
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: mgn7-linear-rail-l0100
-  name: mgn7 linear rail L0100
-  name_en: null
+  name: 直线导轨
+  name_en: mgn7 linear rail L0100
   type: motion
   subtype: linear_rail
   family: profile-linear-rail
@@ -160,6 +160,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 5900b5dadd69979c565291b51469dd7a7f3411c3715a4998573f2e736f4eb5f7
+      engineering_geometry_sha256: c948e48552b4c78e38f0abf611f3ea914b0bf010a1236c2903de47b4789b1eaf
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

@@ -190,6 +190,8 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
         "thickness": r"(?:厚度|盘厚|厚)[^\d]*(\d+(?:\.\d+)?)",
         "length": r"(?:长度|总长)[^\d]*(\d+(?:\.\d+)?)",
         "total_length": r"(?:长度|总长)[^\d]*(\d+(?:\.\d+)?)",
+        "body_length": r"(?:阀体长度|结构长度|连接长度)[^\d]*(\d+(?:\.\d+)?)",
+        "height": r"(?:总高度|阀门高度|阀高|高度)[^\d]*(\d+(?:\.\d+)?)",
         "teeth": r"(?:齿数|(\d+)\s*齿)[^\d]*(\d+)?",
         "bolt_holes": r"(?:(?:螺栓孔|连接孔|安装孔|孔数)[^\d]*(\d+)|(\d+)\s*个?(?:螺栓孔|连接孔|安装孔|孔))",
     }
@@ -202,6 +204,11 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
             params["inner_diameter"] = float(match.group(1))
         if re.search(r"带颈|对焊|高颈|weld\s*neck", description, re.I):
             params["neck_height"] = max(float(params["thickness"]) * 2.5, float(params["outer_diameter"]) * .28)
+    elif part_type == "valve":
+        if match := re.search(r"(?:公称直径\s*(?:DN)?|DN)\s*(\d+(?:\.\d+)?)", description, re.I):
+            params["nominal_diameter"] = float(match.group(1))
+        if re.search(r"双端|两端|进出口", description):
+            params["ports"] = 2
     return normalize_parameters(part_type, params)
 
 
@@ -246,6 +253,18 @@ async def parse_parameters(description: str, part_type: str, use_ai: bool) -> tu
             normalized = normalize_parameters(part_type, parsed)
             if part_type == "flange" and fallback.get("neck_height", 0) > 0:
                 normalized["neck_height"] = max(normalized["neck_height"], fallback["neck_height"])
+            elif part_type == "valve":
+                # Deterministically parsed explicit dimensions are authoritative;
+                # the model may fill only values absent from the prompt.
+                explicit_patterns = {
+                    "nominal_diameter": r"(?:公称直径\s*(?:DN)?|DN)\s*\d",
+                    "body_length": r"(?:阀体长度|结构长度|连接长度)\D*\d",
+                    "height": r"(?:总高度|阀门高度|阀高|高度)\D*\d",
+                    "ports": r"双端|两端|进出口",
+                }
+                for key, pattern in explicit_patterns.items():
+                    if re.search(pattern, description, re.I):
+                        normalized[key] = fallback[key]
             return normalized, "moonshot", None
     except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
         logger.warning("Moonshot parameter parsing failed: %r", exc, exc_info=True)

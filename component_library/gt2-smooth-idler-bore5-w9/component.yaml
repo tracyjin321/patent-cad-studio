@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: gt2-smooth-idler-bore5-w9
-  name: gt2 smooth idler bore5 w9
-  name_en: null
+  name: 同步带惰轮
+  name_en: gt2 smooth idler bore5 w9
   type: pulley
   subtype: timing_idler
   family: timing-idler
@@ -161,6 +161,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: a649df81cf296afcc9cd9555e7b5f32c36c347dda50048ee0c7a4b0f1b4faaba
+      engineering_geometry_sha256: e0c4138ed12cd2b5e70cf227a765674317436ee1288f39b24d17c49b6c84e82e
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

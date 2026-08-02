@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: linear-bearing-lm16uu-straight-simple
-  name: Linear bushings and housings, straight
-  name_en: null
+  name: 直线轴承
+  name_en: Linear bushings and housings, straight
   type: bearing
   subtype: linear_bearing
   family: linear-bearing
@@ -160,6 +160,9 @@ validation:
       - 0.0
       - -0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 9ce95f6e0e82520ff593e55becfc733b319724bdd56c8e21ac4f1d86e5175f53
+      engineering_geometry_sha256: eb5456dc54956356596e34874d8fe5dac6aa96a0531404bbf9c84cb82e534ee3
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

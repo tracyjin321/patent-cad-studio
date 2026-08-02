@@ -117,6 +117,112 @@ async def test_flange_svg_is_an_occ_entity_projection():
     assert svg.count('class="o"') >= 8
 
 
+def test_valve_body_stem_and_handwheel_form_one_connected_solid():
+    from OCP.TopAbs import TopAbs_SOLID
+    from OCP.TopExp import TopExp_Explorer
+    from app.model3d import build_shape
+
+    shape = build_shape("valve", {
+        "nominal_diameter": 50, "body_length": 230, "height": 310, "ports": 2,
+    })
+    explorer = TopExp_Explorer(shape, TopAbs_SOLID)
+    solids = 0
+    while explorer.More():
+        solids += 1
+        explorer.Next()
+    assert solids == 1
+
+
+def test_valve_prompt_binds_dn_length_height_and_ports_semantically():
+    from app.llm import local_parse
+
+    parameters = local_parse(
+        "生成DN50截止阀，阀体长度230mm，总高度310mm，双端法兰连接并包含手轮。",
+        "valve",
+    )
+    assert parameters == {
+        "nominal_diameter": 50,
+        "body_length": 230,
+        "height": 310,
+        "ports": 2,
+    }
+
+
+def test_valve_geometry_honors_requested_overall_dimensions():
+    from app.component_spec import inspect_shape
+    from app.model3d import build_shape
+
+    measured = inspect_shape(build_shape("valve", {
+        "nominal_diameter": 50, "body_length": 230, "height": 310, "ports": 2,
+    }))
+    size = measured["bounding_box"]["size"]
+    assert size[0] >= 230
+    assert size[2] == pytest.approx(310, abs=0.1)
+
+
+@pytest.mark.asyncio
+async def test_valve_api_validates_semantic_dimensions_and_structure():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={
+            "description": "生成DN50截止阀，阀体长度230mm，总高度310mm，双端法兰连接并包含手轮。",
+            "part_type": "valve",
+            "use_ai": False,
+        })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["parameters"] == {
+        "nominal_diameter": 50, "body_length": 230, "height": 310, "ports": 2,
+    }
+    checks = {item["name"]: item["passed"] for item in data["compliance"]}
+    assert checks["阀体长度与总高度"]
+    assert checks["双端法兰与整体结构"]
+
+
+def test_screw_component_assembly_generation_path_preserves_right_hand_thread(tmp_path):
+    from OCP.TopAbs import TopAbs_SOLID
+    from OCP.TopExp import TopExp_Explorer
+    from app.component_spec import load_spec, step_to_spec, validate_spec
+    from app.llm import local_parse
+    from app.model3d import primitives
+    from app.parametric_spec import resolve_parametric_component
+
+    description = "设计梯形传动丝杠，长度420mm，直径28mm，导程6mm，单头右旋螺纹。"
+    parameters = local_parse(description, "screw")
+    assert parameters == {"length": 420.0, "diameter": 28.0, "lead": 6.0, "starts": 1}
+    parts = primitives("screw", parameters)
+    journals = [item for item in parts if item["type"] == "cylinder" and item["r"] == 28 * .32]
+    thread = next(item for item in parts if item["type"] == "helix")
+    assert len(journals) == 2
+    assert all(item["depth"] > 0 and item["r"] < 14 for item in journals)
+    assert thread["depth"] < parameters["length"]
+    assert {key: thread[key] for key in ("pitch", "starts", "handedness", "profile")} == {
+        "pitch": 6.0, "starts": 1, "handedness": "right", "profile": "trapezoidal",
+    }
+
+    resolved = resolve_parametric_component(
+        "screw", parameters, description,
+        formal_library=tmp_path / "formal", generated_library=tmp_path / "generated",
+    )
+    explorer = TopExp_Explorer(resolved.shape, TopAbs_SOLID)
+    solids = 0
+    while explorer.More():
+        solids += 1
+        explorer.Next()
+    assert solids == 1
+    spec = load_spec(resolved.spec_path)
+    assert {item["name"]: item["default"] for item in spec["parameters"]} == parameters
+    assert [port["id"] for port in spec["ports"]] == ["end_a", "end_b"]
+    assert spec["validation"]["topology"]["expected_body_count"] == 1
+    recovered_path = resolved.spec_path.parent / "recovered.yaml"
+    recovered = step_to_spec(
+        resolved.reference_step, recovered_path, copy_reference=False,
+        source_spec_path=resolved.spec_path,
+    )
+    assert recovered["parameters"] == spec["parameters"]
+    assert recovered["ports"] == spec["ports"]
+    assert validate_spec(recovered, spec_path=recovered_path)["errors"] == []
+
+
 @pytest.mark.asyncio
 async def test_weld_neck_flange_prompt_preserves_dn_neck_and_connection_holes():
     description = "设计高压对焊法兰，公称直径DN100，外径220mm，带颈结构，配置8个连接孔。"
@@ -141,7 +247,74 @@ async def test_weld_neck_flange_prompt_preserves_dn_neck_and_connection_holes():
 async def test_health():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/api/health")
-    assert response.json() == {"status": "ok"}
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["generation"] == "available"
+    assert data["worker_busy"] is False
+    assert data["configured_workers"] >= 1
+    assert isinstance(data["worker_pid"], int)
+
+
+@pytest.mark.asyncio
+async def test_health_remains_responsive_while_cad_generation_is_busy(monkeypatch):
+    import asyncio
+    import threading
+    import time
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    started, release = threading.Event(), threading.Event()
+
+    def slow_resolve(*args, **kwargs):
+        started.set()
+        assert release.wait(15)
+        return SimpleNamespace(
+            shape=object(), spec={}, spec_path=Path("component.yaml"),
+            component_id="generated-bearing-test", source="generated", fingerprint="test",
+        )
+
+    monkeypatch.setattr(main_module, "resolve_parametric_component", slow_resolve)
+    monkeypatch.setattr(main_module, "generate_svg", lambda *args: '<svg><style>.o{stroke:#000}</style><rect fill="#fff"/><path class="o"/><path class="o"/><text>图1</text></svg>')
+    monkeypatch.setattr(main_module, "write_step", lambda *args: [])
+    monkeypatch.setattr(main_module, "validate_spec", lambda *args, **kwargs: {"errors": [], "warnings": []})
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        generation = asyncio.create_task(client.post("/api/generate", json={
+            "description": "生成测试轴承", "part_type": "bearing", "use_ai": False,
+        }))
+        assert await asyncio.to_thread(started.wait, 10)
+        before = time.perf_counter()
+        health_response = await client.get("/api/health")
+        elapsed = time.perf_counter() - before
+        release.set()
+        generated = await generation
+    assert health_response.json()["status"] == "ok"
+    assert health_response.json()["generation"] == "available"
+    assert health_response.json()["worker_busy"] is True
+    assert elapsed < 1
+    assert generated.status_code == 200
+
+
+def test_complex_brep_uses_stable_polygonal_hlr(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setattr(main_module, "generate_svg", main_module.generate_svg)
+    from app import cad
+    monkeypatch.setattr(cad, "_edge_count", lambda shape: 401)
+    monkeypatch.setattr(cad, "_project_poly_edges", lambda shape: ([[(0.0, 0.0), (1.0, 1.0)]], [], None))
+    monkeypatch.setattr(cad, "_project_edges", lambda shape: calls.append("exact"))
+    svg = cad.generate_svg(object(), "复杂丝杠", "screw", {})
+    assert svg.startswith("<svg")
+    assert calls == []
+
+
+def test_valve_uses_stable_polygonal_hlr_for_fused_curved_surfaces(monkeypatch):
+    from app import cad
+    calls: list[str] = []
+    monkeypatch.setattr(cad, "_edge_count", lambda shape: 105)
+    monkeypatch.setattr(cad, "_project_poly_edges", lambda shape: ([[(0.0, 0.0), (1.0, 1.0)]], [], None))
+    monkeypatch.setattr(cad, "_project_edges", lambda shape: calls.append("exact"))
+    svg = cad.generate_svg(object(), "截止阀", "valve", {})
+    assert svg.startswith("<svg")
+    assert calls == []
 
 
 @pytest.mark.asyncio
@@ -191,6 +364,38 @@ async def test_core_element_recommendation_local_fallback():
     assert response.status_code == 200
     assert response.json()["elements"] == ["bearing", "shaft", "gear", "coupling"]
     assert response.json()["parser"] == "local"
+
+
+@pytest.mark.asyncio
+async def test_component_library_can_be_searched_and_filtered():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        catalog = await client.get("/api/components")
+        bearing = await client.get("/api/components", params={"q": "BAU6201Z", "category": "shaft_support"})
+    assert catalog.status_code == 200
+    assert catalog.json()["total"] == 88
+    assert len(catalog.json()["categories"]) >= 6
+    assert bearing.status_code == 200
+    assert [item["id"] for item in bearing.json()["items"]] == ["deep-groove-ball-bau6201z"]
+
+
+@pytest.mark.asyncio
+async def test_generate_returns_selected_component_constraints(monkeypatch):
+    monkeypatch.setattr(main_module, "write_step", lambda *args: [])
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={
+            "description": "生成一个深沟球轴承。",
+            "part_type": "bearing",
+            "component_ids": ["deep-groove-ball-bau6201z"],
+            "use_ai": False,
+        })
+        invalid = await client.post("/api/generate", json={
+            "description": "生成一个轴承。", "part_type": "bearing",
+            "component_ids": ["not-in-library"], "use_ai": False,
+        })
+    assert response.status_code == 200
+    assert response.json()["selected_components"][0]["name"] == "深沟球轴承"
+    assert invalid.status_code == 422
+    assert "not-in-library" in invalid.json()["detail"]
 
 
 @pytest.mark.asyncio

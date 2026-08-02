@@ -1,7 +1,7 @@
 schema_version: '1.0'
 components:
 - id: angle-equal-en10056-20x20x3
-  name: EN 10056 equal angle bar, 20 x 20 x 3
+  name: 等边角钢
   type: stock
   subtype: angle_bar
   version: 1.0.0
@@ -19,7 +19,7 @@ components:
   reference_step: ball-screw-lcs49-20-5-l500-f30-p12/reference.step
   source_material_directory: null
 - id: bearing-6001-open-simple
-  name: Radial ball bearings, 6001 open
+  name: 深沟球轴承
   type: bearing
   subtype: deep_groove_ball
   version: 1.0.0
@@ -28,7 +28,7 @@ components:
   reference_step: bearing-6001-open-simple/reference.step
   source_material_directory: null
 - id: bearing-608-2rs-sealed-simple
-  name: Radial ball bearings, 608 2RS_sealed
+  name: 深沟球轴承
   type: bearing
   subtype: deep_groove_ball
   version: 1.0.0
@@ -37,7 +37,7 @@ components:
   reference_step: bearing-608-2rs-sealed-simple/reference.step
   source_material_directory: null
 - id: bearing-608-open-simple
-  name: Radial ball bearings, 608 open
+  name: 深沟球轴承
   type: bearing
   subtype: deep_groove_ball
   version: 1.0.0
@@ -46,7 +46,7 @@ components:
   reference_step: bearing-608-open-simple/reference.step
   source_material_directory: null
 - id: bearing-6201-open-simple
-  name: Radial ball bearings, 6201 open
+  name: 深沟球轴承
   type: bearing
   subtype: deep_groove_ball
   version: 1.0.0
@@ -55,7 +55,7 @@ components:
   reference_step: bearing-6201-open-simple/reference.step
   source_material_directory: null
 - id: bearing-flanged-f6001-simple
-  name: Flanged ball bearings, F6001
+  name: 法兰轴承
   type: bearing
   subtype: flanged_ball
   version: 1.0.0
@@ -64,7 +64,7 @@ components:
   reference_step: bearing-flanged-f6001-simple/reference.step
   source_material_directory: null
 - id: bearing-flanged-f608-simple
-  name: Flanged ball bearings, F608
+  name: 法兰轴承
   type: bearing
   subtype: flanged_ball
   version: 1.0.0
@@ -82,7 +82,7 @@ components:
   reference_step: belt-pulley-bau6201z/reference.step
   source_material_directory: null
 - id: bevel-gear-45deg-m0-8-16t
-  name: bevel gear 45deg M0.8 16t
+  name: 锥齿轮
   type: gear
   subtype: bevel_gear
   version: 1.0.0
@@ -91,7 +91,7 @@ components:
   reference_step: bevel-gear-45deg-m0-8-16t/reference.step
   source_material_directory: null
 - id: button-head-screw-m3-l0008-simple
-  name: ISO 7380 button head socket screw, M3 x 8 mm
+  name: 圆头内六角螺钉
   type: fastener
   subtype: button_head_screw
   version: 1.0.0
@@ -100,7 +100,7 @@ components:
   reference_step: button-head-screw-m3-l0008-simple/reference.step
   source_material_directory: null
 - id: clamp-hub-bore5-bc16
-  name: clamp hub bore5 bc16
+  name: 夹紧式轮毂
   type: hub
   subtype: shaft_hub
   version: 1.0.0
@@ -109,7 +109,7 @@ components:
   reference_step: clamp-hub-bore5-bc16/reference.step
   source_material_directory: null
 - id: clamp-hub-bore5-bc20
-  name: clamp hub bore5 bc20
+  name: 夹紧式轮毂
   type: hub
   subtype: shaft_hub
   version: 1.0.0
@@ -118,7 +118,7 @@ components:
   reference_step: clamp-hub-bore5-bc20/reference.step
   source_material_directory: null
 - id: countersunk-socket-screw-m3-l0008-simple
-  name: ISO 10642 countersunk socket screw, M3 x 8 mm
+  name: 沉头内六角螺钉
   type: fastener
   subtype: countersunk_screw
   version: 1.0.0
@@ -136,7 +136,7 @@ components:
   reference_step: deep-groove-ball-bau6201z/reference.step
   source_material_directory: null
 - id: din127-spring-washer-m4
-  name: DIN 127 class B spring washer, M4
+  name: 弹簧垫圈
   type: fastener
   subtype: spring_washer
   version: 1.0.0
@@ -145,7 +145,7 @@ components:
   reference_step: din127-spring-washer-m4/reference.step
   source_material_directory: null
 - id: dowel-pin-4mm-l4mm-m3-setscrew
-  name: Dowel pin, 4 mm x 4 mm, M3 set-screw
+  name: 圆柱销
   type: pin
   subtype: dowel_pin
   version: 1.0.0
@@ -154,7 +154,7 @@ components:
   reference_step: dowel-pin-4mm-l4mm-m3-setscrew/reference.step
   source_material_directory: null
 - id: extrusion-slot5-hammer-nut-m3-simple
-  name: Hammer nuts for extrusion, slot=5 mm, thread=M3
+  name: 型材锤头螺母
   type: fastener
   subtype: extrusion_nut
   version: 1.0.0
@@ -163,7 +163,7 @@ components:
   reference_step: extrusion-slot5-hammer-nut-m3-simple/reference.step
   source_material_directory: null
 - id: extrusion-slot5-hammer-nut-m4-simple
-  name: Hammer nuts for extrusion, slot=5 mm, thread=M4
+  name: 型材锤头螺母
   type: fastener
   subtype: extrusion_nut
   version: 1.0.0
@@ -172,7 +172,7 @@ components:
   reference_step: extrusion-slot5-hammer-nut-m4-simple/reference.step
   source_material_directory: null
 - id: flat-washer-normal-m3-simple
-  name: ISO 7089 flat washer, M3
+  name: 平垫圈
   type: fastener
   subtype: flat_washer
   version: 1.0.0
@@ -181,7 +181,7 @@ components:
   reference_step: flat-washer-normal-m3-simple/reference.step
   source_material_directory: null
 - id: flat-washer-normal-m4-simple
-  name: ISO 7089 flat washer, M4
+  name: 平垫圈
   type: fastener
   subtype: flat_washer
   version: 1.0.0
@@ -190,7 +190,7 @@ components:
   reference_step: flat-washer-normal-m4-simple/reference.step
   source_material_directory: null
 - id: gear-rack-m0-8-l0100
-  name: gear rack M0.8 L0100
+  name: 齿条
   type: gear
   subtype: gear_rack
   version: 1.0.0
@@ -199,7 +199,7 @@ components:
   reference_step: gear-rack-m0-8-l0100/reference.step
   source_material_directory: null
 - id: gt2-pulley-20t-bore5-w6
-  name: gt2 pulley 20t bore5 w6
+  name: 同步带轮
   type: pulley
   subtype: timing_pulley
   version: 1.0.0
@@ -208,7 +208,7 @@ components:
   reference_step: gt2-pulley-20t-bore5-w6/reference.step
   source_material_directory: null
 - id: gt2-pulley-20t-bore8-w6
-  name: gt2 pulley 20t bore8 w6
+  name: 同步带轮
   type: pulley
   subtype: timing_pulley
   version: 1.0.0
@@ -217,7 +217,7 @@ components:
   reference_step: gt2-pulley-20t-bore8-w6/reference.step
   source_material_directory: null
 - id: gt2-pulley-36t-bore8-w6
-  name: gt2 pulley 36t bore8 w6
+  name: 同步带轮
   type: pulley
   subtype: timing_pulley
   version: 1.0.0
@@ -226,7 +226,7 @@ components:
   reference_step: gt2-pulley-36t-bore8-w6/reference.step
   source_material_directory: null
 - id: gt2-pulley-40t-bore8-w6
-  name: gt2 pulley 40t bore8 w6
+  name: 同步带轮
   type: pulley
   subtype: timing_pulley
   version: 1.0.0
@@ -235,7 +235,7 @@ components:
   reference_step: gt2-pulley-40t-bore8-w6/reference.step
   source_material_directory: null
 - id: gt2-smooth-idler-bore5-w6
-  name: gt2 smooth idler bore5 w6
+  name: 同步带惰轮
   type: pulley
   subtype: timing_idler
   version: 1.0.0
@@ -244,7 +244,7 @@ components:
   reference_step: gt2-smooth-idler-bore5-w6/reference.step
   source_material_directory: null
 - id: gt2-smooth-idler-bore5-w9
-  name: gt2 smooth idler bore5 w9
+  name: 同步带惰轮
   type: pulley
   subtype: timing_idler
   version: 1.0.0
@@ -253,7 +253,7 @@ components:
   reference_step: gt2-smooth-idler-bore5-w9/reference.step
   source_material_directory: null
 - id: hex-head-bolt-m3-l0010-simple
-  name: ISO 4017 hex-head bolt, M3 x 10 mm
+  name: 六角头螺栓
   type: fastener
   subtype: hex_head_cap_screw
   version: 1.0.0
@@ -262,7 +262,7 @@ components:
   reference_step: hex-head-bolt-m3-l0010-simple/reference.step
   source_material_directory: null
 - id: iso-2338-dowel-pin-d002-l006
-  name: ISO 2338 dowel pin, D2 x 6 mm
+  name: 圆柱销
   type: pin
   subtype: dowel_pin
   version: 1.0.0
@@ -271,7 +271,7 @@ components:
   reference_step: iso-2338-dowel-pin-d002-l006/reference.step
   source_material_directory: null
 - id: iso-2338-dowel-pin-d002-l008
-  name: ISO 2338 dowel pin, D2 x 8 mm
+  name: 圆柱销
   type: pin
   subtype: dowel_pin
   version: 1.0.0
@@ -280,7 +280,7 @@ components:
   reference_step: iso-2338-dowel-pin-d002-l008/reference.step
   source_material_directory: null
 - id: iso4032-hex-nut-m3
-  name: ISO 4032 hex nut, M3
+  name: 六角螺母
   type: fastener
   subtype: hex_nut
   version: 1.0.0
@@ -289,7 +289,7 @@ components:
   reference_step: iso4032-hex-nut-m3/reference.step
   source_material_directory: null
 - id: iso4032-hex-nut-m4
-  name: ISO 4032 hex nut, M4
+  name: 六角螺母
   type: fastener
   subtype: hex_nut
   version: 1.0.0
@@ -298,7 +298,7 @@ components:
   reference_step: iso4032-hex-nut-m4/reference.step
   source_material_directory: null
 - id: linear-bearing-lm16uu-straight-simple
-  name: Linear bushings and housings, straight
+  name: 直线轴承
   type: bearing
   subtype: linear_bearing
   version: 1.0.0
@@ -307,7 +307,7 @@ components:
   reference_step: linear-bearing-lm16uu-straight-simple/reference.step
   source_material_directory: null
 - id: linear-bearing-lm6uu-pillow-block-simple
-  name: Linear bushings and housings, pillow_block
+  name: 直线轴承座
   type: bearing
   subtype: linear_bearing_housing
   version: 1.0.0
@@ -316,7 +316,7 @@ components:
   reference_step: linear-bearing-lm6uu-pillow-block-simple/reference.step
   source_material_directory: null
 - id: linear-bearing-lm6uu-straight-simple
-  name: Linear bushings and housings, straight
+  name: 直线轴承
   type: bearing
   subtype: linear_bearing
   version: 1.0.0
@@ -325,7 +325,7 @@ components:
   reference_step: linear-bearing-lm6uu-straight-simple/reference.step
   source_material_directory: null
 - id: linear-bearing-lm8uu-pillow-block-simple
-  name: Linear bushings and housings, pillow_block
+  name: 直线轴承座
   type: bearing
   subtype: linear_bearing_housing
   version: 1.0.0
@@ -334,7 +334,7 @@ components:
   reference_step: linear-bearing-lm8uu-pillow-block-simple/reference.step
   source_material_directory: null
 - id: mgn7-linear-rail-l0100
-  name: mgn7 linear rail L0100
+  name: 直线导轨
   type: motion
   subtype: linear_rail
   version: 1.0.0
@@ -343,7 +343,7 @@ components:
   reference_step: mgn7-linear-rail-l0100/reference.step
   source_material_directory: null
 - id: motor-mount-plate-nema17-to-2020-simple
-  name: Extrusion brackets and joining plates, nema17_to_2020
+  name: 型材电机安装板
   type: hardware
   subtype: extrusion_bracket
   version: 1.0.0
@@ -352,7 +352,7 @@ components:
   reference_step: motor-mount-plate-nema17-to-2020-simple/reference.step
   source_material_directory: null
 - id: motor-mount-plate-nema23-to-2040-simple
-  name: Extrusion brackets and joining plates, nema23_to_2040
+  name: 型材电机安装板
   type: hardware
   subtype: extrusion_bracket
   version: 1.0.0
@@ -370,7 +370,7 @@ components:
   reference_step: oldham-dbu03-d55-d20-e20/reference.step
   source_material_directory: null
 - id: plate-blank-50x50x2
-  name: Plate blank, 50 x 50 x 2 mm
+  name: 矩形板坯
   type: stock
   subtype: plate_blank
   version: 1.0.0
@@ -379,7 +379,7 @@ components:
   reference_step: plate-blank-50x50x2/reference.step
   source_material_directory: null
 - id: precision-shaft-d03-l0025-chamfered
-  name: Precision shaft, D3 x 25 mm
+  name: 精密光轴
   type: shaft
   subtype: ground_shaft
   version: 1.0.0
@@ -388,7 +388,7 @@ components:
   reference_step: precision-shaft-d03-l0025-chamfered/reference.step
   source_material_directory: null
 - id: precision-shaft-d03-l0050-chamfered
-  name: Precision shaft, D3 x 50 mm
+  name: 精密光轴
   type: shaft
   subtype: ground_shaft
   version: 1.0.0
@@ -397,7 +397,7 @@ components:
   reference_step: precision-shaft-d03-l0050-chamfered/reference.step
   source_material_directory: null
 - id: profile-2020-i-slot5-l100
-  name: 20 x 20 I-type slot-5 aluminum extrusion profile, 100 mm length
+  name: T型槽铝型材
   type: profile
   subtype: t_slot_extrusion
   version: 1.0.0
@@ -415,7 +415,7 @@ components:
   reference_step: roller-chain-drive-vlk02-60-28-d35/reference.step
   source_material_directory: null
 - id: sc10-linear-bearing-block
-  name: sc10 linear bearing block
+  name: 直线轴承座
   type: bearing
   subtype: linear_bearing_block
   version: 1.0.0
@@ -424,7 +424,7 @@ components:
   reference_step: sc10-linear-bearing-block/reference.step
   source_material_directory: null
 - id: sc8-linear-bearing-block
-  name: sc8 linear bearing block
+  name: 直线轴承座
   type: bearing
   subtype: linear_bearing_block
   version: 1.0.0
@@ -433,7 +433,7 @@ components:
   reference_step: sc8-linear-bearing-block/reference.step
   source_material_directory: null
 - id: set-screw-m3-l0008-cup-point-simple
-  name: Metric set screws, M3 x 8 mm cup point
+  name: 紧定螺钉
   type: fastener
   subtype: set_screw
   version: 1.0.0
@@ -442,7 +442,7 @@ components:
   reference_step: set-screw-m3-l0008-cup-point-simple/reference.step
   source_material_directory: null
 - id: sfu1204-ball-screw-l0200-simple
-  name: sfu1204 ball screw L0200 simple
+  name: 滚珠丝杠
   type: screw
   subtype: ball_screw
   version: 1.0.0
@@ -451,7 +451,7 @@ components:
   reference_step: sfu1204-ball-screw-l0200-simple/reference.step
   source_material_directory: null
 - id: sfu1605-ball-screw-l0200-simple
-  name: sfu1605 ball screw L0200 simple
+  name: 滚珠丝杠
   type: screw
   subtype: ball_screw
   version: 1.0.0
@@ -460,7 +460,7 @@ components:
   reference_step: sfu1605-ball-screw-l0200-simple/reference.step
   source_material_directory: null
 - id: shaft-collar-set-screw-bore-d03-simple
-  name: Shaft collars, Ø3 mm bore
+  name: 紧定轴环
   type: shaft
   subtype: shaft_collar
   version: 1.0.0
@@ -469,7 +469,7 @@ components:
   reference_step: shaft-collar-set-screw-bore-d03-simple/reference.step
   source_material_directory: null
 - id: shaft-collar-set-screw-bore-d04-simple
-  name: Shaft collars, Ø4 mm bore
+  name: 紧定轴环
   type: shaft
   subtype: shaft_collar
   version: 1.0.0
@@ -478,7 +478,7 @@ components:
   reference_step: shaft-collar-set-screw-bore-d04-simple/reference.step
   source_material_directory: null
 - id: shaft-coupler-rigid-clamp-d03-d03-simple
-  name: Shaft couplers, 3 mm to 3 mm
+  name: 轴联轴器
   type: coupling
   subtype: shaft_coupling
   version: 1.0.0
@@ -487,7 +487,7 @@ components:
   reference_step: shaft-coupler-rigid-clamp-d03-d03-simple/reference.step
   source_material_directory: null
 - id: shaft-coupler-rigid-clamp-d03-d05-simple
-  name: Shaft couplers, 3 mm to 5 mm
+  name: 轴联轴器
   type: coupling
   subtype: shaft_coupling
   version: 1.0.0
@@ -496,7 +496,7 @@ components:
   reference_step: shaft-coupler-rigid-clamp-d03-d05-simple/reference.step
   source_material_directory: null
 - id: shaft-coupler-rigid-clamp-d04-d04-simple
-  name: Shaft couplers, 4 mm to 4 mm
+  name: 轴联轴器
   type: coupling
   subtype: shaft_coupling
   version: 1.0.0
@@ -505,7 +505,7 @@ components:
   reference_step: shaft-coupler-rigid-clamp-d04-d04-simple/reference.step
   source_material_directory: null
 - id: shaft-coupler-rigid-clamp-d05-d05-simple
-  name: Shaft couplers, 5 mm to 5 mm
+  name: 轴联轴器
   type: coupling
   subtype: shaft_coupling
   version: 1.0.0
@@ -514,7 +514,7 @@ components:
   reference_step: shaft-coupler-rigid-clamp-d05-d05-simple/reference.step
   source_material_directory: null
 - id: socket-head-cap-screw-m2-l0025-simple
-  name: ISO 4762 socket head cap screw, M2 x 25 mm
+  name: 圆柱头内六角螺钉
   type: fastener
   subtype: socket_head_cap_screw
   version: 1.0.0
@@ -523,7 +523,7 @@ components:
   reference_step: socket-head-cap-screw-m2-l0025-simple/reference.step
   source_material_directory: null
 - id: socket-head-cap-screw-m3-l0005-simple
-  name: ISO 4762 socket head cap screw, M3 x 5 mm
+  name: 圆柱头内六角螺钉
   type: fastener
   subtype: socket_head_cap_screw
   version: 1.0.0
@@ -532,7 +532,7 @@ components:
   reference_step: socket-head-cap-screw-m3-l0005-simple/reference.step
   source_material_directory: null
 - id: socket-head-cap-screw-m3-l0050-simple
-  name: ISO 4762 socket head cap screw, M3 x 50 mm
+  name: 圆柱头内六角螺钉
   type: fastener
   subtype: socket_head_cap_screw
   version: 1.0.0
@@ -541,7 +541,7 @@ components:
   reference_step: socket-head-cap-screw-m3-l0050-simple/reference.step
   source_material_directory: null
 - id: spacer-round-clearance-m3-l0005
-  name: Unthreaded spacers, M3 clearance, 5 mm
+  name: 圆柱隔离柱
   type: spacer
   subtype: round_spacer
   version: 1.0.0
@@ -550,7 +550,7 @@ components:
   reference_step: spacer-round-clearance-m3-l0005/reference.step
   source_material_directory: null
 - id: spacer-round-clearance-m3-l0006
-  name: Unthreaded spacers, M3 clearance, 6 mm
+  name: 圆柱隔离柱
   type: spacer
   subtype: round_spacer
   version: 1.0.0
@@ -559,7 +559,7 @@ components:
   reference_step: spacer-round-clearance-m3-l0006/reference.step
   source_material_directory: null
 - id: sprocket-25-12t-bore5
-  name: sprocket 25 12t bore5
+  name: 滚子链轮
   type: sprocket
   subtype: roller_chain
   version: 1.0.0
@@ -568,7 +568,7 @@ components:
   reference_step: sprocket-25-12t-bore5/reference.step
   source_material_directory: null
 - id: sprocket-25-12t-bore8
-  name: sprocket 25 12t bore8
+  name: 滚子链轮
   type: sprocket
   subtype: roller_chain
   version: 1.0.0
@@ -577,7 +577,7 @@ components:
   reference_step: sprocket-25-12t-bore8/reference.step
   source_material_directory: null
 - id: spur-gear-m1-0-20t-bore5
-  name: spur gear M1.0 20t bore5
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -586,7 +586,7 @@ components:
   reference_step: spur-gear-m1-0-20t-bore5/reference.step
   source_material_directory: null
 - id: spur-gear-m1-0-20t-bore8
-  name: spur gear M1.0 20t bore8
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -595,7 +595,7 @@ components:
   reference_step: spur-gear-m1-0-20t-bore8/reference.step
   source_material_directory: null
 - id: spur-gear-m1-0-30t-bore8
-  name: spur gear M1.0 30t bore8
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -604,7 +604,7 @@ components:
   reference_step: spur-gear-m1-0-30t-bore8/reference.step
   source_material_directory: null
 - id: spur-gear-m1-0-40t-bore8
-  name: spur gear M1.0 40t bore8
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -613,7 +613,7 @@ components:
   reference_step: spur-gear-m1-0-40t-bore8/reference.step
   source_material_directory: null
 - id: spur-gear-m1-5-20t-bore8
-  name: spur gear M1.5 20t bore8
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -622,7 +622,7 @@ components:
   reference_step: spur-gear-m1-5-20t-bore8/reference.step
   source_material_directory: null
 - id: spur-gear-m1-5-30t-bore8
-  name: spur gear M1.5 30t bore8
+  name: 直齿圆柱齿轮
   type: gear
   subtype: spur_gear
   version: 1.0.0
@@ -649,7 +649,7 @@ components:
   reference_step: spur-gear-vnr41-3-0-48-b30-a-p35n-b/reference.step
   source_material_directory: null
 - id: standoff-hex-male-female-m3-l0005-simple
-  name: Standoffs and spacers, M3, 5 mm body
+  name: 六角隔离柱
   type: spacer
   subtype: threaded_standoff
   version: 1.0.0
@@ -658,7 +658,7 @@ components:
   reference_step: standoff-hex-male-female-m3-l0005-simple/reference.step
   source_material_directory: null
 - id: standoff-hex-male-female-m3-l0006-simple
-  name: Standoffs and spacers, M3, 6 mm body
+  name: 六角隔离柱
   type: spacer
   subtype: threaded_standoff
   version: 1.0.0
@@ -667,7 +667,7 @@ components:
   reference_step: standoff-hex-male-female-m3-l0006-simple/reference.step
   source_material_directory: null
 - id: standoff-hex-male-female-m3-l0008-simple
-  name: Standoffs and spacers, M3, 8 mm body
+  name: 六角隔离柱
   type: spacer
   subtype: threaded_standoff
   version: 1.0.0
@@ -676,7 +676,7 @@ components:
   reference_step: standoff-hex-male-female-m3-l0008-simple/reference.step
   source_material_directory: null
 - id: star-knob-m3-d16
-  name: star knob M3 d16
+  name: 星形旋钮
   type: hardware
   subtype: control_knob
   version: 1.0.0
@@ -694,7 +694,7 @@ components:
   reference_step: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12/reference.step
   source_material_directory: null
 - id: stepper-motor-nema17-l0020-single-shaft
-  name: NEMA stepper motors, body length 20 mm
+  name: 步进电机
   type: actuator
   subtype: nema_stepper
   version: 1.0.0
@@ -703,7 +703,7 @@ components:
   reference_step: stepper-motor-nema17-l0020-single-shaft/reference.step
   source_material_directory: null
 - id: stepper-motor-nema17-l0028-single-shaft
-  name: NEMA stepper motors, body length 28 mm
+  name: 步进电机
   type: actuator
   subtype: nema_stepper
   version: 1.0.0
@@ -712,7 +712,7 @@ components:
   reference_step: stepper-motor-nema17-l0028-single-shaft/reference.step
   source_material_directory: null
 - id: stepper-motor-nema17-l0034-single-shaft
-  name: NEMA stepper motors, body length 34 mm
+  name: 步进电机
   type: actuator
   subtype: nema_stepper
   version: 1.0.0
@@ -721,7 +721,7 @@ components:
   reference_step: stepper-motor-nema17-l0034-single-shaft/reference.step
   source_material_directory: null
 - id: t8-p2-lead-screw-l0100-simple
-  name: t8 p2 lead screw L0100 simple
+  name: 梯形丝杠
   type: screw
   subtype: lead_screw
   version: 1.0.0
@@ -730,7 +730,7 @@ components:
   reference_step: t8-p2-lead-screw-l0100-simple/reference.step
   source_material_directory: null
 - id: t8-p2-lead-screw-l0150-simple
-  name: t8 p2 lead screw L0150 simple
+  name: 梯形丝杠
   type: screw
   subtype: lead_screw
   version: 1.0.0
@@ -739,7 +739,7 @@ components:
   reference_step: t8-p2-lead-screw-l0150-simple/reference.step
   source_material_directory: null
 - id: t8-p2-round-nut
-  name: t8 p2 round nut
+  name: 丝杠螺母
   type: nut
   subtype: lead_screw_nut
   version: 1.0.0
@@ -748,7 +748,7 @@ components:
   reference_step: t8-p2-round-nut/reference.step
   source_material_directory: null
 - id: t8-p4-round-nut
-  name: t8 p4 round nut
+  name: 丝杠螺母
   type: nut
   subtype: lead_screw_nut
   version: 1.0.0
@@ -757,7 +757,7 @@ components:
   reference_step: t8-p4-round-nut/reference.step
   source_material_directory: null
 - id: v-belt-a-pulley-d20-bore5
-  name: v belt A pulley d20 bore5
+  name: 皮带轮
   type: pulley
   subtype: belt_pulley
   version: 1.0.0
@@ -766,7 +766,7 @@ components:
   reference_step: v-belt-a-pulley-d20-bore5/reference.step
   source_material_directory: null
 - id: v-belt-a-pulley-d20-bore8
-  name: v belt A pulley d20 bore8
+  name: 皮带轮
   type: pulley
   subtype: belt_pulley
   version: 1.0.0
@@ -775,7 +775,7 @@ components:
   reference_step: v-belt-a-pulley-d20-bore8/reference.step
   source_material_directory: null
 - id: vslot-2020-l0100
-  name: Aluminum extrusions, 100 mm
+  name: V型槽铝型材
   type: profile
   subtype: v_slot_extrusion
   version: 1.0.0
@@ -784,7 +784,7 @@ components:
   reference_step: vslot-2020-l0100/reference.step
   source_material_directory: null
 - id: vslot-2020-l0150
-  name: Aluminum extrusions, 150 mm
+  name: V型槽铝型材
   type: profile
   subtype: v_slot_extrusion
   version: 1.0.0

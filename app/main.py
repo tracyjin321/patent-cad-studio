@@ -1,16 +1,20 @@
 from pathlib import Path
+import os
 import re
+from threading import Lock
 from uuid import uuid4
 
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 
 from .cad import generate_svg
 from .documents import extract_document_text
 from .llm import LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
+from .component_library import components_by_id, query_components
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
 from .model3d import write_step
 from .parametric_spec import resolve_parametric_component
@@ -24,14 +28,24 @@ GENERATED_LIBRARY = GENERATED / "component_library"
 GENERATED_LIBRARY.mkdir(exist_ok=True)
 MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
 MAX_DESCRIPTION_CHARS = 5000
+# OCP/OpenCascade is not reliably thread-safe inside one Python interpreter.
+# Keep one CAD job per worker, and scale with isolated uvicorn worker processes.
+CAD_KERNEL_LOCK = Lock()
+CAD_WORKERS = max(1, int(os.getenv("CAD_WORKERS", "5")))
 app = FastAPI(title="专图灵境 API", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
 
 
 @app.get("/api/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "generation": "available",
+        "worker_busy": CAD_KERNEL_LOCK.locked(),
+        "worker_pid": os.getpid(),
+        "configured_workers": CAD_WORKERS,
+    }
 
 
 @app.post("/api/documents/extract")
@@ -55,30 +69,69 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
     return RecommendResponse(elements=elements, parser=parser, parser_detail=detail)
 
 
+@app.get("/api/components")
+def list_components(
+    q: str = Query(default="", max_length=100),
+    category: str = Query(default="", max_length=50),
+) -> dict[str, object]:
+    """Search the local component library used by the assembly constraint picker."""
+    return query_components(q, category)
+
+
 @app.post("/api/generate", response_model=GenerateResponse)
 async def generate(request: GenerateRequest) -> GenerateResponse:
+    try:
+        selected_components = components_by_id(request.component_ids)
+    except KeyError as exc:
+        raise HTTPException(status_code=422, detail=f"未知 component_library 图元: {exc.args[0]}") from exc
     parameters, parser, parser_detail = await parse_parameters(request.description, request.part_type, request.use_ai)
     title = f"{LABELS[request.part_type]}技术附图"
-    resolved = resolve_parametric_component(
-        request.part_type,
-        parameters,
-        request.description,
-        formal_library=ROOT / "component_library",
-        generated_library=GENERATED_LIBRARY,
-    )
-    shape = resolved.shape
-    svg = generate_svg(shape, title, request.part_type, parameters)
-    result_id = str(uuid4())
-    model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
-    checks = [
-        {"name": "结构轮廓清晰", "passed": svg.count('class="o"') >= 2},
-        {"name": "法兰连接孔轮廓", "passed": request.part_type != "flange" or svg.count('class="o"') >= int(parameters["bolt_holes"]) * 2},
-        {"name": "无多余中心线/尺寸线", "passed": 'class="c"' not in svg and 'class="d"' not in svg},
-        {"name": "黑白线稿规范", "passed": "stroke:#000" in svg and 'fill="#fff"' in svg},
-        {"name": "附图编号", "passed": ">图1</text>" in svg},
-        {"name": "参数完整", "passed": all(value is not None for value in parameters.values())},
-        {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]},
-    ]
+
+    def build_artifacts():
+        # One OpenCascade job per interpreter; separate uvicorn processes provide
+        # safe multi-user parallelism without changing geometry or meshing quality.
+        with CAD_KERNEL_LOCK:
+            resolved = resolve_parametric_component(
+                request.part_type,
+                parameters,
+                request.description,
+                formal_library=ROOT / "component_library",
+                generated_library=GENERATED_LIBRARY,
+            )
+            shape = resolved.shape
+            svg = generate_svg(shape, title, request.part_type, parameters)
+            result_id = str(uuid4())
+            model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
+            checks = [
+                {"name": "结构轮廓清晰", "passed": svg.count('class="o"') >= 2},
+                {"name": "法兰连接孔轮廓", "passed": request.part_type != "flange" or svg.count('class="o"') >= int(parameters["bolt_holes"]) * 2},
+                {"name": "无多余中心线/尺寸线", "passed": 'class="c"' not in svg and 'class="d"' not in svg},
+                {"name": "黑白线稿规范", "passed": "stroke:#000" in svg and 'fill="#fff"' in svg},
+                {"name": "附图编号", "passed": ">图1</text>" in svg},
+                {"name": "参数完整", "passed": all(value is not None for value in parameters.values())},
+                {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]},
+            ]
+            if request.part_type == "valve":
+                measured = resolved.spec.get("validation", {}).get("geometry", {}).get("measured") or {}
+                size = measured.get("bounding_box", {}).get("size", [0, 0, 0])
+                topology = measured.get("topology", {})
+                checks.extend([
+                    {
+                        "name": "阀体长度与总高度",
+                        "passed": len(size) == 3
+                        and size[0] >= float(parameters["body_length"])
+                        and abs(size[2] - float(parameters["height"])) <= 0.1,
+                    },
+                    {
+                        "name": "双端法兰与整体结构",
+                        "passed": int(parameters["ports"]) == 2
+                        and len(resolved.spec.get("ports", [])) == 2
+                        and topology.get("solids") == 1,
+                    },
+                ])
+            return resolved, svg, result_id, model, checks
+
+    resolved, svg, result_id, model, checks = await run_in_threadpool(build_artifacts)
     return GenerateResponse(
         id=result_id,
         title=title,
@@ -95,6 +148,10 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         generation_source=resolved.source,
         spec_fingerprint=resolved.fingerprint,
         core_elements=request.core_elements or [request.part_type],
+        selected_components=[{
+            "id": component["id"], "name": component["name"], "type": component["type"],
+            "category": component["category"],
+        } for component in selected_components],
     )
 
 

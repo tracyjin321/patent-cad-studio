@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: stepper-motor-nema17-l0034-single-shaft
-  name: NEMA stepper motors, body length 34 mm
-  name_en: null
+  name: 步进电机
+  name_en: NEMA stepper motors, body length 34 mm
   type: actuator
   subtype: nema_stepper
   family: nema-stepper-motor
@@ -159,6 +159,9 @@ validation:
       - 0.0
       - 17.35487
       valid_solid: true
+    signatures:
+      strict_topology_sha256: d9c656f4f48d1c0b2e299e2e2adf4e518fffed0630bd9fab870c2c2b5991d2e7
+      engineering_geometry_sha256: 423ce2c0afed07bcdc38707ba8b91a38a8900fdabf4515af38b3ea9106167d56
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -195,3 +198,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

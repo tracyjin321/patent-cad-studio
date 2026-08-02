@@ -6,10 +6,10 @@ from typing import Any
 GENERATOR_VERSIONS = {
     "bearing": "1.0.0",
     "flange": "1.1.0",
-    "valve": "1.0.0",
+    "valve": "1.2.0",
     "shaft": "1.0.0",
     "gear": "1.0.0",
-    "screw": "1.0.0",
+    "screw": "1.2.0",
     "coupling": "1.0.0",
     "seal": "1.0.0",
 }
@@ -38,7 +38,9 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
         return items
     if part == "valve":
         nd=float(p["nominal_diameter"]); length=float(p["body_length"]); height=float(p["height"])
-        return [{"type":"sphere","r":nd*.75,"scale":[1.25,1,1],"color":"#8c9aaa"},{"type":"cylinder","r":nd/2,"depth":length,"rotate":[0,90,0],"color":"#64758a"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[-length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"cylinder","r":nd*.13,"depth":height*.52,"at":[0,0,height*.32],"color":"#64758a"},{"type":"torus","r":nd*.57,"tube":nd*.065,"at":[0,0,height*.72],"rotate":[90,0,0],"color":"#a6b0bc"}]
+        wheel_r=nd*.57;wheel_tube=nd*.065
+        wheel_z=max(height-nd*.75-max(wheel_tube,nd*.08),nd*1.55);stem_start=nd*.5;stem_depth=wheel_z-stem_start+nd*.08
+        return [{"type":"sphere","r":nd*.75,"scale":[1.25,1,1],"color":"#8c9aaa"},{"type":"cylinder","r":nd/2,"depth":length,"rotate":[0,90,0],"color":"#64758a"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[-length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"flange","r":nd*.72,"inner":nd*.46,"depth":12,"at":[length/2,0,0],"rotate":[0,90,0],"holes":6,"hole_r":3,"pcd":nd*.58,"color":"#8190a2"},{"type":"cylinder","r":nd*.3,"depth":nd*.42,"at":[0,0,nd*.66],"color":"#8190a2"},{"type":"cylinder","r":nd*.105,"depth":stem_depth,"at":[0,0,stem_start+stem_depth/2],"color":"#64758a"},{"type":"cylinder","r":nd*.18,"depth":nd*.16,"at":[0,0,wheel_z],"color":"#738297"},{"type":"cylinder","r":nd*.045,"depth":wheel_r*2,"at":[0,0,wheel_z],"rotate":[0,90,0],"color":"#8997a8"},{"type":"cylinder","r":nd*.045,"depth":wheel_r*2,"at":[0,0,wheel_z],"rotate":[90,0,0],"color":"#8997a8"},{"type":"torus","r":wheel_r,"tube":nd*.065,"at":[0,0,wheel_z],"color":"#a6b0bc"}]
     if part == "shaft":
         length=float(p["total_length"]); steps=max(3,min(6,int(p["steps"]))); maximum=float(p["max_diameter"])
         return [{"type":"cylinder","r":maximum/2*(.62+.38*math.sin(math.pi*(i+1)/(steps+1))),"depth":length/steps,"at":[-length/2+length*(i+.5)/steps,0,0],"rotate":[0,90,0],"color":"#8e9baa"} for i in range(steps)]
@@ -46,7 +48,16 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
         return [{"type":"gear","r":float(p["module"])*float(p["teeth"])/2,"inner":float(p["bore"])/2,"depth":float(p["face_width"]),"teeth":int(p["teeth"]),"color":"#8795a5"}]
     if part == "screw":
         diameter=float(p["diameter"]); length=float(p["length"])
-        return [{"type":"cylinder","r":diameter/2,"depth":length,"rotate":[0,90,0],"color":"#8e9cab"},{"type":"helix","r":diameter*.56,"depth":length,"pitch":float(p["lead"]),"color":"#65768a"}]
+        journal_length=min(length*.12,max(diameter*1.35,length*.08));thread_length=length-2*journal_length
+        journal_r=diameter*.32;shoulder_width=max(diameter*.12,min(diameter*.3,journal_length*.16))
+        return [
+            {"type":"cylinder","r":diameter/2,"depth":thread_length,"rotate":[0,90,0],"color":"#8e9cab"},
+            {"type":"helix","r":diameter*.56,"depth":thread_length,"pitch":float(p["lead"]),"starts":int(p.get("starts",1)),"handedness":"right","profile":"trapezoidal","color":"#65768a"},
+            {"type":"cylinder","r":diameter*.56,"depth":shoulder_width,"at":[-thread_length/2,0,0],"rotate":[0,90,0],"color":"#77879a"},
+            {"type":"cylinder","r":diameter*.56,"depth":shoulder_width,"at":[thread_length/2,0,0],"rotate":[0,90,0],"color":"#77879a"},
+            {"type":"cylinder","r":journal_r,"depth":journal_length,"at":[-(thread_length+journal_length)/2,0,0],"rotate":[0,90,0],"color":"#9aa6b4"},
+            {"type":"cylinder","r":journal_r,"depth":journal_length,"at":[(thread_length+journal_length)/2,0,0],"rotate":[0,90,0],"color":"#9aa6b4"},
+        ]
     if part == "coupling":
         r=float(p["outer_diameter"])/2; length=float(p["length"]); inner=float(p["bore"])/2
         return [{"type":"tube","r":r,"inner":inner,"depth":length*.22,"at":[0,0,-length*.38],"color":"#8997a7"},{"type":"tube","r":r,"inner":inner,"depth":length*.22,"at":[0,0,length*.38],"color":"#a4afbc"},{"type":"tube","r":r*.68,"inner":inner,"depth":length*.64,"color":"#718095"}]
@@ -87,6 +98,41 @@ def build_shape(part: str, p: dict[str, Any]):
             result = operation.Shape()
         return result
 
+    def trapezoidal_helix(radius, length, lead, starts=1, axis_start=0):
+        """Sweep right-hand trapezoidal thread ridges around the +X axis."""
+        from OCP.BRepAdaptor import BRepAdaptor_Curve
+        from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakePolygon, BRepBuilderAPI_MakeWire
+        from OCP.BRepLib import BRepLib
+        from OCP.BRepOffsetAPI import BRepOffsetAPI_MakePipe
+        from OCP.Geom import Geom_CylindricalSurface
+        from OCP.Geom2d import Geom2d_Line, Geom2d_TrimmedCurve
+        from OCP.gp import gp_Ax3, gp_Dir2d, gp_Pnt2d, gp_Vec
+
+        turns=length/lead;thread_height=min(radius*.18,lead*.38);root_half_width=lead*.22;crest_half_width=lead*.1
+        surface=Geom_CylindricalSurface(gp_Ax3(gp_Pnt(axis_start,0,0),gp_Dir(1,0,0)),radius)
+        direction=gp_Dir2d(2*math.pi,lead);parameter_per_turn=math.hypot(2*math.pi,lead)
+        ridges=[]
+        for start in range(max(1,int(starts))):
+            line=Geom2d_Line(gp_Pnt2d(start*2*math.pi/max(1,int(starts)),0),direction)
+            segment_count=max(1,math.ceil(turns/8))
+            for segment in range(segment_count):
+                first_turn=turns*segment/segment_count;last_turn=turns*(segment+1)/segment_count
+                curve=Geom2d_TrimmedCurve(line,first_turn*parameter_per_turn,last_turn*parameter_per_turn)
+                edge=BRepBuilderAPI_MakeEdge(curve,surface).Edge();BRepLib.BuildCurves3d_s(edge)
+                adaptor=BRepAdaptor_Curve(edge);point=gp_Pnt();tangent=gp_Vec()
+                adaptor.D1(adaptor.FirstParameter(),point,tangent);tangent.Normalize()
+                radial=gp_Vec(0,point.Y(),point.Z());radial.Normalize();side=tangent.Crossed(radial);side.Normalize()
+                polygon=BRepBuilderAPI_MakePolygon()
+                for radial_offset,side_offset in ((0,root_half_width),(thread_height,crest_half_width),(thread_height,-crest_half_width),(0,-root_half_width)):
+                    polygon.Add(point.Translated(radial.Multiplied(radial_offset).Added(side.Multiplied(side_offset))))
+                polygon.Close()
+                profile=BRepBuilderAPI_MakeFace(polygon.Wire()).Face();spine=BRepBuilderAPI_MakeWire(edge).Wire()
+                pipe=BRepOffsetAPI_MakePipe(spine,profile)
+                if not pipe.IsDone():
+                    raise RuntimeError("OpenCascade trapezoidal thread sweep failed")
+                ridges.append(pipe.Shape())
+        return compound(ridges)
+
     if part=="bearing":
         od=float(p["outer_diameter"]);bore=float(p["inner_diameter"]);width=float(p["width"]);n=int(p["rolling_elements"]);pitch=(od+bore)/4;ball=min(width*.29,(od-bore)*.105)
         shapes=[tube(od/2,od*.39,width),tube(bore*.72,bore/2,width)]
@@ -109,7 +155,22 @@ def build_shape(part: str, p: dict[str, Any]):
         return shape
     if part=="valve":
         nd=float(p["nominal_diameter"]);length=float(p["body_length"]);height=float(p["height"])
-        return compound([BRepPrimAPI_MakeSphere(gp_Pnt(0,0,0),nd*.75).Shape(),cylinder(nd/2,length,axis="x"),cylinder(nd*.13,height*.52,z=height*.32),BRepPrimAPI_MakeTorus(gp_Ax2(gp_Pnt(0,0,height*.72),gp_Dir(0,0,1)),nd*.57,nd*.065).Shape()])
+        wheel_r=nd*.57;wheel_tube=nd*.065
+        wheel_z=max(height-nd*.75-max(wheel_tube,nd*.08),nd*1.55);stem_start=nd*.5
+        stem_depth=wheel_z-stem_start+nd*.08
+        shapes=[
+            BRepPrimAPI_MakeSphere(gp_Pnt(0,0,0),nd*.75).Shape(),
+            cylinder(nd/2,length,axis="x"),
+            tube(nd*.72,nd*.46,12,x=-length/2,axis="x"),
+            tube(nd*.72,nd*.46,12,x=length/2,axis="x"),
+            cylinder(nd*.3,nd*.42,z=nd*.66),
+            cylinder(nd*.105,stem_depth,z=stem_start+stem_depth/2),
+            cylinder(nd*.18,nd*.16,z=wheel_z),
+            cylinder(nd*.045,wheel_r*2,z=wheel_z,axis="x"),
+            cylinder(nd*.045,wheel_r*2,z=wheel_z,axis="y"),
+            BRepPrimAPI_MakeTorus(gp_Ax2(gp_Pnt(0,0,wheel_z),gp_Dir(0,0,1)),wheel_r,nd*.065).Shape(),
+        ]
+        return fuse(shapes)
     if part=="shaft":
         length=float(p["total_length"]);steps=max(3,min(6,int(p["steps"])));maximum=float(p["max_diameter"])
         # Tiny overlap avoids coincident-face compounds and yields one machinable solid.
@@ -131,12 +192,17 @@ def build_shape(part: str, p: dict[str, Any]):
         return BRepAlgoAPI_Cut(body,cylinder(bore,depth*1.1)).Shape()
     if part=="screw":
         diameter=float(p["diameter"]);length=float(p["length"]);lead=max(2,float(p["lead"]))
-        shapes=[cylinder(diameter/2,length,axis="x")]
-        thread_count=min(80,max(3,int(length/lead)))
-        for i in range(thread_count+1):
-            x=-length/2+i*length/thread_count
-            shapes.append(BRepPrimAPI_MakeTorus(gp_Ax2(gp_Pnt(x,0,0),gp_Dir(1,0,0)),diameter*.51,max(.6,diameter*.045)).Shape())
-        return compound(shapes)
+        journal_length=min(length*.12,max(diameter*1.35,length*.08));thread_length=length-2*journal_length
+        journal_r=diameter*.32;overlap=min(.08,journal_length*.01);shoulder_width=max(diameter*.12,min(diameter*.3,journal_length*.16))
+        core=fuse([
+            cylinder(diameter/2,thread_length+2*overlap,axis="x"),
+            cylinder(journal_r,journal_length+overlap,x=-(thread_length+journal_length)/2,axis="x"),
+            cylinder(journal_r,journal_length+overlap,x=(thread_length+journal_length)/2,axis="x"),
+            cylinder(diameter*.56,shoulder_width,x=-thread_length/2,axis="x"),
+            cylinder(diameter*.56,shoulder_width,x=thread_length/2,axis="x"),
+        ])
+        thread=trapezoidal_helix(diameter/2*.985,thread_length,lead,int(p.get("starts",1)),-thread_length/2)
+        return fuse([core,thread])
     if part=="coupling":
         r=float(p["outer_diameter"])/2;length=float(p["length"]);inner=float(p["bore"])/2
         inner=min(inner,r*.82)

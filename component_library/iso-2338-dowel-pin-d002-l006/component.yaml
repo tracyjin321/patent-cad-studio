@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: iso-2338-dowel-pin-d002-l006
-  name: ISO 2338 dowel pin, D2 x 6 mm
-  name_en: null
+  name: 圆柱销
+  name_en: ISO 2338 dowel pin, D2 x 6 mm
   type: pin
   subtype: dowel_pin
   family: dowel-pin
@@ -161,6 +161,9 @@ validation:
       - 0.0
       - 0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: b69d344e0aec8ececbb0ba890e02266752e55ba3d5cfda8d5bc319525ab387c5
+      engineering_geometry_sha256: a0bfd471e82ac0b59b8ee5472d4ba69138f972ea5ffaa379aebef6632783f1b3
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -197,3 +200,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

@@ -2,8 +2,8 @@ schema_version: '1.3'
 spec_type: component
 identity:
   id: sprocket-25-12t-bore5
-  name: sprocket 25 12t bore5
-  name_en: null
+  name: 滚子链轮
+  name_en: sprocket 25 12t bore5
   type: sprocket
   subtype: roller_chain
   family: roller-chain-sprocket
@@ -160,6 +160,9 @@ validation:
       - 0.0
       - -0.0
       valid_solid: true
+    signatures:
+      strict_topology_sha256: 8bfd27cbbb45d9e61d6cf76facb86d8e14432ec1fcba639c80bc1e6727ad8eb1
+      engineering_geometry_sha256: 502496247787a042ace075b8ded22da4f7ec850fddd4104f4808e0506731231f
   ports:
     validate_frame_orthogonality: true
     validate_axis_normalized: true
@@ -196,3 +199,4 @@ provenance:
   data_entry_method: imported
   verified_by: null
   verified_at: null
+  semantic_recovery: authoritative_sidecar

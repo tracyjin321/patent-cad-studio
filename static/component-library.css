@@ -1,0 +1,304 @@
+.component-section {
+  padding: 0;
+  overflow: hidden;
+}
+
+.component-toggle {
+  width: 100%;
+  min-height: 50px;
+  border: 0;
+  background: #fff;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ink);
+  text-align: left;
+}
+
+.component-toggle > span,
+.component-toggle strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.component-toggle small {
+  color: #8b98ad;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.component-toggle i {
+  color: #7d8ca4;
+  font-style: normal;
+  transition: transform .2s ease;
+}
+
+.component-toggle[aria-expanded="false"] i { transform: rotate(180deg); }
+
+#component-panel {
+  height: 510px;
+  border-top: 1px solid #e5eaf2;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  background: #fbfcff;
+}
+
+#component-panel[hidden] { display: none; }
+
+.component-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 125px;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-bottom: 10px;
+}
+
+.component-search {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #d8e0ec;
+  border-radius: 9px;
+  padding: 0 11px;
+  color: #718198;
+  background: #f6f8fb;
+}
+
+.component-search:focus-within {
+  border-color: #8c64a1;
+  box-shadow: 0 0 0 3px #70248212;
+  background: #fff;
+}
+
+.component-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #344054;
+  font: inherit;
+}
+
+.component-tools select {
+  height: 42px;
+  border-radius: 9px;
+  background: #f6f8fb;
+  font-size: 12px;
+}
+
+.component-groups {
+  height: 342px;
+  min-height: 342px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 4px 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c8d1df transparent;
+}
+
+.component-group {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0 0 17px;
+  background: transparent;
+}
+
+.component-group-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 2px 9px;
+  color: #56667e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.component-group-title span {
+  color: #93a0b3;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 108px;
+  gap: 9px;
+}
+
+.component-card {
+  position: relative;
+  min-width: 0;
+  height: 108px;
+  padding: 12px 9px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #fff;
+  color: #52627a;
+  text-align: center;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.component-card:hover {
+  transform: translateY(-1px);
+  border-color: #a98ab8;
+  background: #fefcff;
+  box-shadow: 0 5px 14px #4e32600d;
+}
+
+.component-card:active { transform: translateY(0) scale(.985); }
+
+.component-card:focus-visible {
+  outline: 2px solid #7b478b;
+  outline-offset: 2px;
+}
+
+.component-card.selected {
+  border-color: #754184;
+  background: #f6eff8;
+  box-shadow: inset 0 0 0 1px #754184;
+}
+
+.component-card.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #754184;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.component-card.recommended:not(.selected)::before {
+  content: "✦";
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  color: #8f5e9d;
+  font-size: 12px;
+}
+
+.component-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  color: #647896;
+}
+
+.component-icon svg {
+  width: 31px;
+  height: 31px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.component-card.selected .component-icon { color: #754184; }
+
+.component-card-text {
+  width: 100%;
+  min-width: 0;
+  display: block;
+}
+
+.component-card-detail {
+  position: absolute;
+  inset: 5px;
+  z-index: 2;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 7px;
+  background: #f7f2f9;
+  color: #52627a;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(3px);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.component-card:hover .component-card-detail,
+.component-card:focus-visible .component-card-detail {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.component-card-detail strong,
+.component-card-detail span,
+.component-card-detail small {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.component-card-detail strong { color: #684277; font-size: 11px; }
+.component-card-detail span { color: #66758b; font-size: 9px; }
+.component-card-detail small { color: #8794a8; font-size: 9px; }
+
+.component-card-text strong,
+.component-card-text small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.component-card-text strong {
+  color: #52627a;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.component-card-text small {
+  margin-top: 3px;
+  color: #94a2b7;
+  font: 10px/1.25 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.component-helper,
+.component-recommendation {
+  flex: 0 0 auto;
+  margin: 8px 2px 0;
+  color: #8c9aaf;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.component-recommendation { margin-top: 5px; color: #66758b; }
+.component-recommendation.recognized { color: #69417a; }
+.component-recommendation.recognizing { color: var(--purple); }
+
+@media (max-width: 850px) {
+  #component-panel { height: 510px; }
+  .component-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

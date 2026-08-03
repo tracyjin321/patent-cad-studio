@@ -43,6 +43,8 @@ class GenerateResponse(BaseModel):
     spec_fingerprint: str
     core_elements: list[PartType] = Field(default_factory=list)
     selected_components: list[dict[str, Any]] = Field(default_factory=list)
+    assembly_report: dict[str, Any] | None = None
+    quality_report: dict[str, Any] | None = None
 
 
 class YamlToStepRequest(BaseModel):

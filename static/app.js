@@ -187,6 +187,19 @@ function showResult(result) {
 }
 function applyZoom(){ const svg=$("#canvas svg"); if(svg) svg.style.transform=`scale(${state.zoom})`; $("#zoom-label").textContent=`${Math.round(state.zoom*100)}%`; }
 function download(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
+async function submitGenerationTask(payload){
+  const created=await fetch("/api/generation-tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  if(!created.ok){const detail=await created.json().catch(()=>({}));throw new Error(detail.detail||`无法创建生成任务（错误码：${created.status}）`);}
+  const task=await created.json();
+  for(;;){
+    await new Promise(resolve=>setTimeout(resolve,500));
+    const response=await fetch(task.status_url,{cache:"no-store"});
+    if(!response.ok)throw new Error(`无法查询生成任务（错误码：${response.status}）`);
+    const state=await response.json();
+    if(state.status==="completed")return state.result;
+    if(["failed","cancelled"].includes(state.status))throw new Error(state.error||"生成任务未完成");
+  }
+}
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
@@ -200,9 +213,7 @@ async function generate() {
   progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
-    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked})});
-    if(!response.ok) throw new Error(`附图生成失败（错误码：${response.status}）`);
-    const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
+    const result=await submitGenerationTask({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked});clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
     state.history.unshift(result);state.history=state.history.slice(0,HISTORY_STORAGE_LIMIT);state.historyExpanded=false;renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';state.isGenerating=false;checkServiceHealth();}

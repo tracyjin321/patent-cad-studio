@@ -1,6 +1,9 @@
 from pathlib import Path
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
+import asyncio
 import fcntl
+import hashlib
+import json
 import os
 import re
 import time
@@ -16,8 +19,9 @@ from starlette.concurrency import run_in_threadpool
 from .cad import generate_svg
 from .documents import extract_document_text
 from .llm import DEFAULTS, LABELS, parse_parameters, recommend_core_elements
-from .component_spec import load_spec, spec_to_step, step_to_spec, validate_spec
+from .component_spec import load_spec, read_step, spec_to_step, step_to_spec, validate_spec, write_shape_step
 from .component_library import components_by_id, query_components
+from .assembly import automatic_manifest, build_assembly
 from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
 from .model3d import write_step
 from .parametric_spec import resolve_parametric_component
@@ -29,6 +33,13 @@ GENERATED = ROOT / "generated"
 GENERATED.mkdir(exist_ok=True)
 GENERATED_LIBRARY = GENERATED / "component_library"
 GENERATED_LIBRARY.mkdir(exist_ok=True)
+ASSEMBLY_CACHE = GENERATED / "assemblies"
+ASSEMBLY_CACHE.mkdir(exist_ok=True)
+TASKS_DIR = GENERATED / "tasks"
+TASKS_DIR.mkdir(exist_ok=True)
+GENERATION_TASKS: dict[str, dict[str, object]] = {}
+RUNNING_TASKS: dict[str, asyncio.Task] = {}
+GENERATION_TIMEOUT_SECONDS = max(30, int(os.getenv("GENERATION_TIMEOUT_SECONDS", "300")))
 MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
 MAX_DESCRIPTION_CHARS = 5000
 # OCP/OpenCascade is not reliably thread-safe inside one Python interpreter.
@@ -39,6 +50,32 @@ HEAVY_CAD_SLOTS = max(2, int(os.getenv("HEAVY_CAD_SLOTS", "2")))
 app = FastAPI(title="专图灵境 API", version="1.0.0")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
+
+
+def _persist_task(task_id: str) -> None:
+    record = {key: value for key, value in GENERATION_TASKS[task_id].items() if key != "runtime_task"}
+    (TASKS_DIR / f"{task_id}.json").write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+
+
+def recover_generation_tasks() -> None:
+    for path in TASKS_DIR.glob("*.json"):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+            if record.get("status") in {"queued", "running"}:
+                record.update({"status": "failed", "error": "生成 worker 曾中断，请重新提交任务", "recoverable": True})
+                path.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+            GENERATION_TASKS[str(record["id"])] = record
+        except (OSError, ValueError, KeyError):
+            continue
+
+
+@asynccontextmanager
+async def app_lifespan(_app):
+    recover_generation_tasks()
+    yield
+
+
+app.router.lifespan_context = app_lifespan
 
 
 @contextmanager
@@ -134,14 +171,38 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         # One OpenCascade job per interpreter; separate uvicorn processes provide
         # safe multi-user parallelism without changing geometry or meshing quality.
         with CAD_KERNEL_LOCK, cad_resource_slot(request.part_type, parameters):
-            resolved = resolve_parametric_component(
-                request.part_type,
-                parameters,
-                request.description,
-                formal_library=ROOT / "component_library",
-                generated_library=GENERATED_LIBRARY,
-            )
-            shape = resolved.shape
+            assembly_report = None
+            if request.component_ids:
+                manifest = automatic_manifest(request.component_ids, ROOT / "component_library")
+                cache_key = hashlib.sha256(manifest.model_dump_json().encode()).hexdigest()
+                cache_step, cache_report = ASSEMBLY_CACHE / f"{cache_key}.step", ASSEMBLY_CACHE / f"{cache_key}.json"
+                if cache_step.is_file() and cache_report.is_file():
+                    shape = read_step(cache_step)
+                    assembly_report = json.loads(cache_report.read_text(encoding="utf-8"))
+                    generation_source = "cache"
+                else:
+                    shape, assembly_report = build_assembly(manifest)
+                    write_shape_step(shape, cache_step, manifest.application_protocol)
+                    cache_report.write_text(json.dumps(assembly_report, ensure_ascii=False, indent=2), encoding="utf-8")
+                    generation_source = "generated"
+                spec_id = request.component_ids[0]
+                spec_url = f"/api/components/{spec_id}/yaml"
+                fingerprint = assembly_report["fingerprint"]
+                spec_check = {"name": "装配清单与端口规则", "passed": True}
+            else:
+                resolved = resolve_parametric_component(
+                    request.part_type,
+                    parameters,
+                    request.description,
+                    formal_library=ROOT / "component_library",
+                    generated_library=GENERATED_LIBRARY,
+                )
+                shape = resolved.shape
+                generation_source = resolved.source
+                spec_id = resolved.component_id
+                spec_url = f"/api/components/{resolved.component_id}/yaml"
+                fingerprint = resolved.fingerprint
+                spec_check = {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]}
             svg = generate_svg(shape, title, request.part_type, parameters)
             result_id = str(uuid4())
             model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
@@ -152,9 +213,14 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 {"name": "黑白线稿规范", "passed": "stroke:#000" in svg and 'fill="#fff"' in svg},
                 {"name": "附图编号", "passed": ">图1</text>" in svg},
                 {"name": "参数完整", "passed": all(value is not None for value in parameters.values())},
-                {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]},
+                spec_check,
             ]
-            if request.part_type == "valve":
+            if request.component_ids:
+                checks.extend([
+                    {"name": "装配 B-Rep 有效", "passed": bool(assembly_report["quality"]["valid_brep"])},
+                    {"name": "装配无实体干涉", "passed": bool(assembly_report["quality"]["interference_free"])},
+                ])
+            if request.part_type == "valve" and not request.component_ids:
                 measured = resolved.spec.get("validation", {}).get("geometry", {}).get("measured") or {}
                 size = measured.get("bounding_box", {}).get("size", [0, 0, 0])
                 topology = measured.get("topology", {})
@@ -172,9 +238,9 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                         and topology.get("solids") == 1,
                     },
                 ])
-            return resolved, svg, result_id, model, checks
+            return svg, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint
 
-    resolved, svg, result_id, model, checks = await run_in_threadpool(build_artifacts)
+    svg, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint = await run_in_threadpool(build_artifacts)
     return GenerateResponse(
         id=result_id,
         title=title,
@@ -187,16 +253,70 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         parser_detail=parser_detail,
         model=model,
         step_url=f"/api/models/{result_id}/step",
-        spec_id=resolved.component_id,
-        spec_url=f"/api/components/{resolved.component_id}/yaml",
-        generation_source=resolved.source,
-        spec_fingerprint=resolved.fingerprint,
+        spec_id=spec_id,
+        spec_url=spec_url,
+        generation_source=generation_source,
+        spec_fingerprint=fingerprint,
         core_elements=request.core_elements or [request.part_type],
         selected_components=[{
             "id": component["id"], "name": component["name"], "type": component["type"],
             "category": component["category"],
         } for component in selected_components],
+        assembly_report=assembly_report,
+        quality_report=assembly_report["quality"] if assembly_report else None,
     )
+
+
+async def _run_generation_task(task_id: str, request: GenerateRequest) -> None:
+    record = GENERATION_TASKS[task_id]
+    record.update({"status": "running", "progress": 10})
+    _persist_task(task_id)
+    try:
+        result = await asyncio.wait_for(generate(request), timeout=GENERATION_TIMEOUT_SECONDS)
+        record.update({"status": "completed", "progress": 100, "result": result.model_dump(mode="json"), "error": None})
+    except asyncio.CancelledError:
+        record.update({"status": "cancelled", "error": "任务已取消", "progress": 0})
+    except asyncio.TimeoutError:
+        record.update({"status": "failed", "error": f"生成超时（{GENERATION_TIMEOUT_SECONDS} 秒），可重试", "recoverable": True})
+    except HTTPException as exc:
+        record.update({"status": "failed", "error": str(exc.detail), "recoverable": False})
+    except Exception as exc:
+        record.update({"status": "failed", "error": f"CAD 生成失败：{exc}", "recoverable": True})
+    finally:
+        _persist_task(task_id)
+        RUNNING_TASKS.pop(task_id, None)
+
+
+@app.post("/api/generation-tasks", status_code=202)
+async def create_generation_task(request: GenerateRequest) -> dict[str, object]:
+    task_id = str(uuid4())
+    GENERATION_TASKS[task_id] = {"id": task_id, "status": "queued", "progress": 0, "request": request.model_dump(mode="json"), "result": None, "error": None}
+    _persist_task(task_id)
+    RUNNING_TASKS[task_id] = asyncio.create_task(_run_generation_task(task_id, request))
+    return {"id": task_id, "status": "queued", "status_url": f"/api/generation-tasks/{task_id}"}
+
+
+@app.get("/api/generation-tasks/{task_id}")
+def get_generation_task(task_id: str) -> dict[str, object]:
+    record = GENERATION_TASKS.get(task_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="生成任务不存在")
+    return record
+
+
+@app.delete("/api/generation-tasks/{task_id}")
+async def cancel_generation_task(task_id: str) -> dict[str, object]:
+    record = GENERATION_TASKS.get(task_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="生成任务不存在")
+    if record.get("status") in {"completed", "failed", "cancelled"}:
+        return {"id": task_id, "status": record["status"]}
+    runtime = RUNNING_TASKS.get(task_id)
+    if runtime:
+        runtime.cancel()
+    record.update({"status": "cancelled", "error": "任务已取消"})
+    _persist_task(task_id)
+    return {"id": task_id, "status": "cancelled"}
 
 
 @app.get("/api/models/{model_id}/step")

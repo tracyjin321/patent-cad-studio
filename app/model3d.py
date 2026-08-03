@@ -302,7 +302,13 @@ def _shape_mesh(shape: object) -> dict[str, Any]:
     from OCP.TopExp import TopExp_Explorer
     from OCP.TopLoc import TopLoc_Location
     from OCP.TopoDS import TopoDS
-    BRepMesh_IncrementalMesh(shape, 0.35, False, 0.22, True)
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    box=Bnd_Box();BRepBndLib.Add_s(shape,box)
+    bounds=box.Get();diagonal=math.sqrt(sum((bounds[i+3]-bounds[i])**2 for i in range(3)))
+    # Preserve small-part detail while bounding triangle counts for metre-scale assemblies.
+    deflection=max(0.05,min(5.0,diagonal*0.0002))
+    BRepMesh_IncrementalMesh(shape,deflection,False,0.22,True)
     positions: list[float] = []
     indices: list[int] = []
     explorer=TopExp_Explorer(shape,TopAbs_FACE)

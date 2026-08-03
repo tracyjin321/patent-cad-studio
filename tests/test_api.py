@@ -9,6 +9,7 @@ from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 from app import llm
+from app.component_spec import inspect_step
 
 
 main_module = importlib.import_module("app.main")
@@ -535,3 +536,49 @@ async def test_step_to_yaml_and_yaml_to_step_api():
         step_response = await client.get(rebuilt.json()["step_url"])
         assert step_response.status_code == 200
         assert step_response.content.startswith(b"ISO-10303-21;")
+
+
+@pytest.mark.asyncio
+async def test_selected_shaft_bearing_and_coupling_are_really_assembled(tmp_path):
+    component_ids = ["precision-shaft-d03-l0050-chamfered", "bearing-608-open-simple", "shaft-coupler-rigid-clamp-d03-d03-simple"]
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={"description": "装配精密轴、轴承和刚性联轴器。", "part_type": "shaft", "component_ids": component_ids, "use_ai": False})
+        step = await client.get(response.json()["step_url"])
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert [item["component_id"] for item in data["assembly_report"]["instances"]] == component_ids
+    assert data["quality_report"]["valid_brep"] and data["quality_report"]["interference_free"]
+    assert data["quality_report"]["measured"]["topology"]["solids"] >= 3
+    exported = tmp_path / "shaft-bearing-coupling.step"
+    exported.write_bytes(step.content)
+    assert step.status_code == 200
+    assert inspect_step(exported)["topology"]["solids"] >= 3
+
+
+@pytest.mark.asyncio
+async def test_generation_task_reports_actionable_worker_failure(monkeypatch):
+    async def fake_generate(_request):
+        raise RuntimeError("模拟 worker 退出")
+    monkeypatch.setattr(main_module, "generate", fake_generate)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成测试轴", "part_type": "shaft", "use_ai": False})
+        await __import__("asyncio").sleep(.05)
+        state = await client.get(created.json()["status_url"])
+    assert created.status_code == 202
+    assert state.json()["status"] == "failed"
+    assert "CAD 生成失败" in state.json()["error"]
+    assert state.json()["recoverable"] is True
+
+
+@pytest.mark.asyncio
+async def test_generation_task_can_be_cancelled(monkeypatch):
+    async def slow_generate(_request):
+        await __import__("asyncio").sleep(30)
+    monkeypatch.setattr(main_module, "generate", slow_generate)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成测试轴", "part_type": "shaft", "use_ai": False})
+        cancelled = await client.delete(created.json()["status_url"])
+        await __import__("asyncio").sleep(.01)
+        state = await client.get(created.json()["status_url"])
+    assert cancelled.status_code == 200
+    assert state.json()["status"] == "cancelled"

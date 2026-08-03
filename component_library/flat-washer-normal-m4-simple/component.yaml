@@ -51,48 +51,50 @@ constraints:
   expression_language: CEL
   rules: []
 ports:
-- id: end_a
-  name: 轴向端口 A
-  type: mechanical_interface
-  role: mechanical_connection
+- id: face_a
+  name: 上支承面
+  type: planar_stack
+  role: bearing_face
   frame:
     origin:
-    - -4.5
     - 0.0
     - 0.0
+    - 0.9
     axis:
-    - -1.0
-    - -0.0
-    - -0.0
-    up: &id001
+    - 0.0
     - 0.0
     - 1.0
+    up: &id001
+    - 1.0
     - 0.0
-  interface: {}
+    - 0.0
+  interface:
+    thread: M4
   compatible_with:
     port_types:
-    - mechanical_interface
+    - planar_stack
     rules: []
   allowed_mates:
   - coincident_concentric
-- id: end_b
-  name: 轴向端口 B
-  type: mechanical_interface
-  role: mechanical_connection
+- id: face_b
+  name: 下支承面
+  type: planar_stack
+  role: bearing_face
   frame:
     origin:
-    - 4.5
     - 0.0
     - 0.0
+    - -0.9
     axis:
-    - 1.0
     - 0.0
     - 0.0
+    - -1.0
     up: *id001
-  interface: {}
+  interface:
+    thread: M4
   compatible_with:
     port_types:
-    - mechanical_interface
+    - planar_stack
     rules: []
   allowed_mates:
   - coincident_concentric

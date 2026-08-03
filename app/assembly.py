@@ -180,11 +180,23 @@ def build_assembly(manifest: AssemblyManifest, *, reject_interference: bool = Tr
 
 
 def automatic_manifest(component_ids: list[str], library: Path, protocol: str = "AP242") -> AssemblyManifest:
+    specs = [load_spec(library / component_id / "component.yaml") for component_id in component_ids]
+    subtypes = [str(spec.get("identity", {}).get("subtype") or "") for spec in specs]
+    fastener_stack = bool(
+        subtypes
+        and subtypes[0] == "socket_head_cap_screw"
+        and all(subtype == "flat_washer" for subtype in subtypes[1:-1])
+        and len(subtypes) >= 3
+        and subtypes[-1] == "hex_nut"
+    )
     components = []
     for index, component_id in enumerate(component_ids):
         spec = library / component_id / "component.yaml"
         item: dict[str, Any] = {"spec": str(spec), "component_id": component_id}
         if index:
-            item.update({"port": "end_a", "target": index - 1, "mate_to": "end_b"})
+            if fastener_stack:
+                item.update({"port": "face_a", "target": index - 1, "mate_to": "head_bearing_face" if index == 1 else "face_b"})
+            else:
+                item.update({"port": "end_a", "target": index - 1, "mate_to": "end_b"})
         components.append(item)
     return AssemblyManifest(application_protocol=protocol, components=components)

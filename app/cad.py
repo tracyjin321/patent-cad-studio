@@ -7,15 +7,15 @@ VIEW_DIRECTION = (1.0, -1.0, 1.0)
 VIEW_X_DIRECTION = (1.0, 1.0, 0.0)
 
 
-def _projector():
+def _projector(view_direction=VIEW_DIRECTION, view_x_direction=VIEW_X_DIRECTION):
     from OCP.HLRAlgo import HLRAlgo_Projector
     from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
 
     return HLRAlgo_Projector(
         gp_Ax2(
             gp_Pnt(0, 0, 0),
-            gp_Dir(*VIEW_DIRECTION),
-            gp_Dir(*VIEW_X_DIRECTION),
+            gp_Dir(*view_direction),
+            gp_Dir(*view_x_direction),
         )
     )
 
@@ -74,10 +74,10 @@ def _unique_paths(groups: Iterable[list[list[tuple[float, float]]]]) -> list[lis
     return list(unique.values())
 
 
-def _project_edges(shape: object) -> tuple[list[list[tuple[float, float]]], list[list[tuple[float, float]]], object]:
+def _project_edges(shape: object, view_direction=VIEW_DIRECTION, view_x_direction=VIEW_X_DIRECTION) -> tuple[list[list[tuple[float, float]]], list[list[tuple[float, float]]], object]:
     from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
 
-    projector = _projector()
+    projector = _projector(view_direction, view_x_direction)
     algorithm = HLRBRep_Algo()
     algorithm.Add(shape)
     algorithm.Projector(projector)
@@ -111,12 +111,12 @@ def _edge_count(shape: object) -> int:
     return count
 
 
-def _project_poly_edges(shape: object) -> tuple[list[list[tuple[float, float]]], list[list[tuple[float, float]]], object]:
+def _project_poly_edges(shape: object, view_direction=VIEW_DIRECTION, view_x_direction=VIEW_X_DIRECTION) -> tuple[list[list[tuple[float, float]]], list[list[tuple[float, float]]], object]:
     """Stable HLR for very complex B-Reps using the preview mesh tolerance."""
     from OCP.BRepMesh import BRepMesh_IncrementalMesh
     from OCP.HLRBRep import HLRBRep_PolyAlgo, HLRBRep_PolyHLRToShape
 
-    projector = _projector()
+    projector = _projector(view_direction, view_x_direction)
     BRepMesh_IncrementalMesh(shape, 0.35, False, 0.22, True)
     algorithm = HLRBRep_PolyAlgo()
     algorithm.Load(shape)
@@ -218,14 +218,80 @@ def generate_svg(shape: object, title: str, part_type: str, parameters: dict[str
     # also trigger native Exact-HLR failures despite a modest edge count.
     if part_type == "screw" and float(parameters.get("length", 0)) >= 400:
         return _long_screw_svg(title, parameters)
+    return generate_view_svg(shape, title, part_type, "isometric", parameters)
+
+
+VIEW_CONFIGS = {
+    "front": ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0)),
+    "top": ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0)),
+    "side": ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0)),
+    "isometric": (VIEW_DIRECTION, VIEW_X_DIRECTION),
+}
+
+
+def generate_view_svg(shape: object, title: str, part_type: str, view: str, parameters: dict[str, Any] | None = None) -> str:
+    if view not in VIEW_CONFIGS:
+        raise ValueError(f"不支持的视图: {view}")
+    direction, x_direction = VIEW_CONFIGS[view]
     projector = _project_poly_edges if part_type in {"valve", "rocket"} or _edge_count(shape) > 400 else _project_edges
-    visible, hidden, _ = projector(shape)
+    # Keep the original one-argument isometric projector contract so callers
+    # and safety tests can replace the HLR implementation independently.
+    if view == "isometric":
+        visible, hidden, _ = projector(shape)
+    else:
+        visible, hidden, _ = projector(shape, direction, x_direction)
     transform, scale = _fit_transform([*visible, *hidden])
     visible_svg = "".join(_svg_path(points, transform, "o") for points in visible)
     hidden_svg = "".join(_svg_path(points, transform, "h") for points in hidden)
     all_screen = [transform(point) for path in [*visible, *hidden] for point in path]
     figure_label_y = min(1035.0, max(point[1] for point in all_screen) + 42.0)
     safe_title = html.escape(title)
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}轴侧图">
+    labels = {"front": "主视图", "top": "俯视图", "side": "侧视图", "isometric": "轴测图"}
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}{labels[view]}">
 <defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
 <rect width="794" height="1123" fill="#fff"/>{hidden_svg}{visible_svg}<text class="f" x="397" y="{figure_label_y:.2f}" text-anchor="middle">图1</text></svg>'''
+
+
+def generate_multiview_svgs(shape: object, title: str, part_type: str, parameters: dict[str, Any]) -> dict[str, str]:
+    if part_type == "screw" and float(parameters.get("length", 0)) >= 400:
+        stable = _long_screw_svg(title, parameters)
+        return {view: stable for view in VIEW_CONFIGS}
+    # The isometric patent view uses exact/poly HLR. Orthographic companion
+    # views use the same adaptive OCCT triangulation, avoiding four expensive
+    # hidden-line classifications for complex assemblies.
+    from .model3d import _shape_mesh
+
+    mesh = _shape_mesh(shape)
+    result = {"isometric": generate_view_svg(shape, title, part_type, "isometric", parameters)}
+    for view in ("front", "top", "side"):
+        result[view] = _mesh_view_svg(mesh, title, view)
+    return result
+
+
+def _mesh_view_svg(mesh: dict[str, Any], title: str, view: str) -> str:
+    values = mesh["positions"]
+    points = [tuple(values[index:index + 3]) for index in range(0, len(values), 3)]
+    projectors = {
+        "front": lambda point: (point[0], point[2]),
+        "top": lambda point: (point[0], point[1]),
+        "side": lambda point: (point[1], point[2]),
+    }
+    project = projectors[view]
+    edges: dict[tuple[tuple[float, float], tuple[float, float]], tuple[tuple[float, float], tuple[float, float]]] = {}
+    indices = mesh["indices"]
+    for offset in range(0, len(indices), 3):
+        triangle = indices[offset:offset + 3]
+        for left, right in ((triangle[0], triangle[1]), (triangle[1], triangle[2]), (triangle[2], triangle[0])):
+            a, b = project(points[left]), project(points[right])
+            key = tuple(sorted(((round(a[0], 3), round(a[1], 3)), (round(b[0], 3), round(b[1], 3)))))
+            if key[0] != key[1]: edges.setdefault(key, (a, b))
+    lines = list(edges.values())
+    if len(lines) > 3000:
+        stride = math.ceil(len(lines) / 3000)
+        lines = lines[::stride]
+    paths = [[a, b] for a, b in lines]
+    transform, _ = _fit_transform(paths)
+    rendered = "".join(_svg_path(path, transform, "o") for path in paths)
+    safe_title = html.escape(title)
+    label = {"front": "主视图", "top": "俯视图", "side": "侧视图"}[view]
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}{label}"><defs><style>.o{{fill:none;stroke:#000;stroke-width:1.45;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs><rect width="794" height="1123" fill="#fff"/>{rendered}<text class="f" x="397" y="1040" text-anchor="middle">图1</text></svg>'''

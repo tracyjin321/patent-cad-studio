@@ -10,19 +10,24 @@ import time
 from threading import Lock
 from uuid import uuid4
 
+import httpx
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
-from .cad import generate_svg
+from .cad import generate_multiview_svgs, generate_svg
 from .documents import extract_document_text
 from .llm import DEFAULTS, LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, read_step, spec_to_step, step_to_spec, validate_spec, write_shape_step
-from .component_library import components_by_id, query_components
+from .component_library import components_by_id, structured_query_components
+from .component_governance import create_backlog, discovery_links, ingest_step_url, review_component
+from .quality import assembly_quality_score, reference_image_score, visual_regression
+from .semantic_assembly import write_xcaf_assembly
+from .standard_families import FAMILIES, materialize_family
 from .assembly import automatic_manifest, build_assembly
-from .models import GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, YamlToStepRequest
+from .models import ComponentIngestRequest, FamilyMaterializeRequest, GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, ReviewRequest, YamlToStepRequest
 from .model3d import write_step
 from .parametric_spec import resolve_parametric_component
 
@@ -37,6 +42,9 @@ ASSEMBLY_CACHE = GENERATED / "assemblies"
 ASSEMBLY_CACHE.mkdir(exist_ok=True)
 TASKS_DIR = GENERATED / "tasks"
 TASKS_DIR.mkdir(exist_ok=True)
+VISUAL_BASELINES = GENERATED / "visual-baselines"
+GENERATION_REVIEWS = GENERATED / "generation-reviews"
+GENERATION_REVIEWS.mkdir(exist_ok=True)
 GENERATION_TASKS: dict[str, dict[str, object]] = {}
 RUNNING_TASKS: dict[str, asyncio.Task] = {}
 GENERATION_TIMEOUT_SECONDS = max(30, int(os.getenv("GENERATION_TIMEOUT_SECONDS", "300")))
@@ -153,9 +161,59 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
 def list_components(
     q: str = Query(default="", max_length=100),
     category: str = Query(default="", max_length=50),
+    component_type: str = Query(default="", max_length=50),
+    subtype: str = Query(default="", max_length=100),
+    status: str = Query(default="", max_length=30),
+    standard: str = Query(default="", max_length=100),
+    port_type: str = Query(default="", max_length=100),
+    limit: int = Query(default=100, ge=1, le=200),
 ) -> dict[str, object]:
     """Search the local component library used by the assembly constraint picker."""
-    return query_components(q, category)
+    return structured_query_components(q, category, component_type=component_type, subtype=subtype, status=status, standard=standard, port_type=port_type, limit=limit)
+
+
+@app.get("/api/components/discovery")
+def component_discovery(q: str = Query(min_length=2, max_length=100)) -> dict[str, object]:
+    local = structured_query_components(q, limit=10)
+    return {"query": q, "local": local, "providers": discovery_links(q), "next_action": local["disposition"]}
+
+
+@app.post("/api/component-backlog", status_code=201)
+def component_backlog(requirement: dict[str, object]) -> dict[str, object]:
+    if len(str(requirement.get("description", "")).strip()) < 2:
+        raise HTTPException(status_code=422, detail="待补图元必须包含 description")
+    return create_backlog(requirement)
+
+
+@app.get("/api/component-families")
+def component_families() -> dict[str, object]:
+    return {"items": [{"id": key, **value} for key, value in FAMILIES.items()]}
+
+
+@app.post("/api/component-families/materialize", status_code=201)
+def materialize_component_family(request: FamilyMaterializeRequest) -> dict[str, object]:
+    try:
+        return materialize_family(request.family_id, request.parameters, GENERATED_LIBRARY)
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/component-ingestion", status_code=201)
+def component_ingestion(request: ComponentIngestRequest) -> dict[str, object]:
+    try:
+        return ingest_step_url(request.url, request.identity)
+    except (ValueError, httpx.HTTPError, OSError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/component-ingestion/{review_id}/review")
+def component_ingestion_review(review_id: str, request: ReviewRequest) -> dict[str, object]:
+    try:
+        return review_component(review_id, request.decision, request.reviewer, request.note)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="入库审核任务不存在") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @app.post("/api/generate", response_model=GenerateResponse)
@@ -204,8 +262,18 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 fingerprint = resolved.fingerprint
                 spec_check = {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]}
             svg = generate_svg(shape, title, request.part_type, parameters)
+            multiviews = generate_multiview_svgs(shape, title, request.part_type, parameters) if hasattr(shape, "ShapeType") else {view: svg for view in ("front", "top", "side", "isometric")}
+            multiviews["isometric"] = svg
             result_id = str(uuid4())
-            model = write_step(GENERATED / f"{result_id}.step", f"{request.part_type} 3D model", shape)
+            result_step = GENERATED / f"{result_id}.step"
+            model = write_step(result_step, f"{request.part_type} 3D model", shape)
+            semantic_assembly = None
+            if request.component_ids:
+                semantic_assembly = write_xcaf_assembly(manifest, result_step)
+                assembly_report["semantic_assembly"] = semantic_assembly
+            regression = visual_regression(spec_id, multiviews, VISUAL_BASELINES)
+            quality_score = assembly_quality_score(assembly_report, multiviews, regression)
+            (GENERATED / f"{result_id}.svg").write_text(svg, encoding="utf-8")
             checks = [
                 {"name": "结构轮廓清晰", "passed": svg.count('class="o"') >= 2},
                 {"name": "法兰连接孔轮廓", "passed": request.part_type != "flange" or svg.count('class="o"') >= int(parameters["bolt_holes"]) * 2},
@@ -238,9 +306,9 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                         and topology.get("solids") == 1,
                     },
                 ])
-            return svg, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint
+            return svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly
 
-    svg, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint = await run_in_threadpool(build_artifacts)
+    svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly = await run_in_threadpool(build_artifacts)
     return GenerateResponse(
         id=result_id,
         title=title,
@@ -264,6 +332,10 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         } for component in selected_components],
         assembly_report=assembly_report,
         quality_report=assembly_report["quality"] if assembly_report else None,
+        multiviews=multiviews,
+        visual_regression=regression,
+        quality_score=quality_score,
+        semantic_assembly=semantic_assembly,
     )
 
 
@@ -327,6 +399,48 @@ def download_step(model_id: str) -> Response:
     if not path.exists():
         return Response(status_code=404)
     return FileResponse(path, media_type="application/step", filename=f"part-{model_id[:8]}.step")
+
+
+@app.post("/api/models/{model_id}/reference-score")
+async def compare_reference_image(model_id: str, file: UploadFile = File(...)) -> dict[str, object]:
+    svg_path = GENERATED / f"{model_id}.svg"
+    if not svg_path.is_file():
+        raise HTTPException(status_code=404, detail="模型不存在")
+    content = await file.read(10 * 1024 * 1024 + 1)
+    await file.close()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="参考图不能超过 10MB")
+    try:
+        return reference_image_score(content, svg_path.read_text(encoding="utf-8"))
+    except (ValueError, RuntimeError, OSError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/generation-reviews/{model_id}")
+def get_generation_review(model_id: str) -> dict[str, object]:
+    path = GENERATION_REVIEWS / f"{model_id}.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"model_id": model_id, "status": "pending"}
+
+
+@app.post("/api/generation-reviews/{model_id}")
+def set_generation_review(model_id: str, request: ReviewRequest) -> dict[str, object]:
+    if not (GENERATED / f"{model_id}.step").is_file():
+        raise HTTPException(status_code=404, detail="模型不存在")
+    record = {"model_id": model_id, "status": "approved" if request.decision == "approve" else "rejected", "reviewer": request.reviewer, "note": request.note, "reviewed_at": time.time()}
+    (GENERATION_REVIEWS / f"{model_id}.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+    return record
+
+
+@app.get("/api/generated-components/{component_id}/step")
+def generated_component_step(component_id: str) -> Response:
+    path = GENERATED_LIBRARY / component_id / "reference.step"
+    return FileResponse(path, media_type="application/step", filename=f"{component_id}.step") if path.is_file() else Response(status_code=404)
+
+
+@app.get("/api/generated-components/{component_id}/yaml")
+def generated_component_yaml(component_id: str) -> Response:
+    path = GENERATED_LIBRARY / component_id / "component.yaml"
+    return FileResponse(path, media_type="application/yaml", filename=f"{component_id}.yaml") if path.is_file() else Response(status_code=404)
 
 
 @app.get("/api/components/{component_id}/yaml")

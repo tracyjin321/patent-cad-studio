@@ -421,7 +421,7 @@ async def test_component_library_can_be_searched_and_filtered():
         catalog = await client.get("/api/components")
         bearing = await client.get("/api/components", params={"q": "BAU6201Z", "category": "shaft_support"})
     assert catalog.status_code == 200
-    assert catalog.json()["total"] == 93
+    assert catalog.json()["total"] == 105
     assert len(catalog.json()["categories"]) >= 6
     assert bearing.status_code == 200
     assert [item["id"] for item in bearing.json()["items"]] == ["deep-groove-ball-bau6201z"]

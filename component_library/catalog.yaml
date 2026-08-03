@@ -171,6 +171,33 @@ components:
   spec: extrusion-slot5-hammer-nut-m4-simple/component.yaml
   reference_step: extrusion-slot5-hammer-nut-m4-simple/reference.step
   source_material_directory: null
+- id: falcon9-avionics-ring
+  name: 猎鹰九号航电环
+  type: rocket
+  subtype: avionics_ring
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-avionics-ring/component.yaml
+  reference_step: falcon9-avionics-ring/reference.step
+  source_material_directory: null
+- id: falcon9-fairing-half
+  name: 猎鹰九号整流罩半壳
+  type: rocket
+  subtype: fairing_half
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-fairing-half/component.yaml
+  reference_step: falcon9-fairing-half/reference.step
+  source_material_directory: null
+- id: falcon9-feedline
+  name: 猎鹰九号推进剂输送管
+  type: rocket
+  subtype: feedline
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-feedline/component.yaml
+  reference_step: falcon9-feedline/reference.step
+  source_material_directory: null
 - id: falcon9-first-stage
   name: 猎鹰九号一级火箭
   type: rocket
@@ -179,6 +206,15 @@ components:
   status: approved
   spec: falcon9-first-stage/component.yaml
   reference_step: falcon9-first-stage/reference.step
+  source_material_directory: null
+- id: falcon9-grid-fin
+  name: 猎鹰九号单片栅格翼
+  type: rocket
+  subtype: grid_fin
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-grid-fin/component.yaml
+  reference_step: falcon9-grid-fin/reference.step
   source_material_directory: null
 - id: falcon9-grid-fin-set
   name: 猎鹰九号四片栅格翼组件
@@ -197,6 +233,51 @@ components:
   status: approved
   spec: falcon9-interstage/component.yaml
   reference_step: falcon9-interstage/reference.step
+  source_material_directory: null
+- id: falcon9-landing-leg
+  name: 猎鹰九号着陆腿
+  type: rocket
+  subtype: landing_leg
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-landing-leg/component.yaml
+  reference_step: falcon9-landing-leg/reference.step
+  source_material_directory: null
+- id: falcon9-merlin-1d-sea-level
+  name: Merlin 1D 海平面发动机
+  type: rocket
+  subtype: merlin_1d_sea_level
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-merlin-1d-sea-level/component.yaml
+  reference_step: falcon9-merlin-1d-sea-level/reference.step
+  source_material_directory: null
+- id: falcon9-merlin-1d-vacuum
+  name: Merlin 1D 真空发动机
+  type: rocket
+  subtype: merlin_1d_vacuum
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-merlin-1d-vacuum/component.yaml
+  reference_step: falcon9-merlin-1d-vacuum/reference.step
+  source_material_directory: null
+- id: falcon9-octaweb
+  name: 猎鹰九号 Octaweb 发动机安装结构
+  type: rocket
+  subtype: octaweb
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-octaweb/component.yaml
+  reference_step: falcon9-octaweb/reference.step
+  source_material_directory: null
+- id: falcon9-payload-adapter
+  name: 猎鹰九号载荷适配器
+  type: rocket
+  subtype: payload_adapter
+  version: 1.0.0
+  status: reviewed
+  spec: falcon9-payload-adapter/component.yaml
+  reference_step: falcon9-payload-adapter/reference.step
   source_material_directory: null
 - id: falcon9-payload-fairing
   name: 猎鹰九号有效载荷整流罩
@@ -423,6 +504,15 @@ components:
   spec: plate-blank-50x50x2/component.yaml
   reference_step: plate-blank-50x50x2/reference.step
   source_material_directory: null
+- id: pneumatic-cylinder-d032-l0100
+  name: 标准气缸
+  type: actuator
+  subtype: pneumatic_cylinder
+  version: 1.0.0
+  status: reviewed
+  spec: pneumatic-cylinder-d032-l0100/component.yaml
+  reference_step: pneumatic-cylinder-d032-l0100/reference.step
+  source_material_directory: null
 - id: precision-shaft-d03-l0025-chamfered
   name: 精密光轴
   type: shaft
@@ -476,6 +566,15 @@ components:
   status: draft
   spec: sc8-linear-bearing-block/component.yaml
   reference_step: sc8-linear-bearing-block/reference.step
+  source_material_directory: null
+- id: servo-motor-40x20x38
+  name: 通用伺服电机
+  type: actuator
+  subtype: servo_motor
+  version: 1.0.0
+  status: reviewed
+  spec: servo-motor-40x20x38/component.yaml
+  reference_step: servo-motor-40x20x38/reference.step
   source_material_directory: null
 - id: set-screw-m3-l0008-cup-point-simple
   name: 紧定螺钉
@@ -764,6 +863,15 @@ components:
   status: draft
   spec: stepper-motor-nema17-l0034-single-shaft/component.yaml
   reference_step: stepper-motor-nema17-l0034-single-shaft/reference.step
+  source_material_directory: null
+- id: stepper-motor-nema23-l0056
+  name: NEMA23 步进电机
+  type: actuator
+  subtype: nema_stepper
+  version: 1.0.0
+  status: reviewed
+  spec: stepper-motor-nema23-l0056/component.yaml
+  reference_step: stepper-motor-nema23-l0056/reference.step
   source_material_directory: null
 - id: t8-p2-lead-screw-l0100-simple
   name: 梯形丝杠

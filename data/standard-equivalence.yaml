@@ -1,0 +1,23 @@
+schema_version: '1.0'
+mappings:
+  - internal_family: gbt70-1-socket-head-cap-screw
+    chinese_standard: GB/T 70.1-2008
+    chinese_name: 内六角圆柱头螺钉
+    international_standard: ISO 4762:2004
+    adoption: MOD
+    geometry_interchangeability: nominal-compatible
+    qualification_scope:
+      - nominal_thread
+      - nominal_length
+      - socket_head_form
+    excluded_claims:
+      - material_grade
+      - mechanical_property_class
+      - coating
+      - packaging
+      - limit_tolerances_not_measured_from_brep
+    official_reference: https://std.samr.gov.cn/gb/search/gbDetailed?id=71F772D7F825D3A7E05397BE0A0AB82A
+    source_family: https://api.step.parts/v1/parts?category=fastener&family=socket-head-cap-screw&standard=ISO%204762
+    source_license: MIT
+    source_license_reference: https://github.com/earthtojake/step.parts/blob/main/LICENSE
+    source_license_rule: Original project material unless a file-level attribution or THIRD_PARTY_NOTICES entry overrides it.

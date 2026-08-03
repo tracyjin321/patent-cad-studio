@@ -1,0 +1,246 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: gbt70-1-shcs-m5-l0012
+  name: 内六角圆柱头螺钉 M5×12
+  name_en: ISO 4762 hexagon socket head cap screw, M5 x 12
+  type: fastener
+  subtype: socket_head_cap_screw
+  family: gbt70-1-socket-head-cap-screw
+  standard: null
+  description: step.parts ISO 4762 M5×12 几何；按 GB/T 70.1-2008 修改采用关系登记为公称兼容图元。
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-08-03'
+  updated_at: '2026-08-03'
+  status: approved
+  tags:
+  - GB/T 70.1
+  - ISO 4762
+  - M5
+  - L12
+  - socket-head
+  - step.parts
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - 0.0
+  - 0.0
+  - -3.5
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 原始 STEP +Z
+  zero_rotation_definition: 原始 STEP +X
+parameters:
+- name: nominal_diameter
+  type: number
+  unit: mm
+  default: 5.0
+  editable: false
+- name: nominal_length
+  type: number
+  unit: mm
+  default: 12
+  editable: false
+- name: thread_pitch
+  type: number
+  unit: mm
+  default: 0.8
+  editable: false
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: thread_tip
+  name: 螺纹端装配口
+  type: threaded_connection
+  role: thread_male
+  frame:
+    origin:
+    - 0.0
+    - 0.0
+    - -12.0
+    axis:
+    - 0.0
+    - 0.0
+    - -1.0
+    up:
+    - 1.0
+    - 0.0
+    - 0.0
+  interface:
+    thread: M5
+    pitch_mm: 0.8
+    gender: male
+  compatible_with:
+    port_types:
+    - threaded_connection
+    rules:
+    - same_thread
+    - opposite_gender
+  allowed_mates:
+  - coincident_concentric
+- id: head_bearing_face
+  name: 头部支承面
+  type: threaded_connection
+  role: bearing_face
+  frame:
+    origin:
+    - 0.0
+    - 0.0
+    - 0.0
+    axis:
+    - 0.0
+    - 0.0
+    - 1.0
+    up:
+    - 1.0
+    - 0.0
+    - 0.0
+  interface:
+    thread: M5
+    pitch_mm: 0.8
+    gender: male
+  compatible_with:
+    port_types:
+    - threaded_connection
+    rules:
+    - same_thread
+    - opposite_gender
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: reference.step
+  output:
+    format: STEP
+    application_protocol: AP242
+    preserve_names: true
+    preserve_colors: true
+    filename_template: gbt70-1-shcs-m5-l0012.step
+presets:
+- name: reference
+  source_ref: source.step
+  verification_status: geometry_measured
+  params: {}
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 1
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -4.600167
+        - -4.600167
+        - -12.0
+        max:
+        - 4.600167
+        - 4.600167
+        - 5.0
+        size:
+        - 9.200334
+        - 9.200334
+        - 17.0
+      topology:
+        solids: 1
+        shells: 1
+        faces: 15
+        edges: 60
+        vertices: 120
+        compounds: 0
+      volume_mm3: 456.89081
+      surface_area_mm2: 484.107295
+      center_of_mass:
+      - 0.0
+      - -0.0
+      - -1.803293
+      valid_solid: true
+    signatures:
+      strict_topology_sha256: 4ef42b369491cc9e106111a96053ad2b3f8b5e802cb406f1e0f4bc9d5421497a
+      engineering_geometry_sha256: f5be456071a1a7899b25a5a753f50e951ea8a30f36bb374b2fe3f3dd3fed5ef9
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: AP242
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+artifacts:
+  reference_step:
+    file: reference.step
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: source_preserved
+    length_unit: mm
+    sha256: aa70d50670bc4060ba2019d218adee2033748056be3eb98e4932c6720e8428fe
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: null
+    required: false
+    sha256: null
+provenance:
+  source_type: step_parts_mit_original
+  standard_refs:
+  - ISO 4762:2004
+  - GB/T 70.1-2008
+  data_entry_method: imported
+  semantic_recovery: inferred
+  verified_by: iso4762-gbt70-1-import-gate
+  verified_at: '2026-08-03'
+  source_url: https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x12
+  source_step_url: https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x12.step
+  source_sha256: aa70d50670bc4060ba2019d218adee2033748056be3eb98e4932c6720e8428fe
+  source_catalog_id: iso4762_socket_head_cap_screw_m5x12
+  source_license: MIT
+  license_reference: https://github.com/earthtojake/step.parts/blob/main/LICENSE
+  third_party_notice_checked: https://github.com/earthtojake/step.parts/blob/main/THIRD_PARTY_NOTICES.md
+  license_decision: 'MIT: no file-level attribution and no matching family entry in THIRD_PARTY_NOTICES'
+  standard_adoption: MOD
+  standard_reference: https://std.samr.gov.cn/gb/search/gbDetailed?id=71F772D7F825D3A7E05397BE0A0AB82A
+  qualification: nominal geometry compatible; tolerance/material/property class not certified

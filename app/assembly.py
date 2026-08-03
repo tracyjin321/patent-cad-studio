@@ -69,8 +69,16 @@ def _compatible(fixed: dict[str, Any], moving: dict[str, Any], mate: str) -> lis
     if moving_types and fixed.get("type") not in moving_types:
         errors.append("目标端口类型不在移动 compatible_with 中")
     fixed_interface, moving_interface = fixed.get("interface") or {}, moving.get("interface") or {}
+    rules = set((fixed.get("compatible_with") or {}).get("rules") or [])
+    rules.update((moving.get("compatible_with") or {}).get("rules") or [])
     for key in set(fixed_interface) & set(moving_interface):
-        if fixed_interface[key] not in (None, "") and moving_interface[key] not in (None, "") and fixed_interface[key] != moving_interface[key]:
+        fixed_value, moving_value = fixed_interface[key], moving_interface[key]
+        if fixed_value in (None, "") or moving_value in (None, ""):
+            continue
+        if key == "gender" and "opposite_gender" in rules:
+            if fixed_value == moving_value:
+                errors.append("接口属性不兼容: gender 必须相反")
+        elif fixed_value != moving_value:
             errors.append(f"接口属性不兼容: {key}")
     return errors
 

@@ -315,6 +315,411 @@ components:
   spec: flat-washer-normal-m4-simple/component.yaml
   reference_step: flat-washer-normal-m4-simple/reference.step
   source_material_directory: null
+- id: gbt70-1-shcs-m10-l0020
+  name: 内六角圆柱头螺钉 M10×20
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m10-l0020/component.yaml
+  reference_step: gbt70-1-shcs-m10-l0020/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m10-l0025
+  name: 内六角圆柱头螺钉 M10×25
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m10-l0025/component.yaml
+  reference_step: gbt70-1-shcs-m10-l0025/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m10-l0030
+  name: 内六角圆柱头螺钉 M10×30
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m10-l0030/component.yaml
+  reference_step: gbt70-1-shcs-m10-l0030/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m10-l0040
+  name: 内六角圆柱头螺钉 M10×40
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m10-l0040/component.yaml
+  reference_step: gbt70-1-shcs-m10-l0040/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m10-l0050
+  name: 内六角圆柱头螺钉 M10×50
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m10-l0050/component.yaml
+  reference_step: gbt70-1-shcs-m10-l0050/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m12-l0025
+  name: 内六角圆柱头螺钉 M12×25
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m12-l0025/component.yaml
+  reference_step: gbt70-1-shcs-m12-l0025/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m12-l0030
+  name: 内六角圆柱头螺钉 M12×30
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m12-l0030/component.yaml
+  reference_step: gbt70-1-shcs-m12-l0030/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m12-l0040
+  name: 内六角圆柱头螺钉 M12×40
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m12-l0040/component.yaml
+  reference_step: gbt70-1-shcs-m12-l0040/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m12-l0050
+  name: 内六角圆柱头螺钉 M12×50
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m12-l0050/component.yaml
+  reference_step: gbt70-1-shcs-m12-l0050/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m12-l0060
+  name: 内六角圆柱头螺钉 M12×60
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m12-l0060/component.yaml
+  reference_step: gbt70-1-shcs-m12-l0060/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2-l0004
+  name: 内六角圆柱头螺钉 M2×4
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2-l0004/component.yaml
+  reference_step: gbt70-1-shcs-m2-l0004/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2-l0006
+  name: 内六角圆柱头螺钉 M2×6
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2-l0006/component.yaml
+  reference_step: gbt70-1-shcs-m2-l0006/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2-l0008
+  name: 内六角圆柱头螺钉 M2×8
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2-l0008/component.yaml
+  reference_step: gbt70-1-shcs-m2-l0008/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2-l0010
+  name: 内六角圆柱头螺钉 M2×10
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2-l0010/component.yaml
+  reference_step: gbt70-1-shcs-m2-l0010/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2-l0012
+  name: 内六角圆柱头螺钉 M2×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m2-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2p5-l0005
+  name: 内六角圆柱头螺钉 M2.5×5
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2p5-l0005/component.yaml
+  reference_step: gbt70-1-shcs-m2p5-l0005/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2p5-l0006
+  name: 内六角圆柱头螺钉 M2.5×6
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2p5-l0006/component.yaml
+  reference_step: gbt70-1-shcs-m2p5-l0006/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2p5-l0008
+  name: 内六角圆柱头螺钉 M2.5×8
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2p5-l0008/component.yaml
+  reference_step: gbt70-1-shcs-m2p5-l0008/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2p5-l0010
+  name: 内六角圆柱头螺钉 M2.5×10
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2p5-l0010/component.yaml
+  reference_step: gbt70-1-shcs-m2p5-l0010/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m2p5-l0012
+  name: 内六角圆柱头螺钉 M2.5×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m2p5-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m2p5-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m3-l0006
+  name: 内六角圆柱头螺钉 M3×6
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m3-l0006/component.yaml
+  reference_step: gbt70-1-shcs-m3-l0006/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m3-l0008
+  name: 内六角圆柱头螺钉 M3×8
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m3-l0008/component.yaml
+  reference_step: gbt70-1-shcs-m3-l0008/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m3-l0010
+  name: 内六角圆柱头螺钉 M3×10
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m3-l0010/component.yaml
+  reference_step: gbt70-1-shcs-m3-l0010/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m3-l0012
+  name: 内六角圆柱头螺钉 M3×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m3-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m3-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m3-l0016
+  name: 内六角圆柱头螺钉 M3×16
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m3-l0016/component.yaml
+  reference_step: gbt70-1-shcs-m3-l0016/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m4-l0008
+  name: 内六角圆柱头螺钉 M4×8
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m4-l0008/component.yaml
+  reference_step: gbt70-1-shcs-m4-l0008/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m4-l0010
+  name: 内六角圆柱头螺钉 M4×10
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m4-l0010/component.yaml
+  reference_step: gbt70-1-shcs-m4-l0010/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m4-l0012
+  name: 内六角圆柱头螺钉 M4×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m4-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m4-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m4-l0016
+  name: 内六角圆柱头螺钉 M4×16
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m4-l0016/component.yaml
+  reference_step: gbt70-1-shcs-m4-l0016/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m4-l0020
+  name: 内六角圆柱头螺钉 M4×20
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m4-l0020/component.yaml
+  reference_step: gbt70-1-shcs-m4-l0020/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m5-l0010
+  name: 内六角圆柱头螺钉 M5×10
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m5-l0010/component.yaml
+  reference_step: gbt70-1-shcs-m5-l0010/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m5-l0012
+  name: 内六角圆柱头螺钉 M5×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m5-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m5-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m5-l0016
+  name: 内六角圆柱头螺钉 M5×16
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m5-l0016/component.yaml
+  reference_step: gbt70-1-shcs-m5-l0016/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m5-l0020
+  name: 内六角圆柱头螺钉 M5×20
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m5-l0020/component.yaml
+  reference_step: gbt70-1-shcs-m5-l0020/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m5-l0025
+  name: 内六角圆柱头螺钉 M5×25
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m5-l0025/component.yaml
+  reference_step: gbt70-1-shcs-m5-l0025/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m6-l0012
+  name: 内六角圆柱头螺钉 M6×12
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m6-l0012/component.yaml
+  reference_step: gbt70-1-shcs-m6-l0012/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m6-l0016
+  name: 内六角圆柱头螺钉 M6×16
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m6-l0016/component.yaml
+  reference_step: gbt70-1-shcs-m6-l0016/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m6-l0020
+  name: 内六角圆柱头螺钉 M6×20
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m6-l0020/component.yaml
+  reference_step: gbt70-1-shcs-m6-l0020/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m6-l0025
+  name: 内六角圆柱头螺钉 M6×25
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m6-l0025/component.yaml
+  reference_step: gbt70-1-shcs-m6-l0025/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m6-l0030
+  name: 内六角圆柱头螺钉 M6×30
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m6-l0030/component.yaml
+  reference_step: gbt70-1-shcs-m6-l0030/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m8-l0016
+  name: 内六角圆柱头螺钉 M8×16
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m8-l0016/component.yaml
+  reference_step: gbt70-1-shcs-m8-l0016/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m8-l0020
+  name: 内六角圆柱头螺钉 M8×20
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m8-l0020/component.yaml
+  reference_step: gbt70-1-shcs-m8-l0020/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m8-l0025
+  name: 内六角圆柱头螺钉 M8×25
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m8-l0025/component.yaml
+  reference_step: gbt70-1-shcs-m8-l0025/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m8-l0030
+  name: 内六角圆柱头螺钉 M8×30
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m8-l0030/component.yaml
+  reference_step: gbt70-1-shcs-m8-l0030/reference.step
+  source_material_directory: null
+- id: gbt70-1-shcs-m8-l0040
+  name: 内六角圆柱头螺钉 M8×40
+  type: fastener
+  subtype: socket_head_cap_screw
+  version: 1.0.0
+  status: approved
+  spec: gbt70-1-shcs-m8-l0040/component.yaml
+  reference_step: gbt70-1-shcs-m8-l0040/reference.step
+  source_material_directory: null
 - id: gear-rack-m0-8-l0100
   name: 齿条
   type: gear

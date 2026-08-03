@@ -1,0 +1,56 @@
+{
+  "parameters": {
+    "total_height": 70000.0,
+    "body_diameter": 3660.0,
+    "fairing_diameter": 5200.0,
+    "fairing_height": 13100.0,
+    "engine_count": 9,
+    "engine_nozzle_diameter": 920.0,
+    "grid_fin_count": 4,
+    "landing_leg_count": 4,
+    "ring_count": 4
+  },
+  "measured": {
+    "bounding_box": {
+      "min": [
+        -3600.0,
+        -3600.0,
+        -0.0
+      ],
+      "max": [
+        3600.0,
+        3600.0,
+        70000.0
+      ],
+      "size": [
+        7200.0,
+        7200.0,
+        70000.0
+      ]
+    },
+    "topology": {
+      "solids": 104,
+      "shells": 104,
+      "faces": 473,
+      "edges": 1595,
+      "vertices": 3190,
+      "compounds": 1
+    },
+    "volume_mm3": 753493557296.7876,
+    "surface_area_mm2": 1134235166.987713,
+    "center_of_mass": [
+      0.731478,
+      0.0,
+      35872.628813
+    ],
+    "valid_solid": true
+  },
+  "checks": {
+    "height_70000_mm": true,
+    "ap214_header": true,
+    "independent_solids": true,
+    "engine_layout_9": true,
+    "grid_fins_4": true,
+    "landing_legs_4": true
+  }
+}

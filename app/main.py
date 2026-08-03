@@ -44,13 +44,13 @@ app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"
 @contextmanager
 def cad_resource_slot(part_type: str, parameters: dict[str, object] | None = None):
     """Bound memory-heavy jobs across workers while normal jobs stay 5-way parallel."""
-    if part_type not in {"gear", "screw"}:
+    if part_type not in {"gear", "screw", "rocket"}:
         yield
         return
     slot_dir = GENERATED / ".heavy-slots"
     slot_dir.mkdir(exist_ok=True)
     values = parameters or {}
-    exclusive = (
+    exclusive = part_type == "rocket" or (
         part_type == "gear" and float(values.get("helix_angle", 0)) > 0
     ) or (
         part_type == "screw" and float(values.get("length", 0)) >= 400

@@ -70,7 +70,8 @@ def main() -> None:
         entries = manifest["components"] if isinstance(manifest, dict) else manifest
         for item in entries:
             item["spec"] = str((args.manifest.parent / item["spec"]).resolve())
-        result = assemble(entries, args.output)
+        protocol = manifest.get("application_protocol", "AP242") if isinstance(manifest, dict) else "AP242"
+        result = assemble(entries, args.output, application_protocol=protocol)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

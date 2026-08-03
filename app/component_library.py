@@ -18,6 +18,7 @@ CATEGORY_DEFINITIONS = (
     ("motion", "直线运动", {"motion"}),
     ("structure", "支撑与结构", {"stock", "profile", "hardware"}),
     ("actuation", "动力与执行", {"actuator"}),
+    ("aerospace", "航天器结构", {"rocket"}),
 )
 
 SUBTYPE_LABELS = {
@@ -33,6 +34,8 @@ SUBTYPE_LABELS = {
     "v_slot_extrusion": "V型槽铝型材", "belt_pulley": "皮带轮", "timing_idler": "同步带惰轮",
     "timing_pulley": "同步带轮", "ball_screw": "滚珠丝杠", "lead_screw": "梯形丝杠",
     "ground_shaft": "精密光轴", "shaft_collar": "紧定轴环", "stepped_shaft": "阶梯轴",
+    "first_stage": "一级火箭", "grid_fin_set": "栅格翼组件", "interstage": "级间段",
+    "second_stage": "二级火箭", "payload_fairing": "有效载荷整流罩",
     "round_spacer": "圆柱隔离柱", "threaded_standoff": "六角隔离柱", "roller_chain": "滚子链轮",
     "roller_chain_drive": "滚子链传动轮", "angle_bar": "等边角钢", "plate_blank": "矩形板坯",
 }

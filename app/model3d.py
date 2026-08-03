@@ -12,6 +12,7 @@ GENERATOR_VERSIONS = {
     "screw": "2.1.0",
     "coupling": "2.0.0",
     "seal": "2.0.0",
+    "rocket": "1.0.0",
 }
 
 
@@ -67,6 +68,10 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
 def build_shape(part: str, p: dict[str, Any]):
     if part not in GENERATOR_VERSIONS:
         raise ValueError(f"未注册的参数化生成器: {part}")
+    if part == "rocket":
+        from .rocket import build_falcon9_shape
+
+        return build_falcon9_shape(p)
     from OCP.BRep import BRep_Builder
     from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform

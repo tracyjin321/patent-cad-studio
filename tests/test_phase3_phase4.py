@@ -29,6 +29,14 @@ def test_structured_search_explains_ranking_and_no_hit_routing():
     assert metric["parsed_query"]["diameter_mm"] == 5
 
 
+def test_warm_component_search_uses_cached_catalog(monkeypatch):
+    from app import component_library
+    component_library.load_components()
+    monkeypatch.setattr(component_library.yaml, "safe_load", lambda _value: pytest.fail("warm search must not reread component YAML"))
+    result = structured_query_components("NEMA23", port_type="mechanical_interface")
+    assert result["items"] and all("nema23" in item["id"] for item in result["items"])
+
+
 def test_standard_family_materialization_roundtrips(tmp_path):
     result = materialize_family("iso4017-hex-bolt", {"diameter_mm": 5, "length_mm": 20}, tmp_path)
     report = roundtrip_report(Path(result["spec_path"]))

@@ -78,6 +78,8 @@ def load_components() -> tuple[dict[str, Any], ...]:
             "category_label": category_label,
             "version": entry.get("version") or identity.get("version"),
             "status": entry.get("status") or identity.get("status"),
+            "standard": identity.get("standard"),
+            "port_types": sorted({str(port.get("type")) for port in spec.get("ports", []) if port.get("type")}),
             "description": identity.get("description"),
             "tags": identity.get("tags") or [],
         })
@@ -125,14 +127,12 @@ def structured_query_components(
             continue
         if status and component.get("status") != status:
             continue
-        spec = yaml.safe_load((LIBRARY / component["id"] / "component.yaml").read_text(encoding="utf-8")) or {}
-        identity = spec.get("identity", {})
-        if standard and standard.casefold() not in str(identity.get("standard") or "").casefold():
+        if standard and standard.casefold() not in str(component.get("standard") or "").casefold():
             continue
-        if port_type and not any(port.get("type") == port_type for port in spec.get("ports", [])):
+        if port_type and port_type not in component.get("port_types", []):
             continue
         fields = {
-            "id": component["id"], "standard": identity.get("standard") or "", "name": component["name"],
+            "id": component["id"], "standard": component.get("standard") or "", "name": component["name"],
             "name_en": component.get("name_en") or "", "subtype": component.get("subtype") or "",
             "tags": " ".join(component.get("tags") or []), "description": component.get("description") or "",
             "type": component["type"],

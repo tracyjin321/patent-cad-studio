@@ -595,3 +595,33 @@ async def test_generation_task_can_be_cancelled(monkeypatch):
         state = await client.get(created.json()["status_url"])
     assert cancelled.status_code == 200
     assert state.json()["status"] == "cancelled"
+
+
+@pytest.mark.asyncio
+async def test_generation_task_timeout_is_actionable(monkeypatch):
+    async def slow_generate(_request):
+        await __import__("asyncio").sleep(30)
+    monkeypatch.setattr(main_module, "generate", slow_generate)
+    monkeypatch.setattr(main_module, "GENERATION_TIMEOUT_SECONDS", .01)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成超时测试轴", "part_type": "shaft", "use_ai": False})
+        await __import__("asyncio").sleep(.05)
+        state = await client.get(created.json()["status_url"])
+    assert state.json()["status"] == "failed"
+    assert "生成超时" in state.json()["error"]
+    assert state.json()["recoverable"] is True
+
+
+def test_interrupted_generation_task_is_recovered_with_clear_error(monkeypatch, tmp_path):
+    task_id = "interrupted-task"
+    (tmp_path / f"{task_id}.json").write_text(
+        '{"id":"interrupted-task","status":"running","progress":50}',
+        encoding="utf-8",
+    )
+    recovered = {}
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    monkeypatch.setattr(main_module, "GENERATION_TASKS", recovered)
+    main_module.recover_generation_tasks()
+    assert recovered[task_id]["status"] == "failed"
+    assert "worker 曾中断" in recovered[task_id]["error"]
+    assert recovered[task_id]["recoverable"] is True

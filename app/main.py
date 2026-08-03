@@ -228,7 +228,8 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     except KeyError as exc:
         raise HTTPException(status_code=422, detail=f"未知 component_library 图元: {exc.args[0]}") from exc
     parameters, parser, parser_detail = await parse_parameters(request.description, request.part_type, request.use_ai)
-    title = f"{LABELS[request.part_type]}技术附图"
+    selected_types = {str(component.get("type") or "") for component in selected_components}
+    title = "紧固组件技术附图" if selected_components and selected_types == {"fastener"} else f"{LABELS[request.part_type]}技术附图"
 
     def build_artifacts():
         # One OpenCascade job per interpreter; separate uvicorn processes provide

@@ -114,13 +114,14 @@ const modelViewer = new CadModelViewer($("#model-canvas"));
 
 function effectiveComponentIds(){return state.selectedComponentIds.size?[...state.selectedComponentIds]:state.recommendedComponentIds;}
 function selectedParts(){const explicit=effectiveComponentIds().map(id=>componentTypeToPart[state.componentIndex.get(id)?.type]).filter(Boolean);return [...new Set([...explicit,...state.recommended])];}
+function partLabel(part){const ids=effectiveComponentIds(),allFasteners=ids.length&&ids.every(id=>state.componentIndex.get(id)?.type==="fastener");return part==="screw"&&allFasteners?"紧固组件":labels[part];}
 function renderPrimaryPartControl(parts){
   const selector=$("#primary-part"),hint=$("#primary-part-hint");
   if(!parts.length){selector.innerHTML="<option>语义自动匹配</option>";selector.disabled=true;hint.textContent="未选择图元时，将根据技术描述自动确定主要生成对象。";return;}
   if(!parts.includes(state.part))state.part=parts[0];
-  selector.disabled=false;selector.innerHTML=parts.map(part=>`<option value="${part}">${labels[part]}</option>`).join("");selector.value=state.part;
-  const related=parts.filter(part=>part!==state.part).map(part=>labels[part]);
-  hint.textContent=related.length?`已选图元：${[labels[state.part],...related].join("、")}。当前以${labels[state.part]}为主要生成对象。`:`当前以${labels[state.part]}为主要生成对象。`;
+  selector.disabled=false;selector.innerHTML=parts.map(part=>`<option value="${part}">${partLabel(part)}</option>`).join("");selector.value=state.part;
+  const related=parts.filter(part=>part!==state.part).map(part=>partLabel(part)),primaryLabel=partLabel(state.part);
+  hint.textContent=related.length?`已选图元：${[primaryLabel,...related].join("、")}。当前以${primaryLabel}为主要生成对象。`:`当前以${primaryLabel}为主要生成对象。`;
 }
 function renderRecommendation(){
   const status=$("#recommendation-status"),recommendedNames=[...state.recommended].map(part=>labels[part]);status.className="";

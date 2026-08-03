@@ -87,10 +87,22 @@ function buildPart(item) {
 export class CadModelViewer {
   constructor(canvas) {
     this.canvas = canvas;
+    this.available = false;
+    const contextOptions = { antialias: true, alpha: false };
+    const context = canvas.getContext("webgl2", contextOptions) || canvas.getContext("webgl", contextOptions);
+    if (!context) {
+      canvas.hidden = true;
+      const fallback = document.createElement("div");
+      fallback.className = "model-fallback";
+      fallback.setAttribute("role", "status");
+      fallback.innerHTML = "<strong>当前环境无法启用 3D 预览</strong><span>附图预览与 STEP 下载仍可正常使用</span>";
+      canvas.parentElement.appendChild(fallback);
+      return;
+    }
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color("#f4f6f8");
     this.camera = new THREE.PerspectiveCamera(34, 1, .1, 10000);
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    this.renderer = new THREE.WebGLRenderer({ canvas, context, ...contextOptions });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -105,6 +117,7 @@ export class CadModelViewer {
     this.scene.add(this.group);
     this.addStage();
     new ResizeObserver(() => this.resize()).observe(canvas);
+    this.available = true;
     this.animate();
   }
   addStage() {
@@ -120,6 +133,7 @@ export class CadModelViewer {
     grid.position.y = -129; this.scene.add(grid);
   }
   setModel(model) {
+    if (!this.available) return;
     this.group.clear();
     model.forEach(item => this.group.add(buildPart(item)));
     const box = new THREE.Box3().setFromObject(this.group);

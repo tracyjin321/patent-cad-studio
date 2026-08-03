@@ -40,6 +40,13 @@ def test_history_defaults_to_five_items_with_expand_control():
     assert 'history-more-count' in source and 'history-more-chevron' in source
 
 
+def test_3d_viewer_has_a_non_webgl_fallback():
+    source = (Path(__file__).parents[1] / "static" / "model-viewer.js").read_text(encoding="utf-8")
+    assert 'canvas.getContext("webgl2"' in source
+    assert "当前环境无法启用 3D 预览" in source
+    assert "if (!this.available) return" in source
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("part_type", PARTS)
 async def test_all_part_types_generate_valid_svg(part_type: str):

@@ -214,13 +214,13 @@ def recommend_component_instances(description: str, limit: int = 5) -> dict[str,
             quantity_before(rf"(?:GB/?T\s*70\.1\s*/?\s*)?(?:ISO\s*4762\s*)?(?:{re.escape(thread)}\s*[x×*]\s*{int(length)}\s*)?(?:内六角圆柱头螺钉|内六角螺钉|螺钉)", 1),
             f"标准号与规格精确命中 {thread}×{int(length)}",
         )
-    if thread and re.search(r"平垫圈|平垫|flat\s*washer", text, re.I):
+    if thread == "M4" and re.search(r"平垫圈|平垫|flat\s*washer", text, re.I):
         add(
             f"flat-washer-normal-{thread.casefold()}-simple",
             quantity_before(rf"(?:{re.escape(thread)}\s*)?(?:平垫圈|平垫|flat\s*washer)", 1),
             f"同螺纹规格平垫圈 {thread}",
         )
-    if thread and re.search(r"六角螺母|hex\s*nut", text, re.I):
+    if thread == "M4" and re.search(r"六角螺母|hex\s*nut", text, re.I):
         add(
             f"iso4032-hex-nut-{thread.casefold()}",
             quantity_before(rf"(?:{re.escape(thread)}\s*)?(?:六角螺母|hex\s*nut)", 1),

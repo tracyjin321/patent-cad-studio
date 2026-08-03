@@ -98,7 +98,7 @@ ports:
   - coincident_concentric
 - id: head_bearing_face
   name: 头部支承面
-  type: threaded_connection
+  type: planar_stack
   role: bearing_face
   frame:
     origin:
@@ -108,21 +108,17 @@ ports:
     axis:
     - 0.0
     - 0.0
-    - 1.0
+    - -1.0
     up:
     - 1.0
     - 0.0
     - 0.0
   interface:
     thread: M4
-    pitch_mm: 0.7
-    gender: male
   compatible_with:
     port_types:
-    - threaded_connection
-    rules:
-    - same_thread
-    - opposite_gender
+    - planar_stack
+    rules: []
   allowed_mates:
   - coincident_concentric
 geometry:

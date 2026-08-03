@@ -14,7 +14,19 @@ from app import llm
 main_module = importlib.import_module("app.main")
 
 
-PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal"]
+PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal", "rocket"]
+
+
+def test_falcon9_prompt_normalizes_official_vehicle_dimensions():
+    parameters = llm.local_parse(
+        "生成猎鹰九号，火箭总高度70米，箭体直径3.66米，整流罩直径5.2米、总长13.1米，安装9台Merlin发动机。",
+        "rocket",
+    )
+    assert parameters["total_height"] == 70000
+    assert parameters["body_diameter"] == 3660
+    assert parameters["fairing_diameter"] == 5200
+    assert parameters["fairing_height"] == 13100
+    assert parameters["engine_count"] == 9
 
 
 def test_history_defaults_to_five_items_with_expand_control():
@@ -395,7 +407,7 @@ async def test_component_library_can_be_searched_and_filtered():
         catalog = await client.get("/api/components")
         bearing = await client.get("/api/components", params={"q": "BAU6201Z", "category": "shaft_support"})
     assert catalog.status_code == 200
-    assert catalog.json()["total"] == 88
+    assert catalog.json()["total"] == 93
     assert len(catalog.json()["categories"]) >= 6
     assert bearing.status_code == 200
     assert [item["id"] for item in bearing.json()["items"]] == ["deep-groove-ball-bau6201z"]

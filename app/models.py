@@ -3,7 +3,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-PartType = Literal["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal"]
+PartType = Literal["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal", "rocket"]
 
 
 class GenerateRequest(BaseModel):

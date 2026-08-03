@@ -218,7 +218,7 @@ def generate_svg(shape: object, title: str, part_type: str, parameters: dict[str
     # also trigger native Exact-HLR failures despite a modest edge count.
     if part_type == "screw" and float(parameters.get("length", 0)) >= 400:
         return _long_screw_svg(title, parameters)
-    projector = _project_poly_edges if part_type == "valve" or _edge_count(shape) > 400 else _project_edges
+    projector = _project_poly_edges if part_type in {"valve", "rocket"} or _edge_count(shape) > 400 else _project_edges
     visible, hidden, _ = projector(shape)
     transform, scale = _fit_transform([*visible, *hidden])
     visible_svg = "".join(_svg_path(points, transform, "o") for points in visible)

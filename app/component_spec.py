@@ -334,13 +334,17 @@ def _artifact_path(spec_path: Path, spec: dict[str, Any]) -> Path:
     return result if result.is_absolute() else spec_path.parent / result
 
 
-def write_shape_step(shape: object, path: Path) -> None:
+def write_shape_step(shape: object, path: Path, application_protocol: str = "AP242") -> None:
     from OCP.IFSelect import IFSelect_RetDone
     from OCP.Interface import Interface_Static
     from OCP.STEPControl import STEPControl_AsIs, STEPControl_Writer
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    Interface_Static.SetCVal_s("write.step.schema", "AP242DIS")
+    schemas = {"AP214": "AP214IS", "AP242": "AP242DIS"}
+    schema = schemas.get(application_protocol.upper())
+    if schema is None:
+        raise ValueError(f"不支持的 STEP 应用协议: {application_protocol}")
+    Interface_Static.SetCVal_s("write.step.schema", schema)
     writer = STEPControl_Writer()
     if writer.Transfer(shape, STEPControl_AsIs) != IFSelect_RetDone or writer.Write(str(path)) != IFSelect_RetDone:
         raise RuntimeError(f"OpenCascade 无法写入 {path}")
@@ -367,14 +371,16 @@ def spec_to_step(spec_path: Path, output: Path, *, verify_checksum: bool = True,
             from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
 
             shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
-        write_shape_step(shape, output)
+        protocol = str(spec.get("geometry", {}).get("output", {}).get("application_protocol", "AP242"))
+        write_shape_step(shape, output, protocol)
     elif placement is not None or force_reexport:
         from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
 
         shape = read_step(source)
         if placement is not None:
             shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
-        write_shape_step(shape, output)
+        protocol = str(spec.get("geometry", {}).get("output", {}).get("application_protocol", "AP242"))
+        write_shape_step(shape, output, protocol)
     elif source.resolve() != output.resolve():
         shutil.copyfile(source, output)
     return inspect_step(output)
@@ -488,7 +494,12 @@ def _port(spec: dict[str, Any], port_id: str) -> dict[str, Any]:
     raise ValueError(f"找不到端口 {port_id}")
 
 
-def assemble(components: list[dict[str, Any]], output: Path) -> dict[str, Any]:
+def assemble(
+    components: list[dict[str, Any]],
+    output: Path,
+    *,
+    application_protocol: str = "AP242",
+) -> dict[str, Any]:
     """Assemble ComponentSpecs. First component is fixed; later ones mate to it."""
     from OCP.BRep import BRep_Builder
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -518,5 +529,5 @@ def assemble(components: list[dict[str, Any]], output: Path) -> dict[str, Any]:
     builder.MakeCompound(compound)
     for _, shape, _ in loaded:
         builder.Add(compound, shape)
-    write_shape_step(compound, output)
+    write_shape_step(compound, output, application_protocol)
     return inspect_shape(compound)

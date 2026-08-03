@@ -76,9 +76,10 @@ const refreshExamples = [
   "设计弹性联轴器，外径95mm，总长130mm，两端轴孔分别为28mm和32mm。",
   "构造伺服电机膜片联轴器，外径68mm，总长82mm，轴孔20mm，包含双膜片组。",
   "生成双唇骨架油封，外径72mm，内径40mm，宽度10mm，包含主密封唇和防尘唇。",
-  "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。"
+  "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。",
+  "生成猎鹰九号 Block 5 全箭，火箭总高度70米，箭体直径3.66米，整流罩直径5.2米，配置9台Merlin发动机、4片栅格翼和4条折叠着陆腿。"
 ];
-const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件" };
+const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件", rocket:"运载火箭" };
 const elementPatterns = {
   bearing: /轴承|滚珠|滚子|轴瓦|支承座|bearing/i,
   flange: /法兰|法兰盘|连接盘|突缘|flange/i,
@@ -87,9 +88,10 @@ const elementPatterns = {
   gear: /齿轮|齿圈|轮齿|齿数|模数|gear/i,
   screw: /丝杠|丝杆|螺杆|导程|滚珠丝杠|screw/i,
   coupling: /联轴器|联轴节|轴联接|coupling/i,
-  seal: /密封件|密封圈|油封|密封环|密封唇|seal/i
+  seal: /密封件|密封圈|油封|密封环|密封唇|seal/i,
+  rocket: /猎鹰九号|猎鹰9号|Falcon\s*9|运载火箭|火箭/i
 };
-const componentTypeToPart = {bearing:"bearing",shaft:"shaft",hub:"shaft",gear:"gear",pulley:"gear",sprocket:"gear",screw:"screw",nut:"screw",coupling:"coupling",seal:"seal",flange:"flange",valve:"valve"};
+const componentTypeToPart = {bearing:"bearing",shaft:"shaft",hub:"shaft",gear:"gear",pulley:"gear",sprocket:"gear",screw:"screw",nut:"screw",coupling:"coupling",seal:"seal",flange:"flange",valve:"valve",rocket:"rocket"};
 const componentIconPaths = {
   fastener:'<path d="M12 2 7 5v5l3 2v10h4V12l3-2V5Z"/><path d="M8 6h8M10 14h4M10 17h4M10 20h4"/>',
   nut:'<path d="m5 8 4-4h6l4 4v8l-4 4H9l-4-4Z"/><circle cx="12" cy="12" r="3"/>',

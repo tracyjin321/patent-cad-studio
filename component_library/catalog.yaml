@@ -171,6 +171,51 @@ components:
   spec: extrusion-slot5-hammer-nut-m4-simple/component.yaml
   reference_step: extrusion-slot5-hammer-nut-m4-simple/reference.step
   source_material_directory: null
+- id: falcon9-first-stage
+  name: 猎鹰九号一级火箭
+  type: rocket
+  subtype: first_stage
+  version: 1.0.0
+  status: approved
+  spec: falcon9-first-stage/component.yaml
+  reference_step: falcon9-first-stage/reference.step
+  source_material_directory: null
+- id: falcon9-grid-fin-set
+  name: 猎鹰九号四片栅格翼组件
+  type: rocket
+  subtype: grid_fin_set
+  version: 1.0.0
+  status: approved
+  spec: falcon9-grid-fin-set/component.yaml
+  reference_step: falcon9-grid-fin-set/reference.step
+  source_material_directory: null
+- id: falcon9-interstage
+  name: 猎鹰九号级间段
+  type: rocket
+  subtype: interstage
+  version: 1.0.0
+  status: approved
+  spec: falcon9-interstage/component.yaml
+  reference_step: falcon9-interstage/reference.step
+  source_material_directory: null
+- id: falcon9-payload-fairing
+  name: 猎鹰九号有效载荷整流罩
+  type: rocket
+  subtype: payload_fairing
+  version: 1.0.0
+  status: approved
+  spec: falcon9-payload-fairing/component.yaml
+  reference_step: falcon9-payload-fairing/reference.step
+  source_material_directory: null
+- id: falcon9-second-stage
+  name: 猎鹰九号二级火箭
+  type: rocket
+  subtype: second_stage
+  version: 1.0.0
+  status: approved
+  spec: falcon9-second-stage/component.yaml
+  reference_step: falcon9-second-stage/reference.step
+  source_material_directory: null
 - id: flat-washer-normal-m3-simple
   name: 平垫圈
   type: fastener

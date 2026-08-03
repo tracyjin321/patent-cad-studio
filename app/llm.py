@@ -19,6 +19,7 @@ LABELS = {
     "screw": "丝杠",
     "coupling": "联轴器",
     "seal": "密封件",
+    "rocket": "运载火箭",
 }
 
 DEFAULTS: dict[str, dict[str, float | int | str]] = {
@@ -30,6 +31,11 @@ DEFAULTS: dict[str, dict[str, float | int | str]] = {
     "screw": {"length": 300, "diameter": 32, "lead": 10, "starts": 1},
     "coupling": {"outer_diameter": 96, "length": 120, "bore": 32, "bolts": 6},
     "seal": {"outer_diameter": 85, "inner_diameter": 55, "width": 12, "lip_count": 2},
+    "rocket": {
+        "total_height": 70000.0, "body_diameter": 3660.0, "fairing_diameter": 5200.0,
+        "fairing_height": 13100.0, "engine_count": 9, "engine_nozzle_diameter": 920.0,
+        "grid_fin_count": 4, "landing_leg_count": 4, "ring_count": 4,
+    },
 }
 
 FEATURE_DEFAULTS = {
@@ -39,6 +45,7 @@ FEATURE_DEFAULTS = {
     "gear": {"helix_angle": 0, "keyway_width": 0, "spline_bore": 0},
     "screw": {"variant": 0}, "coupling": {"variant": 0, "bore_b": 32, "membrane_count": 0},
     "seal": {"groove_width": 0},
+    "rocket": {},
 }
 
 ELEMENT_PATTERNS = {
@@ -50,6 +57,7 @@ ELEMENT_PATTERNS = {
     "screw": r"丝杠|丝杆|螺杆|导程|滚珠丝杠|screw",
     "coupling": r"联轴器|联轴节|轴联接|coupling",
     "seal": r"密封件|密封圈|油封|密封环|密封唇|seal",
+    "rocket": r"猎鹰九号|猎鹰9号|Falcon\s*9|运载火箭|火箭",
 }
 
 COUNT_LIMITS = {
@@ -61,6 +69,10 @@ COUNT_LIMITS = {
     "starts": (1, 3),
     "bolts": (4, 12),
     "lip_count": (1, 3),
+    "engine_count": (1, 9),
+    "grid_fin_count": (0, 4),
+    "landing_leg_count": (0, 4),
+    "ring_count": (0, 6),
 }
 
 
@@ -98,6 +110,12 @@ def normalize_parameters(part_type: str, values: dict[str, Any]) -> dict[str, An
     elif part_type == "gear":
         root_diameter = normalized["module"] * normalized["teeth"] * .84
         normalized["bore"] = min(normalized["bore"], root_diameter * .8)
+    elif part_type == "rocket":
+        normalized["total_height"] = max(20000.0, min(100000.0, normalized["total_height"]))
+        normalized["body_diameter"] = max(1000.0, min(10000.0, normalized["body_diameter"]))
+        normalized["fairing_diameter"] = max(normalized["body_diameter"], normalized["fairing_diameter"])
+        normalized["fairing_height"] = min(normalized["fairing_height"], normalized["total_height"] * .35)
+        normalized["engine_nozzle_diameter"] = min(normalized["engine_nozzle_diameter"], normalized["body_diameter"] * .32)
     return normalized
 
 
@@ -247,6 +265,24 @@ def local_parse(description: str, part_type: str) -> dict[str, Any]:
     elif part_type == "seal":
         if re.search(r"双唇|主密封唇.*防尘唇", description):
             params["lip_count"] = 2
+    elif part_type == "rocket":
+        rocket_patterns = {
+            "total_height": r"(?:全箭总高度|总高度|箭高)[^\d]*(\d+(?:\.\d+)?)\s*(米|m|mm|毫米)?",
+            "body_diameter": r"(?:一级/二级箭体|箭体|芯级)(?:外径|直径)[^\d]*(\d+(?:\.\d+)?)\s*(米|m|mm|毫米)?",
+            "fairing_diameter": r"整流罩(?:最大)?直径[^\d]*(\d+(?:\.\d+)?)\s*(米|m|mm|毫米)?",
+            "fairing_height": r"整流罩(?:总长|高度|长)[^\d]*(\d+(?:\.\d+)?)\s*(米|m|mm|毫米)?",
+            "engine_nozzle_diameter": r"喷嘴(?:外径|出口直径)[^\d]*(\d+(?:\.\d+)?)\s*(米|m|mm|毫米)?",
+            "engine_count": r"(?:安装|配置)?\s*(\d+)\s*台\s*Merlin",
+            "grid_fin_count": r"(?:设有|安装)?\s*(\d+)\s*片[^。；\n]*栅格翼",
+            "landing_leg_count": r"(?:设有|安装)?\s*(\d+)\s*(?:条|根)[^。；\n]*着陆腿",
+        }
+        for key, pattern in rocket_patterns.items():
+            if match := re.search(pattern, description, re.I):
+                value = float(match.group(1))
+                unit = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+                if unit and unit.lower() in {"米", "m"}:
+                    value *= 1000
+                params[key] = int(round(value)) if key in COUNT_LIMITS else value
     return normalize_parameters(part_type, params)
 
 

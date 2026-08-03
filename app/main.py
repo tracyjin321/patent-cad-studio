@@ -21,13 +21,13 @@ from .cad import generate_multiview_svgs, generate_svg
 from .documents import extract_document_text
 from .llm import DEFAULTS, LABELS, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, read_step, spec_to_step, step_to_spec, validate_spec, write_shape_step
-from .component_library import components_by_id, structured_query_components
+from .component_library import components_by_id, recommend_component_instances, structured_query_components
 from .component_governance import create_backlog, discovery_links, ingest_step_url, review_component
 from .quality import assembly_quality_score, reference_image_score, visual_regression
 from .semantic_assembly import write_xcaf_assembly
 from .standard_families import FAMILIES, materialize_family
 from .assembly import automatic_manifest, build_assembly
-from .models import ComponentIngestRequest, FamilyMaterializeRequest, GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, ReviewRequest, YamlToStepRequest
+from .models import ComponentIngestRequest, ComponentRecommendationRequest, ComponentRecommendationResponse, FamilyMaterializeRequest, GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, ReviewRequest, YamlToStepRequest
 from .model3d import write_step
 from .parametric_spec import resolve_parametric_component
 
@@ -155,6 +155,11 @@ async def extract_document(file: UploadFile = File(...)) -> dict[str, str | bool
 async def recommend(request: RecommendRequest) -> RecommendResponse:
     elements, parser, detail = await recommend_core_elements(request.description, request.use_ai)
     return RecommendResponse(elements=elements, parser=parser, parser_detail=detail)
+
+
+@app.post("/api/component-recommendations", response_model=ComponentRecommendationResponse)
+def recommend_components(request: ComponentRecommendationRequest) -> dict[str, object]:
+    return recommend_component_instances(request.description, request.limit)
 
 
 @app.get("/api/components")

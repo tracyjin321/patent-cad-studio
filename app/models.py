@@ -25,6 +25,18 @@ class RecommendResponse(BaseModel):
     parser_detail: str | None = None
 
 
+class ComponentRecommendationRequest(BaseModel):
+    description: str = Field(min_length=2, max_length=5000)
+    limit: int = Field(default=5, ge=1, le=5)
+
+
+class ComponentRecommendationResponse(BaseModel):
+    component_ids: list[str]
+    items: list[dict[str, Any]]
+    parser: Literal["structured-library"]
+    limit: int
+
+
 class GenerateResponse(BaseModel):
     id: str
     title: str

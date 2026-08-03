@@ -13,3 +13,17 @@
 #model-canvas[hidden] { display: none; }
 .model-fallback strong { color: #344054; }
 .model-fallback span { font-size: 12px; }
+
+@media (max-width: 850px) {
+  .toolbar {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+
+  .toolbar > div {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+}

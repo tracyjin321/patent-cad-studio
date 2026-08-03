@@ -47,6 +47,12 @@ def test_3d_viewer_has_a_non_webgl_fallback():
     assert "if (!this.available) return" in source
 
 
+def test_mobile_toolbar_keeps_all_export_actions_reachable():
+    source = (Path(__file__).parents[1] / "static" / "model-viewer-fallback.css").read_text(encoding="utf-8")
+    assert "overflow-x: auto" in source
+    assert ".toolbar > div" in source
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("part_type", PARTS)
 async def test_all_part_types_generate_valid_svg(part_type: str):

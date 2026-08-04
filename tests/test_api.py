@@ -1,6 +1,8 @@
 import importlib
+import json
 from io import BytesIO
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 import yaml
@@ -581,6 +583,41 @@ async def test_generation_task_reports_actionable_worker_failure(monkeypatch):
     assert state.json()["status"] == "failed"
     assert "CAD 生成失败" in state.json()["error"]
     assert state.json()["recoverable"] is True
+
+
+@pytest.mark.asyncio
+async def test_generation_task_status_reads_latest_persisted_record_across_workers(monkeypatch, tmp_path):
+    task_id = str(uuid4())
+    task_path = tmp_path / f"{task_id}.json"
+    task_path.write_text(
+        json.dumps({"id": task_id, "status": "queued", "progress": 0}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    monkeypatch.setattr(main_module, "GENERATION_TASKS", {})
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        queued = await client.get(f"/api/generation-tasks/{task_id}")
+        task_path.write_text(
+            json.dumps({"id": task_id, "status": "completed", "progress": 100, "result": {"id": "model-1"}}),
+            encoding="utf-8",
+        )
+        completed = await client.get(f"/api/generation-tasks/{task_id}")
+
+    assert queued.status_code == 200
+    assert queued.json()["status"] == "queued"
+    assert completed.status_code == 200
+    assert completed.json()["status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_generation_task_status_rejects_invalid_or_unknown_ids(monkeypatch, tmp_path):
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        invalid = await client.get("/api/generation-tasks/not-a-uuid")
+        unknown = await client.get(f"/api/generation-tasks/{uuid4()}")
+    assert invalid.status_code == 404
+    assert unknown.status_code == 404
 
 
 @pytest.mark.asyncio

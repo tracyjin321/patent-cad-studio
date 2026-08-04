@@ -8,7 +8,7 @@ import os
 import re
 import time
 from threading import Lock
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import httpx
 from dotenv import load_dotenv
@@ -60,9 +60,36 @@ app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 app.mount("/vendor/three", StaticFiles(directory=ROOT / "node_modules" / "three"), name="three")
 
 
+def _task_path(task_id: str) -> Path | None:
+    try:
+        if str(UUID(task_id)) != task_id:
+            return None
+    except (ValueError, TypeError, AttributeError):
+        return None
+    return TASKS_DIR / f"{task_id}.json"
+
+
+def _read_persisted_task(task_id: str) -> dict[str, object] | None:
+    path = _task_path(task_id)
+    if path is None:
+        return None
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(record, dict) or record.get("id") != task_id:
+            return None
+        return record
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def _persist_task(task_id: str) -> None:
+    path = _task_path(task_id)
+    if path is None:
+        raise ValueError("生成任务 ID 无效")
     record = {key: value for key, value in GENERATION_TASKS[task_id].items() if key != "runtime_task"}
-    (TASKS_DIR / f"{task_id}.json").write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+    os.replace(temporary, path)
 
 
 def recover_generation_tasks() -> None:
@@ -370,7 +397,7 @@ async def create_generation_task(request: GenerateRequest) -> dict[str, object]:
 
 @app.get("/api/generation-tasks/{task_id}")
 def get_generation_task(task_id: str) -> dict[str, object]:
-    record = GENERATION_TASKS.get(task_id)
+    record = _read_persisted_task(task_id)
     if record is None:
         raise HTTPException(status_code=404, detail="生成任务不存在")
     return record

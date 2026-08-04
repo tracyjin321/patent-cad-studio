@@ -198,10 +198,11 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
 
     def quantity_near(pattern: str, default: int = 1) -> int:
         # Do not reinterpret the numeric part of a designation such as ``M4``
-        # as the requested quantity when the count follows the component name.
-        match = re.search(rf"(?<![A-Za-z0-9.])(\d+)\s*(?:个|枚|件)?\s*(?:{pattern})", text, re.I)
+        # or a standard number such as ``ISO 4032`` as quantity. Prefer the
+        # unambiguous name-then-count form; a leading count must carry a unit.
+        match = re.search(rf"(?:{pattern})\s*(\d+)\s*(?:个|枚|件)", text, re.I)
         if not match:
-            match = re.search(rf"(?:{pattern})\s*(\d+)\s*(?:个|枚|件)", text, re.I)
+            match = re.search(rf"(?<![A-Za-z0-9.])(\d+)\s*(?:个|枚|件)\s*(?:{pattern})", text, re.I)
         return max(1, min(int(match.group(1)), limit)) if match else default
 
     def add(component_id: str, quantity: int, reason: str) -> None:
@@ -224,10 +225,10 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
             quantity_near(rf"(?:{re.escape(thread)}\s*)?(?:平垫圈|平垫|flat\s*washer)", 1),
             f"同螺纹规格平垫圈 {thread}",
         )
-    if thread == "M4" and re.search(r"六角螺母|hex\s*nut", text, re.I):
+    if thread == "M4" and re.search(r"六角螺母|hex\s*nut|ISO\s*4032[^，。；\n]*螺母", text, re.I):
         add(
             f"iso4032-hex-nut-{thread.casefold()}",
-            quantity_near(rf"(?:{re.escape(thread)}\s*)?(?:六角螺母|hex\s*nut)", 1),
+            quantity_near(rf"(?:ISO\s*4032\s*)?(?:{re.escape(thread)}\s*)?(?:六角螺母|螺母|hex\s*nut)", 1),
             f"同螺纹规格六角螺母 {thread}",
         )
 

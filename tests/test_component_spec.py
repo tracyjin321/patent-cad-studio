@@ -49,8 +49,10 @@ def test_component_catalog_is_current():
 
 def test_stale_exact_geometry_hash_is_warning_when_engineering_geometry_matches():
     path = ROOT / "component_library" / "bevel-gear-45deg-m0-8-16t" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["signatures"]["strict_topology_sha256"] = "0" * 64
 
-    result = validate_spec(load_spec(path), spec_path=path)
+    result = validate_spec(spec, spec_path=path)
 
     assert result["errors"] == []
     assert result["warnings"] == [

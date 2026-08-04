@@ -160,6 +160,19 @@ def health() -> dict[str, object]:
     }
 
 
+@app.get("/api/prompt-examples")
+def prompt_examples() -> dict[str, object]:
+    """Serve the curated mechanical patent prompts used by the workspace UI."""
+    path = ROOT / "docs" / "mechanical-patent-prompts-70-2026-08-04.json"
+    try:
+        items = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as exc:
+        raise HTTPException(status_code=503, detail="技术描述推荐暂不可用") from exc
+    if not isinstance(items, list) or any(not isinstance(item, dict) or not isinstance(item.get("prompt"), str) for item in items):
+        raise HTTPException(status_code=503, detail="技术描述推荐数据格式无效")
+    return {"items": items, "total": len(items)}
+
+
 @app.post("/api/documents/extract")
 async def extract_document(file: UploadFile = File(...)) -> dict[str, str | bool]:
     filename = file.filename or ""

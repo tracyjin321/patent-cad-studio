@@ -56,7 +56,7 @@ function persistHistory(items) {
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
 const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendedComponentIds: [], recommendedComponentDescription: "", recommendationSource: "local", recommendationDetail: null, componentAssemblyAnalysis: null, recommendationTimer: null, recommendationController: null, componentRecommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
-const refreshExamples = [
+let refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
   "生成平焊法兰，外径160mm，内径76mm，厚度18mm，均布8个直径18mm螺栓孔。",
@@ -79,6 +79,7 @@ const refreshExamples = [
   "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。",
   "生成猎鹰九号 Block 5 全箭，火箭总高度70米，箭体直径3.66米，整流罩直径5.2米，配置9台Merlin发动机、4片栅格翼和4条折叠着陆腿。"
 ];
+async function loadPromptExamples(){try{const response=await fetch("/api/prompt-examples",{cache:"no-store"});if(!response.ok)throw new Error(`推荐示例接口返回 ${response.status}`);const data=await response.json(),prompts=data.items.map(item=>item.prompt).filter(Boolean);if(prompts.length){refreshExamples=prompts;state.exampleIndex=Math.floor(Math.random()*prompts.length);$("#example").lastChild.textContent=`换一条推荐 · ${prompts.length}条`;}}catch(error){console.warn("技术描述推荐加载失败，保留内置示例",error);}}
 const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件", rocket:"运载火箭" };
 const elementPatterns = {
   bearing: /轴承|滚珠|滚子|轴瓦|支承座|bearing/i,
@@ -279,6 +280,7 @@ $("#parameter-content").onclick=async event=>{
 renderHistory();
 renderRecommendation();
 loadComponents();
+loadPromptExamples();
 checkServiceHealth(true);
 setInterval(checkServiceHealth, HEALTH_CHECK_INTERVAL);
 document.addEventListener("visibilitychange", () => {

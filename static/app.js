@@ -55,7 +55,7 @@ function persistHistory(items) {
   try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,HISTORY_STORAGE_LIMIT).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendedComponentIds: [], recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, componentRecommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
+const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendedComponentIds: [], recommendedComponentDescription: "", recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, componentRecommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -141,8 +141,8 @@ async function fetchModelRecommendations(description){
 }
 async function fetchComponentRecommendations(description){
   state.componentRecommendationController?.abort();const controller=new AbortController();state.componentRecommendationController=controller;
-  if(description.trim().length<2){state.recommendedComponentIds=[];renderRecommendation();renderComponents();return;}
-  try{const response=await fetch("/api/component-recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,limit:32}),signal:controller.signal});if(!response.ok)throw new Error(`图元推荐接口返回 ${response.status}`);const data=await response.json();if(controller.signal.aborted||$("#description").value!==description)return;state.recommendedComponentIds=data.component_ids;for(const item of data.items)state.componentIndex.set(item.component.id,item.component);renderRecommendation();renderComponents();}
+  if(description.trim().length<2){state.recommendedComponentIds=[];state.recommendedComponentDescription=description;renderRecommendation();renderComponents();return;}
+  try{const response=await fetch("/api/component-recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,limit:32}),signal:controller.signal});if(!response.ok)throw new Error(`图元推荐接口返回 ${response.status}`);const data=await response.json();if(controller.signal.aborted||$("#description").value!==description)return;state.recommendedComponentIds=data.component_ids;state.recommendedComponentDescription=description;for(const item of data.items)state.componentIndex.set(item.component.id,item.component);renderRecommendation();renderComponents();}
   catch(error){if(error.name!=="AbortError"){state.recommendedComponentIds=[];state.recommendationDetail=error.message;renderRecommendation();renderComponents();}}
 }
 function extractCoreElements(description, immediate=false){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.componentRecommendationController?.abort();state.recommendedComponentIds=[];state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderRecommendation();renderComponents();if(description.trim().length>=2){state.recommendationTimer=setTimeout(()=>{fetchComponentRecommendations(description);if($("#use-ai").checked)fetchModelRecommendations(description);},immediate?0:500);}}
@@ -214,6 +214,7 @@ async function submitGenerationTask(payload){
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
+  if(state.recommendedComponentDescription!==description)await fetchComponentRecommendations(description);
   const coreElements=selectedParts();const primaryPart=coreElements.includes(state.part)?state.part:coreElements[0]||state.part||"bearing";state.part=primaryPart;
   state.isGenerating=true;renderServiceStatus("busy","正在执行几何建模");
   $("#compliance").disabled=true;$("#compliance").classList.remove("is-passed");$("#compliance").removeAttribute("title");

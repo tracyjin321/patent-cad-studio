@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>机械专利附图 · 提示词与效果</title>
+  <style>
+    :root{--ink:#182230;--muted:#667085;--line:#dfe3ea;--paper:#f4f6f9;--card:#fff;--purple:#7133d6;--green:#16865c;--amber:#a65c00}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.65 Inter,"PingFang SC","Microsoft YaHei",sans-serif}header{padding:54px max(24px,calc((100vw - 1240px)/2));background:linear-gradient(135deg,#171324,#3c1e67 58%,#7133d6);color:#fff}header small{display:block;letter-spacing:.18em;text-transform:uppercase;opacity:.7}h1{margin:10px 0 8px;font-size:clamp(32px,5vw,58px);line-height:1.08}header p{max-width:760px;margin:0;color:#e9ddff;font-size:16px}.metrics{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.metric{padding:9px 13px;border:1px solid #ffffff30;border-radius:999px;background:#ffffff12}.metric strong{margin-right:5px}main{width:min(1240px,calc(100% - 32px));margin:28px auto 64px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:34px 0 14px}.section-head h2{margin:0;font-size:24px}.section-head p{margin:0;color:var(--muted)}.hero-card,.case,.catalog{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px #26344a0a;overflow:hidden}.hero-card img{display:block;width:100%;height:auto}.hero-copy{display:grid;grid-template-columns:130px 1fr auto;gap:18px;align-items:start;padding:18px 20px}.tag{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:#eee7fb;color:#6428bd;font-weight:700}.prompt{margin:0;font-size:15px}.state{color:var(--green);font-weight:700;white-space:nowrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.case img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:top}.case-body{padding:18px}.case h3{margin:0 0 8px;font-size:18px}.case .prompt{color:#344054}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.pill{padding:4px 8px;border-radius:7px;background:#f2f4f7;color:#475467;font-size:12px}.pill.pass{background:#e9f8f1;color:#08744e}.compare{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}.compare figure{position:relative;margin:0;background:#fff}.compare img{width:100%;display:block}.compare figcaption{position:absolute;left:12px;top:12px;padding:5px 9px;border-radius:7px;background:#171324d9;color:#fff;font-weight:700}.catalog{padding:20px}.catalog-tools{display:flex;gap:12px;margin-bottom:15px}.catalog input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font:inherit}.prompt-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:680px;overflow:auto}.prompt-item{padding:13px 14px;border:1px solid #e7e9ee;border-radius:11px;background:#fbfcfd}.prompt-item strong{color:#7133d6}.prompt-item small{display:block;color:var(--muted);margin:2px 0 5px}.empty{padding:30px;color:var(--muted);text-align:center}footer{padding:28px;text-align:center;color:var(--muted)}@media(max-width:760px){header{padding:38px 22px}.grid,.prompt-list,.hero-copy{grid-template-columns:1fr}.compare{grid-template-columns:1fr}.state{white-space:normal}}
+  </style>
+</head>
+<body>
+  <header>
+    <small>Patent CAD Studio · QA Evidence</small>
+    <h1>机械专利附图<br>提示词与效果</h1>
+    <p>70 条机械领域提示词，覆盖单零件参数化建模与多图元装配。页面只展示真实浏览器截图；未截图的案例在下方标记为“契约验证”。</p>
+    <div class="metrics"><span class="metric"><strong>70</strong>提示词</span><span class="metric"><strong>20</strong>新增装配类</span><span class="metric"><strong>23</strong>浏览器提交</span><span class="metric"><strong>453</strong>回归通过</span><span class="metric"><strong>0</strong>控制台错误</span></div>
+  </header>
+  <main>
+    <div class="section-head"><div><h2>单零件效果总览</h2><p>轴承、法兰、阀门、轴、齿轮、丝杠、联轴器和密封件。</p></div><span class="tag">20 / 20</span></div>
+    <section class="hero-card">
+      <img src="assets/mechanical-patent-gallery/single-part-gallery.png" alt="20 条机械专利单零件提示词及生成附图总览">
+      <div class="hero-copy"><span class="tag">真实生成</span><p class="prompt">每张卡片同时展示原始提示词、HTTP 状态、生成耗时、轴测附图和解析参数。</p><span class="state">全部 200</span></div>
+    </section>
+
+    <div class="section-head"><div><h2>装配案例</h2><p>实例数量、彩色图元图例和能力边界提示。</p></div></div>
+    <div class="grid">
+      <article class="case"><img src="assets/mechanical-patent-gallery/six-part-assembly.png" alt="6 图元 M4 紧固装配效果"><div class="case-body"><h3>MP-041 · 6 图元 M4 紧固栈</h3><p class="prompt">生成一套6图元M4紧固组件：1个ISO 4762 M4×8内六角圆柱头螺钉、4个M4平垫圈和1个ISO 4032 M4六角螺母，按轴向顺序装配。</p><div class="meta"><span class="pill pass">6 实例</span><span class="pill">3 种颜色</span><span class="pill">STEP / YAML</span></div></div></article>
+      <article class="case"><img src="assets/mechanical-patent-gallery/eight-part-assembly.png" alt="8 图元 M4 紧固装配效果"><div class="case-body"><h3>MP-042 · 8 图元 M4 紧固栈</h3><p class="prompt">生成一套8图元M4紧固组件：1个GB/T 70.1 M4×20内六角螺钉、6个M4平垫圈和1个M4六角螺母，同轴贴合。</p><div class="meta"><span class="pill pass">8 实例</span><span class="pill">语义图例</span><span class="pill">合规通过</span></div></div></article>
+    </div>
+
+    <div class="section-head"><div><h2>错误输出已阻断</h2><p>未知装配不会再伪装成一个轴承。</p></div><span class="tag">Before / After</span></div>
+    <section class="hero-card">
+      <div class="compare"><figure><img src="assets/mechanical-patent-gallery/unresolved-before.png" alt="修复前未知装配错误生成轴承"><figcaption>修复前 · 错误生成轴承</figcaption></figure><figure><img src="assets/mechanical-patent-gallery/unresolved-after.png" alt="修复后未知装配明确提示"><figcaption>修复后 · 明确提示能力边界</figcaption></figure></div>
+      <div class="hero-copy"><span class="tag">MP-051</span><p class="prompt">生成一套微型电机轴系装配，依次包含NEMA17步进电机、直径5mm精密光轴、两个608深沟球轴承和一个刚性夹紧联轴器，全部同轴定位。</p><span class="state">不再错误降级</span></div>
+    </section>
+
+    <div class="section-head"><div><h2>全部 70 条提示词</h2><p>输入关键词或编号筛选。状态为数据契约测试结果。</p></div></div>
+    <section class="catalog"><div class="catalog-tools"><input id="search" type="search" placeholder="搜索 MP-041、轴承、齿轮装配…" aria-label="搜索提示词"></div><div id="prompt-list" class="prompt-list"><p class="empty">正在加载提示词…</p></div></section>
+  </main>
+  <footer>Patent CAD Studio · Mechanical Patent Prompt QA · 2026-08-04</footer>
+  <script>
+    const list=document.querySelector('#prompt-list'),search=document.querySelector('#search');let prompts=[];
+    const render=()=>{const q=search.value.trim().toLowerCase(),items=prompts.filter(x=>`${x.id} ${x.category} ${x.prompt}`.toLowerCase().includes(q));list.innerHTML=items.length?items.map(x=>`<article class="prompt-item"><strong>${x.id}</strong><small>${x.category} · 契约验证通过</small><div>${x.prompt}</div></article>`).join(''):'<p class="empty">没有匹配的提示词</p>'};
+    fetch('mechanical-patent-prompts-70-2026-08-04.json').then(r=>r.json()).then(data=>{prompts=data;render()}).catch(()=>{list.innerHTML='<p class="empty">浏览器限制了本地 JSON 读取。请通过项目服务打开此页面，或直接查看同目录 JSON 文件。</p>'});search.addEventListener('input',render);
+  </script>
+</body>
+</html>

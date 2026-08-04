@@ -187,7 +187,7 @@ def components_by_id(component_ids: list[str]) -> list[dict[str, Any]]:
     return [index[component_id] for component_id in component_ids]
 
 
-def recommend_component_instances(description: str, limit: int = 5) -> dict[str, Any]:
+def recommend_component_instances(description: str, limit: int = 16) -> dict[str, Any]:
     """Resolve explicit standard-part mentions into concrete library instances."""
     text = description.strip()
     parsed = parse_structured_query(text)

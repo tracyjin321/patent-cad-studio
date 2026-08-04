@@ -174,7 +174,7 @@ def _long_screw_svg(title: str, parameters: dict[str, Any]) -> str:
     diameter = max(1.0, float(parameters.get("diameter", 1)))
     lead = max(0.1, float(parameters.get("lead", diameter / 4)))
     starts = max(1, int(parameters.get("starts", 1)))
-    left, right = 82.0, 712.0
+    left, right = 100.0, 694.0
     center_y = 520.0
     body_height = min(180.0, max(42.0, 630.0 * diameter / length))
     top, bottom = center_y - body_height / 2, center_y + body_height / 2
@@ -207,8 +207,8 @@ def _long_screw_svg(title: str, parameters: dict[str, Any]) -> str:
             x += pitch_px
     safe_title = html.escape(title)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}主视图">
-<defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
-<rect width="794" height="1123" fill="#fff"/>{''.join(paths)}<text class="f" x="397" y="660" text-anchor="middle">图1</text></svg>'''
+<defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}.p{{font:14px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
+<rect width="794" height="1123" fill="#fff"/>{''.join(paths)}<text class="f" x="397" y="660" text-anchor="middle">图1</text><text class="p" x="397" y="1080" text-anchor="middle">1</text></svg>'''
 
 
 def generate_svg(shape: object, title: str, part_type: str, parameters: dict[str, Any]) -> str:
@@ -248,8 +248,8 @@ def generate_view_svg(shape: object, title: str, part_type: str, view: str, para
     safe_title = html.escape(title)
     labels = {"front": "主视图", "top": "俯视图", "side": "侧视图", "isometric": "轴测图"}
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}{labels[view]}">
-<defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
-<rect width="794" height="1123" fill="#fff"/>{hidden_svg}{visible_svg}<text class="f" x="397" y="{figure_label_y:.2f}" text-anchor="middle">图1</text></svg>'''
+<defs><style>.o{{fill:none;stroke:#000;stroke-width:2.15;stroke-linejoin:round;stroke-linecap:round}}.h{{fill:none;stroke:#000;stroke-width:1.05;stroke-dasharray:6 5;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}.p{{font:14px "SimSun","Songti SC",serif;fill:#000}}</style></defs>
+<rect width="794" height="1123" fill="#fff"/>{hidden_svg}{visible_svg}<text class="f" x="397" y="{figure_label_y:.2f}" text-anchor="middle">图1</text><text class="p" x="397" y="1080" text-anchor="middle">1</text></svg>'''
 
 
 def generate_multiview_svgs(shape: object, title: str, part_type: str, parameters: dict[str, Any]) -> dict[str, str]:
@@ -294,4 +294,4 @@ def _mesh_view_svg(mesh: dict[str, Any], title: str, view: str) -> str:
     rendered = "".join(_svg_path(path, transform, "o") for path in paths)
     safe_title = html.escape(title)
     label = {"front": "主视图", "top": "俯视图", "side": "侧视图"}[view]
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}{label}"><defs><style>.o{{fill:none;stroke:#000;stroke-width:1.45;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}</style></defs><rect width="794" height="1123" fill="#fff"/>{rendered}<text class="f" x="397" y="1040" text-anchor="middle">图1</text></svg>'''
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" role="img" aria-label="{safe_title}{label}"><defs><style>.o{{fill:none;stroke:#000;stroke-width:1.45;stroke-linejoin:round;stroke-linecap:round}}.f{{font:16px "SimSun","Songti SC",serif;fill:#000}}.p{{font:14px "SimSun","Songti SC",serif;fill:#000}}</style></defs><rect width="794" height="1123" fill="#fff"/>{rendered}<text class="f" x="397" y="1040" text-anchor="middle">图1</text><text class="p" x="397" y="1080" text-anchor="middle">1</text></svg>'''

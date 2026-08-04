@@ -115,6 +115,7 @@ const modelViewer = new CadModelViewer($("#model-canvas"));
 function effectiveComponentIds(){return state.selectedComponentIds.size?[...state.selectedComponentIds]:state.recommendedComponentIds;}
 function selectedParts(){const explicit=effectiveComponentIds().map(id=>componentTypeToPart[state.componentIndex.get(id)?.type]).filter(Boolean);return [...new Set([...explicit,...state.recommended])];}
 function preferredPart(description,parts){const head=description.split(/[，。；:：]/,1)[0],headMatches=parts.filter(part=>elementPatterns[part]?.test(head));return headMatches.at(-1)||parts.at(-1);}
+function requestsAssembly(description){return /装配|组件|机构|紧固栈|轴系|同轴|依次安装|啮合|同步带传动|链传动/.test(description);}
 function partLabel(part){const ids=effectiveComponentIds(),allFasteners=ids.length&&ids.every(id=>state.componentIndex.get(id)?.type==="fastener");return part==="screw"&&allFasteners?"紧固组件":labels[part];}
 function renderPrimaryPartControl(parts){
   const selector=$("#primary-part"),hint=$("#primary-part-hint");
@@ -229,6 +230,8 @@ async function generate() {
   clearTimeout(state.recommendationTimer);
   if(state.recommendedComponentDescription!==description)await fetchComponentRecommendations(description);
   const coreElements=selectedParts();const primaryPart=coreElements.includes(state.part)?state.part:coreElements[0]||state.part||"bearing";state.part=primaryPart;
+  if(requestsAssembly(description)&&!effectiveComponentIds().length){toast("未匹配到可装配图元，请开启智能识别或手动选择图元");$("#recommendation-status").textContent="⚠ 当前装配缺少可执行的图元与端口规则";return;}
+  if(state.componentAssemblyAnalysis?.capability==="manual_rules_required"){toast("当前装配包含缺失图元或未知端口，需要补充装配规则");return;}
   state.isGenerating=true;renderServiceStatus("busy","正在执行几何建模");
   $("#compliance").disabled=true;$("#compliance").classList.remove("is-passed");$("#compliance").removeAttribute("title");
   const button=$("#generate");button.disabled=true;button.classList.add("is-loading");button.setAttribute("aria-busy","true");button.innerHTML='<span class="button-spinner" aria-hidden="true"></span><span>正在生成附图…</span>';

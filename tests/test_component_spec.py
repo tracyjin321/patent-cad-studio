@@ -52,7 +52,7 @@ def test_stale_exact_geometry_hash_is_warning_when_engineering_geometry_matches(
     spec = load_spec(path)
     # Construct stale metadata explicitly instead of depending on a checked-in
     # component fixture remaining out of date forever.
-    spec["validation"]["geometry"]["signatures"]["exact"] = "0" * 64
+    spec["validation"]["geometry"]["signatures"]["strict_topology_sha256"] = "0" * 64
 
     result = validate_spec(spec, spec_path=path)
 

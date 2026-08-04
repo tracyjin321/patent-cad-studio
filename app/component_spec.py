@@ -111,7 +111,10 @@ def geometry_signatures(measured: dict[str, Any]) -> dict[str, str]:
 def _finite_float(value: Any) -> float:
     if isinstance(value, bool):
         raise TypeError("booleans are not numeric measurements")
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ValueError("numeric measurements must be finite") from exc
     if not math.isfinite(number):
         raise ValueError("numeric measurements must be finite")
     return number

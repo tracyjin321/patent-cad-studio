@@ -150,6 +150,16 @@ def test_nonfinite_engineering_tolerance_is_blocking():
     assert "reference STEP 工程几何测量基准无效" in result["errors"]
 
 
+def test_overflowing_engineering_measurement_is_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["volume_mm3"] = 10 ** 10000
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
 def test_component_library_gate_reports_geometry_warnings(tmp_path, monkeypatch, capsys):
     from scripts import validate_component_library as gate
 

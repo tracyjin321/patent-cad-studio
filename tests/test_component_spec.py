@@ -46,6 +46,77 @@ def test_component_catalog_is_current():
     assert actual == build_catalog(catalog_path.parent)
 
 
+def test_stale_exact_geometry_hash_is_warning_when_engineering_geometry_matches():
+    path = ROOT / "component_library" / "bevel-gear-45deg-m0-8-16t" / "component.yaml"
+
+    result = validate_spec(load_spec(path), spec_path=path)
+
+    assert result["errors"] == []
+    assert result["warnings"] == [
+        "reference STEP 精确几何签名不匹配；工程几何仍在声明公差内"
+    ]
+
+
+def test_engineering_volume_drift_remains_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["volume_mm3"] *= 1.1
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何体积超出声明公差" in result["errors"]
+
+
+def test_engineering_topology_drift_remains_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["topology"]["faces"] += 1
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程拓扑与记录不一致" in result["errors"]
+
+
+def test_engineering_bounding_box_drift_remains_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["bounding_box"]["max"][0] += 0.02
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何包围盒超出声明公差" in result["errors"]
+
+
+def test_engineering_center_of_mass_drift_remains_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["center_of_mass"][0] += 0.02
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何重心超出声明公差" in result["errors"]
+
+
+def test_stored_surface_area_drift_remains_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["surface_area_mm2"] = 5200.0
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何表面积超出声明公差" in result["errors"]
+
+
+def test_malformed_engineering_measurement_is_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["center_of_mass"] = [0.0, 0.0]
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
 def test_generic_step_to_yaml_and_ap242_roundtrip(tmp_path):
     source = next((ROOT / "component_library").glob("*/reference.step"))
     yaml_path = tmp_path / "generic.yaml"

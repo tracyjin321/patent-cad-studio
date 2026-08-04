@@ -108,6 +108,70 @@ def geometry_signatures(measured: dict[str, Any]) -> dict[str, str]:
             "engineering_geometry_sha256": hashlib.sha256(encode(engineering)).hexdigest()}
 
 
+def _relative_close(expected: float, actual: float, relative_tolerance: float) -> bool:
+    tolerance = max(1e-6, abs(expected) * relative_tolerance)
+    return abs(expected - actual) <= tolerance
+
+
+def _engineering_geometry_errors(
+    stored: dict[str, Any],
+    actual: dict[str, Any],
+    *,
+    dimensional_tolerance: float,
+    relative_tolerance: float,
+) -> list[str]:
+    """Compare stable engineering measurements without requiring identical hashes."""
+    try:
+        dimensional_tolerance = float(dimensional_tolerance)
+        relative_tolerance = float(relative_tolerance)
+        if dimensional_tolerance < 0 or relative_tolerance < 0:
+            raise ValueError("tolerances must be non-negative")
+
+        errors: list[str] = []
+        stored_topology = stored["topology"]
+        actual_topology = actual["topology"]
+        if any(stored_topology[key] != actual_topology[key] for key in ("solids", "shells", "faces")):
+            errors.append("reference STEP 工程拓扑与记录不一致")
+
+        if not _relative_close(
+            float(stored["volume_mm3"]),
+            float(actual["volume_mm3"]),
+            relative_tolerance,
+        ):
+            errors.append("reference STEP 工程几何体积超出声明公差")
+
+        if "surface_area_mm2" in stored and not _relative_close(
+            float(stored["surface_area_mm2"]),
+            float(actual["surface_area_mm2"]),
+            relative_tolerance,
+        ):
+            errors.append("reference STEP 工程几何表面积超出声明公差")
+
+        stored_box = stored["bounding_box"]
+        actual_box = actual["bounding_box"]
+        box_pairs: list[tuple[Any, Any]] = []
+        for section in ("min", "max", "size"):
+            expected = stored_box[section]
+            observed = actual_box[section]
+            if len(expected) != 3 or len(observed) != 3:
+                raise ValueError("bounding box coordinates must be three-dimensional")
+            box_pairs.extend(zip(expected, observed))
+        if any(abs(float(expected) - float(observed)) > dimensional_tolerance
+               for expected, observed in box_pairs):
+            errors.append("reference STEP 工程几何包围盒超出声明公差")
+
+        stored_center = stored["center_of_mass"]
+        actual_center = actual["center_of_mass"]
+        if len(stored_center) != 3 or len(actual_center) != 3:
+            raise ValueError("center of mass must be three-dimensional")
+        if any(abs(float(expected) - float(observed)) > dimensional_tolerance
+               for expected, observed in zip(stored_center, actual_center)):
+            errors.append("reference STEP 工程几何重心超出声明公差")
+        return errors
+    except (KeyError, TypeError, ValueError):
+        return ["reference STEP 工程几何测量基准无效"]
+
+
 def load_spec(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as stream:
         spec = yaml.safe_load(stream)
@@ -165,10 +229,24 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
             errors.append(f"reference STEP 不存在: {source}")
         elif artifact.get("sha256") and _sha256(source) != artifact["sha256"]:
             errors.append("reference STEP SHA-256 不匹配")
-        elif stored := spec.get("validation", {}).get("geometry", {}).get("signatures"):
-            actual = geometry_signatures(inspect_step(source))
-            if stored != actual:
-                errors.append("reference STEP 几何签名不匹配")
+        else:
+            geometry_validation = spec.get("validation", {}).get("geometry", {})
+            stored_measured = geometry_validation.get("measured")
+            stored_signatures = geometry_validation.get("signatures")
+            if stored_measured is not None:
+                actual_measured = inspect_step(source)
+                engineering_errors = _engineering_geometry_errors(
+                    stored_measured,
+                    actual_measured,
+                    dimensional_tolerance=geometry_validation.get("dimensional_tolerance", 0.01),
+                    relative_tolerance=geometry_validation.get("relative_tolerance", 1e-6),
+                )
+                errors.extend(engineering_errors)
+                if (not engineering_errors and stored_signatures
+                        and stored_signatures != geometry_signatures(actual_measured)):
+                    warnings.append("reference STEP 精确几何签名不匹配；工程几何仍在声明公差内")
+            elif stored_signatures:
+                errors.append("reference STEP 工程几何测量基准无效")
     if generator_mode == "reference_step":
         if geometry.get("representation") != "reference_brep":
             errors.append("reference_step 模式必须使用 reference_brep")

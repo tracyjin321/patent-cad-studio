@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "LARGE-M4-001",
+    "prompt_form": 1,
+    "prompt": "生成一套 6 图元 M4 紧固组件：1 个 ISO 4762 M4×8 内六角圆柱头螺钉、4 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-002",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x8 内六角螺钉 1 个，M4 flat washer 4 个，M4 hex nut 1 个；共 6 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-003",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*8 内六角圆柱头螺钉；4 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 6 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-004",
+    "prompt_form": 1,
+    "prompt": "生成一套 7 图元 M4 紧固组件：1 个 ISO 4762 M4×8 内六角圆柱头螺钉、5 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-005",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x8 内六角螺钉 1 个，M4 flat washer 5 个，M4 hex nut 1 个；共 7 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-006",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*8 内六角圆柱头螺钉；5 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 7 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-007",
+    "prompt_form": 1,
+    "prompt": "生成一套 8 图元 M4 紧固组件：1 个 ISO 4762 M4×8 内六角圆柱头螺钉、6 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-008",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x8 内六角螺钉 1 个，M4 flat washer 6 个，M4 hex nut 1 个；共 8 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-009",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*8 内六角圆柱头螺钉；6 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 8 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-010",
+    "prompt_form": 1,
+    "prompt": "生成一套 9 图元 M4 紧固组件：1 个 ISO 4762 M4×8 内六角圆柱头螺钉、7 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-011",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x8 内六角螺钉 1 个，M4 flat washer 7 个，M4 hex nut 1 个；共 9 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-012",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*8 内六角圆柱头螺钉；7 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 9 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-013",
+    "prompt_form": 1,
+    "prompt": "生成一套 10 图元 M4 紧固组件：1 个 ISO 4762 M4×8 内六角圆柱头螺钉、8 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-014",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x8 内六角螺钉 1 个，M4 flat washer 8 个，M4 hex nut 1 个；共 10 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-015",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*8 内六角圆柱头螺钉；8 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 10 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0008",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-016",
+    "prompt_form": 1,
+    "prompt": "生成一套 6 图元 M4 紧固组件：1 个 ISO 4762 M4×10 内六角圆柱头螺钉、4 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-017",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x10 内六角螺钉 1 个，M4 flat washer 4 个，M4 hex nut 1 个；共 6 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-018",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*10 内六角圆柱头螺钉；4 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 6 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-019",
+    "prompt_form": 1,
+    "prompt": "生成一套 7 图元 M4 紧固组件：1 个 ISO 4762 M4×10 内六角圆柱头螺钉、5 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-020",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x10 内六角螺钉 1 个，M4 flat washer 5 个，M4 hex nut 1 个；共 7 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-021",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*10 内六角圆柱头螺钉；5 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 7 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-022",
+    "prompt_form": 1,
+    "prompt": "生成一套 8 图元 M4 紧固组件：1 个 ISO 4762 M4×10 内六角圆柱头螺钉、6 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-023",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x10 内六角螺钉 1 个，M4 flat washer 6 个，M4 hex nut 1 个；共 8 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-024",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*10 内六角圆柱头螺钉；6 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 8 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-025",
+    "prompt_form": 1,
+    "prompt": "生成一套 9 图元 M4 紧固组件：1 个 ISO 4762 M4×10 内六角圆柱头螺钉、7 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-026",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x10 内六角螺钉 1 个，M4 flat washer 7 个，M4 hex nut 1 个；共 9 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-027",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*10 内六角圆柱头螺钉；7 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 9 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-028",
+    "prompt_form": 1,
+    "prompt": "生成一套 10 图元 M4 紧固组件：1 个 ISO 4762 M4×10 内六角圆柱头螺钉、8 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-029",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x10 内六角螺钉 1 个，M4 flat washer 8 个，M4 hex nut 1 个；共 10 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-030",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*10 内六角圆柱头螺钉；8 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 10 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0010",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-031",
+    "prompt_form": 1,
+    "prompt": "生成一套 6 图元 M4 紧固组件：1 个 ISO 4762 M4×12 内六角圆柱头螺钉、4 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-032",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x12 内六角螺钉 1 个，M4 flat washer 4 个，M4 hex nut 1 个；共 6 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-033",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*12 内六角圆柱头螺钉；4 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 6 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-034",
+    "prompt_form": 1,
+    "prompt": "生成一套 7 图元 M4 紧固组件：1 个 ISO 4762 M4×12 内六角圆柱头螺钉、5 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-035",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x12 内六角螺钉 1 个，M4 flat washer 5 个，M4 hex nut 1 个；共 7 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-036",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*12 内六角圆柱头螺钉；5 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 7 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-037",
+    "prompt_form": 1,
+    "prompt": "生成一套 8 图元 M4 紧固组件：1 个 ISO 4762 M4×12 内六角圆柱头螺钉、6 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-038",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x12 内六角螺钉 1 个，M4 flat washer 6 个，M4 hex nut 1 个；共 8 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-039",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*12 内六角圆柱头螺钉；6 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 8 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-040",
+    "prompt_form": 1,
+    "prompt": "生成一套 9 图元 M4 紧固组件：1 个 ISO 4762 M4×12 内六角圆柱头螺钉、7 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-041",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x12 内六角螺钉 1 个，M4 flat washer 7 个，M4 hex nut 1 个；共 9 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-042",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*12 内六角圆柱头螺钉；7 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 9 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-043",
+    "prompt_form": 1,
+    "prompt": "生成一套 10 图元 M4 紧固组件：1 个 ISO 4762 M4×12 内六角圆柱头螺钉、8 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-044",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x12 内六角螺钉 1 个，M4 flat washer 8 个，M4 hex nut 1 个；共 10 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-045",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*12 内六角圆柱头螺钉；8 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 10 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0012",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-046",
+    "prompt_form": 1,
+    "prompt": "生成一套 6 图元 M4 紧固组件：1 个 ISO 4762 M4×16 内六角圆柱头螺钉、4 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-047",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x16 内六角螺钉 1 个，M4 flat washer 4 个，M4 hex nut 1 个；共 6 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-048",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*16 内六角圆柱头螺钉；4 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 6 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-049",
+    "prompt_form": 1,
+    "prompt": "生成一套 7 图元 M4 紧固组件：1 个 ISO 4762 M4×16 内六角圆柱头螺钉、5 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-050",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x16 内六角螺钉 1 个，M4 flat washer 5 个，M4 hex nut 1 个；共 7 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-051",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*16 内六角圆柱头螺钉；5 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 7 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-052",
+    "prompt_form": 1,
+    "prompt": "生成一套 8 图元 M4 紧固组件：1 个 ISO 4762 M4×16 内六角圆柱头螺钉、6 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-053",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x16 内六角螺钉 1 个，M4 flat washer 6 个，M4 hex nut 1 个；共 8 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-054",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*16 内六角圆柱头螺钉；6 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 8 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-055",
+    "prompt_form": 1,
+    "prompt": "生成一套 9 图元 M4 紧固组件：1 个 ISO 4762 M4×16 内六角圆柱头螺钉、7 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-056",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x16 内六角螺钉 1 个，M4 flat washer 7 个，M4 hex nut 1 个；共 9 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-057",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*16 内六角圆柱头螺钉；7 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 9 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-058",
+    "prompt_form": 1,
+    "prompt": "生成一套 10 图元 M4 紧固组件：1 个 ISO 4762 M4×16 内六角圆柱头螺钉、8 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-059",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x16 内六角螺钉 1 个，M4 flat washer 8 个，M4 hex nut 1 个；共 10 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-060",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*16 内六角圆柱头螺钉；8 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 10 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0016",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-061",
+    "prompt_form": 1,
+    "prompt": "生成一套 6 图元 M4 紧固组件：1 个 ISO 4762 M4×20 内六角圆柱头螺钉、4 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-062",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x20 内六角螺钉 1 个，M4 flat washer 4 个，M4 hex nut 1 个；共 6 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-063",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*20 内六角圆柱头螺钉；4 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 6 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 6
+  },
+  {
+    "id": "LARGE-M4-064",
+    "prompt_form": 1,
+    "prompt": "生成一套 7 图元 M4 紧固组件：1 个 ISO 4762 M4×20 内六角圆柱头螺钉、5 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-065",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x20 内六角螺钉 1 个，M4 flat washer 5 个，M4 hex nut 1 个；共 7 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-066",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*20 内六角圆柱头螺钉；5 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 7 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 7
+  },
+  {
+    "id": "LARGE-M4-067",
+    "prompt_form": 1,
+    "prompt": "生成一套 8 图元 M4 紧固组件：1 个 ISO 4762 M4×20 内六角圆柱头螺钉、6 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-068",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x20 内六角螺钉 1 个，M4 flat washer 6 个，M4 hex nut 1 个；共 8 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-069",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*20 内六角圆柱头螺钉；6 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 8 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 8
+  },
+  {
+    "id": "LARGE-M4-070",
+    "prompt_form": 1,
+    "prompt": "生成一套 9 图元 M4 紧固组件：1 个 ISO 4762 M4×20 内六角圆柱头螺钉、7 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-071",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x20 内六角螺钉 1 个，M4 flat washer 7 个，M4 hex nut 1 个；共 9 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-072",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*20 内六角圆柱头螺钉；7 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 9 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 9
+  },
+  {
+    "id": "LARGE-M4-073",
+    "prompt_form": 1,
+    "prompt": "生成一套 10 图元 M4 紧固组件：1 个 ISO 4762 M4×20 内六角圆柱头螺钉、8 个 M4 平垫圈和 1 个 M4 六角螺母，按轴向顺序装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-074",
+    "prompt_form": 2,
+    "prompt": "装配 ISO 4762 / GB/T 70.1 M4x20 内六角螺钉 1 个，M4 flat washer 8 个，M4 hex nut 1 个；共 10 件并同轴贴合。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  },
+  {
+    "id": "LARGE-M4-075",
+    "prompt_form": 3,
+    "prompt": "需要 1 件 GB/T 70.1 M4*20 内六角圆柱头螺钉；8 枚 M4 平垫；1 枚 M4 六角螺母。请按螺钉→垫圈→螺母形成 10 图元装配。",
+    "expected_component_ids": [
+      "gbt70-1-shcs-m4-l0020",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "flat-washer-normal-m4-simple",
+      "iso4032-hex-nut-m4"
+    ],
+    "expected_instance_count": 10
+  }
+]

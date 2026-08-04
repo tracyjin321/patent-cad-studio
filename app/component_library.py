@@ -185,3 +185,56 @@ def components_by_id(component_ids: list[str]) -> list[dict[str, Any]]:
     if missing:
         raise KeyError(", ".join(missing))
     return [index[component_id] for component_id in component_ids]
+
+
+def recommend_component_instances(description: str, limit: int = 16) -> dict[str, Any]:
+    """Resolve explicit standard-part mentions into concrete library instances."""
+    text = description.strip()
+    parsed = parse_structured_query(text)
+    thread = parsed.get("metric_thread")
+    length = parsed.get("length_mm")
+    index = {component["id"]: component for component in load_components()}
+    recommendations: list[dict[str, Any]] = []
+
+    def quantity_near(pattern: str, default: int = 1) -> int:
+        # Do not reinterpret the numeric part of a designation such as ``M4``
+        # as the requested quantity when the count follows the component name.
+        match = re.search(rf"(?<![A-Za-z0-9.])(\d+)\s*(?:个|枚|件)?\s*(?:{pattern})", text, re.I)
+        if not match:
+            match = re.search(rf"(?:{pattern})\s*(\d+)\s*(?:个|枚|件)", text, re.I)
+        return max(1, min(int(match.group(1)), limit)) if match else default
+
+    def add(component_id: str, quantity: int, reason: str) -> None:
+        if component_id not in index or quantity < 1:
+            return
+        remaining = limit - sum(item["quantity"] for item in recommendations)
+        if remaining > 0:
+            recommendations.append({"component": index[component_id], "quantity": min(quantity, remaining), "reason": reason})
+
+    if thread and length is not None and re.search(r"内六角圆柱头|圆柱头内六角|ISO\s*4762|GB/?T\s*70\.1", text, re.I):
+        size = thread[1:].replace(".", "p")
+        add(
+            f"gbt70-1-shcs-m{size}-l{int(length):04d}",
+            quantity_near(rf"(?:GB/?T\s*70\.1\s*/?\s*)?(?:ISO\s*4762\s*)?(?:{re.escape(thread)}\s*[x×*]\s*{int(length)}\s*)?(?:内六角圆柱头螺钉|内六角螺钉|螺钉)", 1),
+            f"标准号与规格精确命中 {thread}×{int(length)}",
+        )
+    if thread == "M4" and re.search(r"平垫圈|平垫|flat\s*washer", text, re.I):
+        add(
+            f"flat-washer-normal-{thread.casefold()}-simple",
+            quantity_near(rf"(?:{re.escape(thread)}\s*)?(?:平垫圈|平垫|flat\s*washer)", 1),
+            f"同螺纹规格平垫圈 {thread}",
+        )
+    if thread == "M4" and re.search(r"六角螺母|hex\s*nut", text, re.I):
+        add(
+            f"iso4032-hex-nut-{thread.casefold()}",
+            quantity_near(rf"(?:{re.escape(thread)}\s*)?(?:六角螺母|hex\s*nut)", 1),
+            f"同螺纹规格六角螺母 {thread}",
+        )
+
+    component_ids = [item["component"]["id"] for item in recommendations for _ in range(item["quantity"])]
+    return {
+        "component_ids": component_ids,
+        "items": recommendations,
+        "parser": "structured-library",
+        "limit": limit,
+    }

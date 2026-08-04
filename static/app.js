@@ -145,7 +145,7 @@ async function fetchComponentRecommendations(description){
   try{const response=await fetch("/api/component-recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,limit:32}),signal:controller.signal});if(!response.ok)throw new Error(`图元推荐接口返回 ${response.status}`);const data=await response.json();if(controller.signal.aborted||$("#description").value!==description)return;state.recommendedComponentIds=data.component_ids;state.recommendedComponentDescription=description;for(const item of data.items)state.componentIndex.set(item.component.id,item.component);renderRecommendation();renderComponents();}
   catch(error){if(error.name!=="AbortError"){state.recommendedComponentIds=[];state.recommendationDetail=error.message;renderRecommendation();renderComponents();}}
 }
-function extractCoreElements(description, immediate=false){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.componentRecommendationController?.abort();state.recommendedComponentIds=[];state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderRecommendation();renderComponents();if(description.trim().length>=2){state.recommendationTimer=setTimeout(()=>{fetchComponentRecommendations(description);if($("#use-ai").checked)fetchModelRecommendations(description);},immediate?0:500);}}
+function extractCoreElements(description, immediate=false){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.componentRecommendationController?.abort();state.recommendedComponentIds=[];state.recommendedComponentDescription="";state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderRecommendation();renderComponents();if(description.trim().length>=2){state.recommendationTimer=setTimeout(()=>{fetchComponentRecommendations(description);if($("#use-ai").checked)fetchModelRecommendations(description);},immediate?0:500);}}
 
 function renderComponents(){
   const container=$("#component-groups");container.replaceChildren();
@@ -214,6 +214,7 @@ async function submitGenerationTask(payload){
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
+  clearTimeout(state.recommendationTimer);
   if(state.recommendedComponentDescription!==description)await fetchComponentRecommendations(description);
   const coreElements=selectedParts();const primaryPart=coreElements.includes(state.part)?state.part:coreElements[0]||state.part||"bearing";state.part=primaryPart;
   state.isGenerating=true;renderServiceStatus("busy","正在执行几何建模");
@@ -232,7 +233,7 @@ async function generate() {
 }
 
 $("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length}/5000`;extractCoreElements(e.target.value);};
-$("#description").onblur=e=>extractCoreElements(e.target.value,true);
+$("#description").onblur=e=>{if(e.relatedTarget?.id!=="generate")extractCoreElements(e.target.value,true);};
 $("#example").onclick=()=>{const index=state.exampleIndex%refreshExamples.length;$("#description").value=refreshExamples[index];state.exampleIndex=(index+1)%refreshExamples.length;$("#description").dispatchEvent(new Event("input"));};
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
 $("#component-toggle").onclick=()=>{const open=$("#component-toggle").getAttribute("aria-expanded")==="true";$("#component-toggle").setAttribute("aria-expanded",String(!open));$("#component-panel").hidden=open;};

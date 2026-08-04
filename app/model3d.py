@@ -343,3 +343,26 @@ def write_step(path: Path, title: str, shape: object) -> list[dict[str, Any]]:
 
 def shape_to_model(shape: object) -> list[dict[str, Any]]:
     return [_shape_mesh(shape)]
+
+
+COMPONENT_COLORS = ("#6f7fd8", "#d47b52", "#48a58b", "#b36ac7", "#d4a43f", "#4b9cc8", "#c85f7d", "#82934b")
+
+
+def assembly_to_model(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """Triangulate each assembly instance separately for semantic coloring."""
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+    from .component_spec import _artifact_path, _trsf_from_matrix, load_spec, read_step
+
+    result = []
+    color_by_component: dict[str, str] = {}
+    for instance in report.get("instances", []):
+        spec_path = Path(instance["spec"])
+        spec = load_spec(spec_path)
+        shape = read_step(_artifact_path(spec_path, spec))
+        shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(instance["transform"]), True).Shape()
+        component_id = str(instance["component_id"])
+        color = color_by_component.setdefault(component_id, COMPONENT_COLORS[len(color_by_component) % len(COMPONENT_COLORS)])
+        mesh = _shape_mesh(shape)
+        mesh.update({"color": color, "component_id": component_id, "instance_index": int(instance["index"])})
+        result.append(mesh)
+    return result

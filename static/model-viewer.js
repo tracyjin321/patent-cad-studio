@@ -135,7 +135,7 @@ export class CadModelViewer {
   setModel(model) {
     if (!this.available) return;
     this.group.clear();
-    model.forEach(item => this.group.add(buildPart(item)));
+    model.forEach(item => { const object=buildPart(item);object.userData={componentId:item.component_id||null,baseColor:item.color};this.group.add(object); });
     const box = new THREE.Box3().setFromObject(this.group);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -144,6 +144,15 @@ export class CadModelViewer {
     this.camera.position.set(span * 1.35, span * .95, span * 1.6);
     this.camera.near = span / 100; this.camera.far = span * 100; this.camera.updateProjectionMatrix();
     this.controls.target.set(0, 0, 0); this.controls.minDistance = span * .65; this.controls.maxDistance = span * 5; this.controls.update();
+    this.render();
+  }
+  highlightComponent(componentId) {
+    if (!this.available) return;
+    this.group.children.forEach(object => {
+      const active=!componentId||object.userData.componentId===componentId;
+      object.material.opacity=active?1:.18;object.material.transparent=!active;
+      object.material.emissive?.set(active&&componentId?0x24102c:0x000000);
+    });
     this.render();
   }
   resize() {

@@ -82,7 +82,7 @@
         <div class="toolbar-actions"><button id="compliance" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>合规校验</button><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
-        <div class="model-stage"><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
+        <div class="model-stage"><div id="model-component-legend" class="model-component-legend" hidden aria-label="装配图元图例"></div><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
       </div>
       <div id="preview" class="panel active">
         <div id="canvas" class="canvas empty">
@@ -125,6 +125,6 @@
     </article>
   </main>
   <!-- supersedes /static/app.js?v=20260804-large-assemblies -->
-  <script type="module" src="/static/app.js?v=20260804-assembly-sync-v2"></script>
+  <script type="module" src="/static/app.js?v=20260804-semantic-assembly-v1"></script>
 </body>
 </html>

@@ -232,9 +232,19 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
         )
 
     component_ids = [item["component"]["id"] for item in recommendations for _ in range(item["quantity"])]
+    relations = []
+    if len(component_ids) > 1:
+        relations = [
+            {"source": component_ids[index - 1], "target": component_id, "relation": "按描述顺序相邻装配"}
+            for index, component_id in enumerate(component_ids[1:], 1)
+        ]
     return {
         "component_ids": component_ids,
         "items": recommendations,
         "parser": "structured-library",
         "limit": limit,
+        "missing_components": [],
+        "assembly_relations": relations,
+        "capability": "ready" if component_ids else "parametric_generation",
+        "parser_detail": None,
     }

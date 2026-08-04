@@ -15,5 +15,5 @@ def test_index_references_the_large_assembly_bundle_version():
     index = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
     app_js = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
 
-    assert "/static/app.js?v=20260804-large-assemblies" in index
-    assert 'JSON.stringify({description,limit:32})' in app_js
+    assert "/static/app.js?v=20260804-semantic-assembly-v1" in index
+    assert 'JSON.stringify({description,limit:32,use_ai:$("#use-ai").checked})' in app_js

@@ -55,7 +55,7 @@ function persistHistory(items) {
   try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,HISTORY_STORAGE_LIMIT).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendedComponentIds: [], recommendedComponentDescription: "", recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, componentRecommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
+const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendedComponentIds: [], recommendedComponentDescription: "", recommendationSource: "local", recommendationDetail: null, componentAssemblyAnalysis: null, recommendationTimer: null, recommendationController: null, componentRecommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -127,7 +127,8 @@ function renderRecommendation(){
   const status=$("#recommendation-status"),recommendedNames=[...state.recommended].map(part=>labels[part]);status.className="";
   status.classList.add("component-recommendation");
   if(state.recommendationSource==="loading"){status.classList.add("recognizing");status.innerHTML='<i></i>正在智能识别核心图元<span class="status-dots"><b>.</b><b>.</b><b>.</b></span>';}
-  else if(state.recommendedComponentIds.length){status.classList.add("recognized");status.textContent=`✓ 已推荐 ${state.recommendedComponentIds.length} 个图元`;status.title="已按标准号、规格和数量自动推荐；手动勾选后以手动结果为准";}
+  else if(state.recommendedComponentIds.length){const missing=state.componentAssemblyAnalysis?.missing_components?.length||0;status.classList.add("recognized");status.textContent=`✓ 已匹配 ${state.recommendedComponentIds.length} 个图元${missing?`，${missing} 个待生成`:""}`;status.title="已获取图元匹配、缺失部件和装配关系；手动勾选后以手动结果为准";}
+  else if(state.componentAssemblyAnalysis?.missing_components?.length){const auto=state.componentAssemblyAnalysis.capability==="parametric_generation";status.classList.add("recognized");status.textContent=auto?`✓ 缺失图元将参数化生成`:`⚠ 缺失图元需要补充装配规则`;status.title=state.componentAssemblyAnalysis.missing_components.map(item=>`${item.name}：${item.reason}`).join("\n");}
   else if(recommendedNames.length){status.classList.add("recognized");status.textContent=`✓ 已推荐：${recommendedNames.join("、")}`;status.title=`已自动推荐 ${recommendedNames.join("、")}，可人工调整`;}
   else if($("#description").value.trim()){status.textContent="暂未识别到匹配类型，可直接选择图元";}
   else{status.textContent="未选择时将根据技术描述自动匹配";}
@@ -142,8 +143,8 @@ async function fetchModelRecommendations(description){
 async function fetchComponentRecommendations(description){
   state.componentRecommendationController?.abort();const controller=new AbortController();state.componentRecommendationController=controller;
   if(description.trim().length<2){state.recommendedComponentIds=[];state.recommendedComponentDescription=description;renderRecommendation();renderComponents();return;}
-  try{const response=await fetch("/api/component-recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,limit:32}),signal:controller.signal});if(!response.ok)throw new Error(`图元推荐接口返回 ${response.status}`);const data=await response.json();if(controller.signal.aborted||$("#description").value!==description)return;state.recommendedComponentIds=data.component_ids;state.recommendedComponentDescription=description;for(const item of data.items)state.componentIndex.set(item.component.id,item.component);renderRecommendation();renderComponents();}
-  catch(error){if(error.name!=="AbortError"){state.recommendedComponentIds=[];state.recommendationDetail=error.message;renderRecommendation();renderComponents();}}
+  try{const response=await fetch("/api/component-recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,limit:32,use_ai:$("#use-ai").checked}),signal:controller.signal});if(!response.ok)throw new Error(`图元推荐接口返回 ${response.status}`);const data=await response.json();if(controller.signal.aborted||$("#description").value!==description)return;state.recommendedComponentIds=data.component_ids;state.recommendedComponentDescription=description;state.componentAssemblyAnalysis=data;for(const item of data.items)state.componentIndex.set(item.component.id,item.component);renderRecommendation();renderComponents();}
+  catch(error){if(error.name!=="AbortError"){state.recommendedComponentIds=[];state.componentAssemblyAnalysis=null;state.recommendationDetail=error.message;renderRecommendation();renderComponents();}}
 }
 function extractCoreElements(description, immediate=false){clearTimeout(state.recommendationTimer);state.recommendationController?.abort();state.componentRecommendationController?.abort();state.recommendedComponentIds=[];state.recommendedComponentDescription="";state.recommended=new Set(Object.entries(elementPatterns).filter(([,pattern])=>pattern.test(description)).map(([part])=>part));state.recommendationSource="local";state.recommendationDetail=null;const current=selectedParts();if(state.recommended.size)state.part=[...state.recommended][0];else if(current.length)state.part=current[0];renderRecommendation();renderComponents();if(description.trim().length>=2){state.recommendationTimer=setTimeout(()=>{fetchComponentRecommendations(description);if($("#use-ai").checked)fetchModelRecommendations(description);},immediate?0:500);}}
 
@@ -191,10 +192,20 @@ function renderParams(result) {
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
   modelViewer.setModel(result.model); $("#step").href=result.step_url; $("#step").classList.remove("disabled");
+  renderModelLegend(result);
   if(result.spec_url){$("#yaml").href=result.spec_url;$("#yaml").classList.remove("disabled");}else{$("#yaml").removeAttribute("href");$("#yaml").classList.add("disabled");}
   const compliancePassed=result.compliance.length>0&&result.compliance.every(check=>check.passed),complianceButton=$("#compliance");
   complianceButton.disabled=false;complianceButton.classList.toggle("is-passed",compliancePassed);complianceButton.title=compliancePassed?"全部基础校验通过":"存在未通过的基础校验项目";
   ["#png","#svg"].forEach(id=>$(id).disabled=false); state.zoom=1; applyZoom(); setTab("model");
+}
+function renderModelLegend(result){
+  const legend=$("#model-component-legend"),components=result.selected_components||[],models=result.model||[];
+  if(!components.length||!models.some(item=>item.component_id)){legend.hidden=true;legend.replaceChildren();return;}
+  const grouped=new Map();
+  components.forEach((component,index)=>{const current=grouped.get(component.id)||{...component,count:0,color:models[index]?.color||"#8d9bab"};current.count++;grouped.set(component.id,current);});
+  legend.innerHTML=`<h3>本次使用图元 · ${components.length} 实例</h3>${[...grouped.values()].map(item=>`<button type="button" class="model-component-item" data-model-component="${item.id}" title="${item.id}"><i style="background:${item.color}"></i><span>${item.name}</span><small>×${item.count}</small></button>`).join("")}`;
+  legend.hidden=false;
+  legend.querySelectorAll("[data-model-component]").forEach(button=>{button.onmouseenter=()=>modelViewer.highlightComponent(button.dataset.modelComponent);button.onmouseleave=()=>modelViewer.highlightComponent(null);button.onfocus=button.onmouseenter;button.onblur=button.onmouseleave;});
 }
 function applyZoom(){ const svg=$("#canvas svg"); if(svg) svg.style.transform=`scale(${state.zoom})`; $("#zoom-label").textContent=`${Math.round(state.zoom*100)}%`; }
 function download(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }

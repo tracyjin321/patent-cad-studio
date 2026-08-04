@@ -212,6 +212,52 @@ async def recommend_core_elements(description: str, use_ai: bool) -> tuple[list[
         return fallback, "local-fallback", _fallback_detail(exc, "智能识别")
 
 
+async def analyze_component_assembly(
+    description: str, catalog: list[dict[str, Any]], use_ai: bool,
+) -> tuple[dict[str, Any] | None, str, str | None]:
+    """Ask the model for catalog matches, missing parts and ordered mating intent.
+
+    IDs returned by the model are always filtered against the supplied catalog;
+    geometry and port validation remain authoritative downstream.
+    """
+    api_key = os.getenv("MOONSHOT_API_KEY")
+    if not use_ai or not api_key:
+        return None, "structured-library", "用户关闭智能装配分析" if not use_ai else "未配置 API Key"
+    compact = [{"id": item["id"], "name": item["name"], "type": item["type"], "subtype": item.get("subtype"), "standard": item.get("standard")} for item in catalog]
+    prompt = (
+        "你是机械装配规划器。根据描述和图元目录，返回：按出现顺序且保留重复数量的匹配图元ID；"
+        "目录中不存在但明确需要的部件（名称、可映射的参数化类型、原因）；相邻部件装配关系。"
+        "只能使用目录内ID。parametric_type只能取 bearing/flange/valve/shaft/gear/screw/coupling/seal 或 null。"
+        "未知拓扑不要猜测端口，relation写用户意图即可。图元目录："
+        + json.dumps(compact, ensure_ascii=False) + "\n描述：" + description
+    )
+    properties = {
+        "component_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 32},
+        "missing_components": {"type": "array", "items": {"type": "object", "properties": {
+            "name": {"type": "string"}, "parametric_type": {"type": ["string", "null"], "enum": [*LABELS, None]}, "reason": {"type": "string"},
+        }, "required": ["name", "parametric_type", "reason"], "additionalProperties": False}},
+        "assembly_relations": {"type": "array", "items": {"type": "object", "properties": {
+            "source": {"type": "string"}, "target": {"type": "string"}, "relation": {"type": "string"},
+        }, "required": ["source", "target", "relation"], "additionalProperties": False}},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(65, connect=10)) as client:
+            response = await client.post(
+                f"{os.getenv('MOONSHOT_BASE_URL', 'https://api.moonshot.cn/v1').rstrip('/')}/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={"model": os.getenv("MOONSHOT_MODEL", "kimi-k2.6"), "messages": [{"role": "user", "content": prompt}],
+                      "response_format": _json_schema_format("component_assembly", properties, list(properties)),
+                      "thinking": {"type": "disabled"}, "max_completion_tokens": 1024},
+            )
+            parsed = _completion_object(response)
+            allowed = {item["id"] for item in catalog}
+            parsed["component_ids"] = [item for item in parsed.get("component_ids", []) if item in allowed][:32]
+            return parsed, "moonshot-assembly", None
+    except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as exc:
+        logger.warning("Moonshot assembly analysis failed: %r", exc, exc_info=True)
+        return None, "structured-library", _fallback_detail(exc, "智能装配分析")
+
+
 def local_parse(description: str, part_type: str) -> dict[str, Any]:
     params = dict(DEFAULTS[part_type])
     patterns = {

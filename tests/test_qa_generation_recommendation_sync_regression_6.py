@@ -20,4 +20,4 @@ def test_generation_waits_for_recommendations_for_the_current_description():
     assert barrier in source
     assert source.index(barrier) < source.index(submit, source.index("async function generate()"))
     assert "state.recommendedComponentDescription=description" in source
-    assert "/static/app.js?v=20260804-assembly-sync" in index
+    assert "/static/app.js?v=20260804-semantic-assembly-v1" in index

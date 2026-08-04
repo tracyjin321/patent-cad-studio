@@ -49,8 +49,12 @@ def test_component_catalog_is_current():
 
 def test_stale_exact_geometry_hash_is_warning_when_engineering_geometry_matches():
     path = ROOT / "component_library" / "bevel-gear-45deg-m0-8-16t" / "component.yaml"
+    spec = load_spec(path)
+    # Construct stale metadata explicitly instead of depending on a checked-in
+    # component fixture remaining out of date forever.
+    spec["validation"]["geometry"]["signatures"]["exact"] = "0" * 64
 
-    result = validate_spec(load_spec(path), spec_path=path)
+    result = validate_spec(spec, spec_path=path)
 
     assert result["errors"] == []
     assert result["warnings"] == [

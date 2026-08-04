@@ -19,7 +19,7 @@ from starlette.concurrency import run_in_threadpool
 
 from .cad import generate_multiview_svgs, generate_svg
 from .documents import extract_document_text
-from .llm import DEFAULTS, LABELS, parse_parameters, recommend_core_elements
+from .llm import DEFAULTS, LABELS, analyze_component_assembly, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, read_step, spec_to_step, step_to_spec, validate_spec, write_shape_step
 from .component_library import components_by_id, recommend_component_instances, structured_query_components
 from .component_governance import create_backlog, discovery_links, ingest_step_url, review_component
@@ -28,7 +28,7 @@ from .semantic_assembly import write_xcaf_assembly
 from .standard_families import FAMILIES, materialize_family
 from .assembly import automatic_manifest, build_assembly
 from .models import ComponentIngestRequest, ComponentRecommendationRequest, ComponentRecommendationResponse, FamilyMaterializeRequest, GenerateRequest, GenerateResponse, RecommendRequest, RecommendResponse, ReviewRequest, YamlToStepRequest
-from .model3d import write_step
+from .model3d import assembly_to_model, write_step
 from .parametric_spec import resolve_parametric_component
 
 
@@ -182,8 +182,28 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
 
 
 @app.post("/api/component-recommendations", response_model=ComponentRecommendationResponse)
-def recommend_components(request: ComponentRecommendationRequest) -> dict[str, object]:
-    return recommend_component_instances(request.description, request.limit)
+async def recommend_components(request: ComponentRecommendationRequest) -> dict[str, object]:
+    deterministic = recommend_component_instances(request.description, request.limit)
+    catalog = list(structured_query_components(limit=200)["items"])
+    analysis, parser, detail = await analyze_component_assembly(request.description, catalog, request.use_ai)
+    if analysis:
+        # Exact standard/quantity parsing wins when available. The model fills
+        # catalog matches only when deterministic matching found nothing.
+        if not deterministic["component_ids"]:
+            deterministic["component_ids"] = analysis["component_ids"][:request.limit]
+            counts: dict[str, int] = {}
+            for component_id in deterministic["component_ids"]:
+                counts[component_id] = counts.get(component_id, 0) + 1
+            index = {item["id"]: item for item in catalog}
+            deterministic["items"] = [{"component": index[item], "quantity": quantity, "reason": "大模型语义匹配"} for item, quantity in counts.items() if item in index]
+        deterministic["missing_components"] = analysis["missing_components"]
+        deterministic["assembly_relations"] = analysis["assembly_relations"] or deterministic["assembly_relations"]
+        deterministic["parser"] = parser
+        missing = analysis["missing_components"]
+        can_generate_single = not deterministic["component_ids"] and len(missing) == 1 and missing[0]["parametric_type"] is not None
+        deterministic["capability"] = "parametric_generation" if can_generate_single else "manual_rules_required" if missing else "ready"
+    deterministic["parser_detail"] = detail
+    return deterministic
 
 
 @app.get("/api/components")
@@ -300,6 +320,8 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
             result_id = str(uuid4())
             result_step = GENERATED / f"{result_id}.step"
             model = write_step(result_step, f"{request.part_type} 3D model", shape)
+            if assembly_report:
+                model = assembly_to_model(assembly_report)
             semantic_assembly = None
             if request.component_ids:
                 semantic_assembly = write_xcaf_assembly(manifest, result_step)
@@ -385,6 +407,11 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
             "id": component["id"], "name": component["name"], "type": component["type"],
             "category": component["category"],
         } for component in selected_components],
+        component_resolution={
+            "mode": "library_assembly" if selected_components else "ai_parametric_generation" if request.use_ai else "parametric_generation",
+            "generated_missing_component": not bool(selected_components),
+            "note": "未命中图元库时，主流程使用大模型参数提取并生成 ComponentSpec/YAML、STEP 与预览。" if not selected_components else None,
+        },
         assembly_report=assembly_report,
         quality_report=assembly_report["quality"] if assembly_report else None,
         multiviews=multiviews,

@@ -229,7 +229,10 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         raise HTTPException(status_code=422, detail=f"未知 component_library 图元: {exc.args[0]}") from exc
     parameters, parser, parser_detail = await parse_parameters(request.description, request.part_type, request.use_ai)
     selected_types = {str(component.get("type") or "") for component in selected_components}
-    title = "紧固组件技术附图" if selected_components and selected_types == {"fastener"} else f"{LABELS[request.part_type]}技术附图"
+    is_component_assembly = bool(selected_components)
+    is_fastener_assembly = is_component_assembly and selected_types == {"fastener"}
+    title = "紧固组件技术附图" if is_fastener_assembly else f"{LABELS[request.part_type]}技术附图"
+    drawing_type = "assembly" if is_component_assembly else request.part_type
 
     def build_artifacts():
         # One OpenCascade job per interpreter; separate uvicorn processes provide
@@ -267,8 +270,8 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 spec_url = f"/api/components/{resolved.component_id}/yaml"
                 fingerprint = resolved.fingerprint
                 spec_check = {"name": "参数化 YAML 规范", "passed": not validate_spec(resolved.spec, spec_path=resolved.spec_path)["errors"]}
-            svg = generate_svg(shape, title, request.part_type, parameters)
-            multiviews = generate_multiview_svgs(shape, title, request.part_type, parameters) if hasattr(shape, "ShapeType") else {view: svg for view in ("front", "top", "side", "isometric")}
+            svg = generate_svg(shape, title, drawing_type, parameters)
+            multiviews = generate_multiview_svgs(shape, title, drawing_type, parameters) if hasattr(shape, "ShapeType") else {view: svg for view in ("front", "top", "side", "isometric")}
             multiviews["isometric"] = svg
             result_id = str(uuid4())
             result_step = GENERATED / f"{result_id}.step"
@@ -290,9 +293,13 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 spec_check,
             ]
             if request.component_ids:
+                instance_count = len(assembly_report["instances"])
+                solid_count = int(assembly_report["quality"]["measured"]["topology"]["solids"])
                 checks.extend([
                     {"name": "装配 B-Rep 有效", "passed": bool(assembly_report["quality"]["valid_brep"])},
                     {"name": "装配无实体干涉", "passed": bool(assembly_report["quality"]["interference_free"])},
+                    {"name": "图元、实例与实体数量一致", "passed": len(request.component_ids) == instance_count == solid_count},
+                    {"name": "XCAF 语义实例数量一致", "passed": int(semantic_assembly["instances"]) == instance_count},
                 ])
             if request.part_type == "valve" and not request.component_ids:
                 measured = resolved.spec.get("validation", {}).get("geometry", {}).get("measured") or {}
@@ -315,13 +322,31 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
             return svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly
 
     svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly = await run_in_threadpool(build_artifacts)
+    response_parameters = (
+        {
+            "assembly_kind": "fastener_stack" if is_fastener_assembly else "component_assembly",
+            "component_instances": len(request.component_ids),
+            "unique_components": len(set(request.component_ids)),
+        }
+        if is_component_assembly
+        else {key: parameters[key] for key in DEFAULTS[request.part_type]}
+    )
+    response_structural_parameters = (
+        {
+            "solid_count": assembly_report["quality"]["measured"]["topology"]["solids"],
+            "valid_brep": assembly_report["quality"]["valid_brep"],
+            "interference_free": assembly_report["quality"]["interference_free"],
+        }
+        if is_component_assembly
+        else {key: value for key, value in parameters.items() if key not in DEFAULTS[request.part_type]}
+    )
     return GenerateResponse(
         id=result_id,
         title=title,
         part_type=request.part_type,
         svg=svg,
-        parameters={key: parameters[key] for key in DEFAULTS[request.part_type]},
-        structural_parameters={key: value for key, value in parameters.items() if key not in DEFAULTS[request.part_type]},
+        parameters=response_parameters,
+        structural_parameters=response_structural_parameters,
         compliance=checks,
         parser=parser,
         parser_detail=parser_detail,

@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
 from .cad import generate_multiview_svgs, generate_svg
+from .checks import manual_patent_review_checks, patent_drawing_precheck
 from .documents import extract_document_text
 from .llm import DEFAULTS, LABELS, analyze_component_assembly, parse_parameters, recommend_core_elements
 from .component_spec import load_spec, read_step, spec_to_step, step_to_spec, validate_spec, write_shape_step
@@ -378,9 +379,20 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                         and topology.get("solids") == 1,
                     },
                 ])
-            return svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly
+            patent_status, patent_checks = patent_drawing_precheck(svg)
+            return (
+                svg, multiviews, result_id, model, checks, patent_status,
+                patent_checks, assembly_report,
+                generation_source, spec_id, spec_url, fingerprint, regression,
+                quality_score, semantic_assembly,
+            )
 
-    svg, multiviews, result_id, model, checks, assembly_report, generation_source, spec_id, spec_url, fingerprint, regression, quality_score, semantic_assembly = await run_in_threadpool(build_artifacts)
+    (
+        svg, multiviews, result_id, model, checks, patent_status,
+        patent_checks, assembly_report, generation_source,
+        spec_id, spec_url, fingerprint, regression, quality_score,
+        semantic_assembly,
+    ) = await run_in_threadpool(build_artifacts)
     response_parameters = (
         {
             "assembly_kind": "fastener_stack" if is_fastener_assembly else "component_assembly",
@@ -407,6 +419,9 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         parameters=response_parameters,
         structural_parameters=response_structural_parameters,
         compliance=checks,
+        patent_precheck_status=patent_status,
+        patent_checks=patent_checks,
+        manual_review_checks=manual_patent_review_checks(),
         parser=parser,
         parser_detail=parser_detail,
         model=model,

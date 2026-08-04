@@ -75,6 +75,13 @@ async def test_all_part_types_generate_valid_svg(part_type: str):
     assert data["core_elements"] == [part_type]
     assert data["step_url"].endswith("/step")
     assert all(item["passed"] for item in data["compliance"])
+    assert data["patent_precheck_status"] == "pass"
+    assert data["patent_checks"]
+    assert [item["code"] for item in data["manual_review_checks"]] == [
+        "protected_subject", "reference_consistency", "view_adequacy",
+    ]
+    assert all(item["status"] == "review" for item in data["manual_review_checks"])
+    assert all(set(item) == {"code", "name", "status", "detail", "basis"} for item in data["patent_checks"])
     assert step.status_code == 200
     assert step.content.startswith(b"ISO-10303-21;")
 
@@ -148,6 +155,7 @@ async def test_flange_svg_is_an_occ_entity_projection():
     svg = response.json()["svg"]
     assert 'viewBox="0 0 794 1123"' in svg
     assert ">图1</text>" in svg
+    assert '<text class="p" x="397" y="1080" text-anchor="middle">1</text>' in svg
     assert 'class="c"' not in svg
     assert 'class="d"' not in svg
     assert "⌀50 · 8孔 · T 70" not in svg

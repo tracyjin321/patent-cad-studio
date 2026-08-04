@@ -50,6 +50,9 @@ class GenerateResponse(BaseModel):
     parameters: dict[str, Any]
     structural_parameters: dict[str, Any] = Field(default_factory=dict)
     compliance: list[dict[str, Any]]
+    patent_precheck_status: Literal["pass", "fail", "review"]
+    patent_checks: list[dict[str, Any]]
+    manual_review_checks: list[dict[str, Any]]
     parser: str
     parser_detail: str | None = None
     model: list[dict[str, Any]]

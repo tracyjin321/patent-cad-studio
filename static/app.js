@@ -1,4 +1,5 @@
 import { CadModelViewer } from "/static/model-viewer.js";
+import { historySummary, updatePatentPrecheckButton } from "/static/history-summary.js?v=20260804-patent-precheck";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -35,10 +36,6 @@ async function checkServiceHealth(showChecking = false) {
   }
 }
 
-function historySummary(item) {
-  const {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,multiviews,quality_score,semantic_assembly,review_status,reference_score,time}=item;
-  return {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,multiviews,quality_score,semantic_assembly,review_status,reference_score,time};
-}
 function loadHistory() {
   try {
     const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
@@ -184,21 +181,25 @@ function renderHistory() {
   el.querySelector(".history-more")?.addEventListener("click",()=>{state.historyExpanded=!state.historyExpanded;renderHistory();});
 }
 function renderParams(result) {
+  updatePatentPrecheckButton($("#patent-precheck"), result.patent_precheck_status);
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":"本地确定性解析",parserDetail=result.parser==="local-fallback"?`<p>解析说明：${result.parser_detail||"智能解析暂不可用，已自动回退"}</p>`:"";
   const sourceText={generated:"新建 YAML 并物化 STEP",cache:"命中参数化缓存",library:"命中正式图元库"}[result.generation_source]||"旧版直接建模";
   const selectedComponents=result.selected_components||[];const coreText=selectedComponents.length?selectedComponents.map(component=>component.name).join("、"):(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、")+"（语义自动匹配）";
   const documentedParameters={...result.parameters,...(result.structural_parameters||{})};
   const score=result.quality_score||{},reference=result.reference_score,semantic=result.semantic_assembly;
   const viewButtons=Object.keys(result.multiviews||{}).map(view=>`<button type="button" class="view-chip" data-view="${view}">${{front:"主视",top:"俯视",side:"侧视",isometric:"轴测"}[view]||view}</button>`).join("");
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p>${score.score!=null?`<section class="quality-card"><div><small>装配质量综合评分</small><strong>${score.score}<em>/100 · ${score.grade}</em></strong></div><span class="review-state ${result.review_status||"pending"}">${result.review_status==="approved"?"已通过人工审核":result.review_status==="rejected"?"已驳回":"待人工审核"}</span>${reference?`<p>参考图还原：${reference.score} · 轮廓 ${reference.contour_score} · 特征 ${reference.key_feature_score}</p>`:""}<div class="review-actions"><button data-review="approve">通过审核</button><button data-review="reject">驳回</button></div></section>`:""}${viewButtons?`<div class="view-switcher"><strong>多视图</strong>${viewButtons}</div>`:""}${semantic?`<p>语义装配：${semantic.definitions} 个零件定义 · ${semantic.instances} 个实例 · XCAF/AP242</p>`:""}<div class="param-grid">${Object.entries(documentedParameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  const patentLabels={pass:"✓ 通过",review:"! 待确认",fail:"× 未通过"};
+  const patentChecks=(result.patent_checks||[]).map(check=>`<div class="check check-${check.status}"><div><span>${check.name}</span><small>${check.detail}${check.basis?` · 依据：${check.basis}`:""}</small></div><strong>${patentLabels[check.status]||check.status}</strong></div>`).join("");
+  const manualReviewChecks=(result.manual_review_checks||[]).map(check=>`<div class="check check-${check.status}"><div><span>${check.name}</span><small>${check.detail}${check.basis?` · 依据：${check.basis}`:""}</small></div><strong>${patentLabels[check.status]||check.status}</strong></div>`).join("");
+  const overallLabel=patentLabels[result.patent_precheck_status]||"尚未预检";
+  const qualityCard=score.score!=null?`<section class="quality-card"><div><small>装配质量综合评分</small><strong>${score.score}<em>/100 · ${score.grade}</em></strong></div><span class="review-state ${result.review_status||"pending"}">${result.review_status==="approved"?"已通过人工审核":result.review_status==="rejected"?"已驳回":"待人工审核"}</span>${reference?`<p>参考图还原：${reference.score} · 轮廓 ${reference.contour_score} · 特征 ${reference.key_feature_score}</p>`:""}<div class="review-actions"><button data-review="approve">通过审核</button><button data-review="reject">驳回</button></div></section>`:"";
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p>${qualityCard}${viewButtons?`<div class="view-switcher"><strong>多视图</strong>${viewButtons}</div>`:""}${semantic?`<p>语义装配：${semantic.definitions} 个零件定义 · ${semantic.instances} 个实例 · XCAF/AP242</p>`:""}<div class="param-grid">${Object.entries(documentedParameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><section class="report-card patent-report"><div class="report-heading"><h3>专利附图自动预检</h3><strong class="report-status status-${result.patent_precheck_status}">${overallLabel}</strong></div><div class="check-list">${patentChecks}</div><p class="precheck-disclaimer">自动预检仅用于发现常见形式问题，不替代专利代理师或审查员的正式判断。</p></section><section class="report-card manual-review-report"><div class="report-heading"><h3>提交前人工复核清单</h3><span>以下项目需要专业判断，不影响自动预检结论</span></div><div class="check-list">${manualReviewChecks}</div></section>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
   modelViewer.setModel(result.model); $("#step").href=result.step_url; $("#step").classList.remove("disabled");
   renderModelLegend(result);
   if(result.spec_url){$("#yaml").href=result.spec_url;$("#yaml").classList.remove("disabled");}else{$("#yaml").removeAttribute("href");$("#yaml").classList.add("disabled");}
-  const compliancePassed=result.compliance.length>0&&result.compliance.every(check=>check.passed),complianceButton=$("#compliance");
-  complianceButton.disabled=false;complianceButton.classList.toggle("is-passed",compliancePassed);complianceButton.title=compliancePassed?"全部基础校验通过":"存在未通过的基础校验项目";
   ["#png","#svg"].forEach(id=>$(id).disabled=false); state.zoom=1; applyZoom(); setTab("model");
 }
 function renderModelLegend(result){
@@ -234,7 +235,7 @@ async function generate() {
   if(requestsAssembly(description)&&!effectiveComponentIds().length){toast("未匹配到可装配图元，请开启智能识别或手动选择图元");$("#recommendation-status").textContent="⚠ 当前装配缺少可执行的图元与端口规则";return;}
   if(state.componentAssemblyAnalysis?.capability==="manual_rules_required"){toast("当前装配包含缺失图元或未知端口，需要补充装配规则");return;}
   state.isGenerating=true;renderServiceStatus("busy","正在执行几何建模");
-  $("#compliance").disabled=true;$("#compliance").classList.remove("is-passed");$("#compliance").removeAttribute("title");
+  $("#patent-precheck").disabled=true;$("#patent-precheck").classList.remove("is-passed","is-review","is-failed");$("#patent-precheck").removeAttribute("title");
   const button=$("#generate");button.disabled=true;button.classList.add("is-loading");button.setAttribute("aria-busy","true");button.innerHTML='<span class="button-spinner" aria-hidden="true"></span><span>正在生成附图…</span>';
   const progress=$("#generation-progress"), stages=[["正在解析技术描述","识别零件类型、结构尺寸与工程约束…"],["正在生成参数化 YAML","校验生成器、参数约束与规格一致性…"],["正在物化 3D 几何","由 YAML 驱动 OpenCascade 构建 B-Rep；复杂螺旋可能需要约 1 分钟…"],["正在输出附图与 STEP","从同一 B-Rep 生成 SVG 附图、3D 预览和 STEP 文件…"]];
   let progressValue=0;
@@ -265,7 +266,7 @@ $$(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#zoom-in").onclick=()=>{state.zoom=Math.min(1.8,state.zoom+.1);applyZoom();};
 $("#zoom-out").onclick=()=>{state.zoom=Math.max(.5,state.zoom-.1);applyZoom();};
 $("#reset").onclick=()=>{state.zoom=1;applyZoom();};
-$("#compliance").onclick=()=>{setTab("params");toast(state.result.compliance.every(c=>c.passed)?"全部合规检查通过":"存在未通过项目");};
+$("#patent-precheck").onclick=()=>{setTab("params");const messages={pass:"专利附图自动预检通过",review:"存在需要人工确认的专利附图项目",fail:"专利附图自动预检发现明确形式问题"};toast(messages[state.result.patent_precheck_status]);};
 $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"}),`${state.result.part_type}-${state.result.id.slice(0,8)}.svg`);
 $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=2480;canvas.height=3508;canvas.getContext("2d").drawImage(image,0,0,2480,3508);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
 $("#clear-history").onclick=()=>{state.history=[];state.historyExpanded=false;localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};

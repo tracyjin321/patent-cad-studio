@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/static/model-viewer-fallback.css?v=20260803-webgl-fallback">
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
   <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
-  <link rel="stylesheet" href="/static/demo-ui.css?v=20260801-primary-label-size">
+  <link rel="stylesheet" href="/static/demo-ui.css?v=20260802-manual-review">
   <link rel="stylesheet" href="/static/component-library.css?v=20260801-component-library">
   <link rel="stylesheet" href="/static/quality-review.css?v=20260803-quality-review">
   <script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>
@@ -79,7 +79,7 @@
       <nav class="tabs"><button data-tab="model"><svg class="ui-icon"><use href="#icon-cube"></use></svg>3D 预览</button><button data-tab="preview" class="active"><svg class="ui-icon"><use href="#icon-image"></use></svg>附图预览</button><button data-tab="params"><svg class="ui-icon"><use href="#icon-file-text"></use></svg>参数文档</button></nav>
       <div class="toolbar">
         <div class="toolbar-zoom"><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="reset">↺</button></div>
-        <div class="toolbar-actions"><button id="compliance" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>合规校验</button><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
+        <div class="toolbar-actions"><button id="patent-precheck" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>专利附图预检</button><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
         <div class="model-stage"><div id="model-component-legend" class="model-component-legend" hidden aria-label="装配图元图例"></div><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>

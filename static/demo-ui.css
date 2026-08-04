@@ -542,16 +542,28 @@ article {
   border-color: var(--slate-300);
 }
 
-.toolbar button#compliance.is-passed {
+.toolbar button#patent-precheck.is-passed {
   color: #15803d;
   background: #f0fdf4;
   border-color: #86efac;
 }
 
-.toolbar button#compliance.is-passed:not(:disabled):hover {
+.toolbar button#patent-precheck.is-passed:not(:disabled):hover {
   color: #166534;
   background: #dcfce7;
   border-color: #4ade80;
+}
+
+.toolbar button#patent-precheck.is-review {
+  color: #a16207;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.toolbar button#patent-precheck.is-failed {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
 
 .toolbar .ui-icon,
@@ -606,6 +618,119 @@ article {
 .check {
   color: var(--slate-600);
   font-size: 12px;
+}
+
+.report-card {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-color: var(--line);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.manual-review-report {
+  border-color: #fde68a;
+  background: #fffef9;
+}
+
+.report-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.report-heading h3 {
+  margin: 0;
+  color: var(--slate-800);
+  font-size: 14px;
+}
+
+.report-heading > span {
+  color: var(--slate-400);
+  font-size: 11px;
+}
+
+.report-status,
+.check > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.report-status {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.status-pass,
+.check-pass > strong {
+  color: #15803d;
+}
+
+.status-pass {
+  background: #f0fdf4;
+}
+
+.status-review,
+.check-review > strong,
+.check-warning > strong {
+  color: #a16207;
+}
+
+.status-review {
+  background: #fffbeb;
+}
+
+.status-fail,
+.check-fail > strong {
+  color: #b91c1c;
+}
+
+.status-fail {
+  background: #fef2f2;
+}
+
+.check-not_checked > strong {
+  color: var(--slate-400);
+}
+
+.report-card .check-list {
+  margin-top: 4px;
+}
+
+.report-card .check {
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.report-card .check > div {
+  min-width: 0;
+}
+
+.report-card .check span,
+.report-card .check small {
+  display: block;
+}
+
+.report-card .check span {
+  color: var(--slate-700);
+  font-weight: 500;
+}
+
+.report-card .check small {
+  margin-top: 3px;
+  color: var(--slate-400);
+  line-height: 1.55;
+}
+
+.parameter-content .precheck-disclaimer {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-radius: 7px;
+  color: #6b4f12;
+  background: #fffbeb;
+  line-height: 1.55;
 }
 
 .progress-overlay {

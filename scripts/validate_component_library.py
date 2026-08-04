@@ -9,14 +9,15 @@ from app.component_spec import load_spec, read_step, roundtrip_report, validate_
 from scripts.rebuild_component_catalog import build_catalog  # noqa: E402
 
 def main():
-    library=ROOT/"component_library";failures=[];checked=0
+    library=ROOT/"component_library";failures=[];warnings=[];checked=0
     for spec_path in sorted(library.glob("*/component.yaml")):
         checked+=1;spec=load_spec(spec_path);validation=validate_spec(spec,spec_path=spec_path)
+        if validation["warnings"]: warnings.append({"spec":str(spec_path),"warnings":validation["warnings"]})
         if validation["errors"]: failures.append({"spec":str(spec_path),"errors":validation["errors"]});continue
         reference=spec_path.parent/spec["artifacts"]["reference_step"]["file"]
         if not BRepCheck_Analyzer(read_step(reference)).IsValid(): failures.append({"spec":str(spec_path),"errors":["B-Rep invalid"]});continue
         if not roundtrip_report(spec_path)["passed"]: failures.append({"spec":str(spec_path),"errors":["STEP roundtrip mismatch"]})
-    catalog_count=len(build_catalog(library)["components"]);result={"checked":checked,"catalog_count":catalog_count,"passed":not failures,"failures":failures}
+    catalog_count=len(build_catalog(library)["components"]);result={"checked":checked,"catalog_count":catalog_count,"passed":not failures,"failures":failures,"warnings":warnings}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if failures or checked!=catalog_count: raise SystemExit(1)
 

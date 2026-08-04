@@ -108,6 +108,22 @@ def geometry_signatures(measured: dict[str, Any]) -> dict[str, str]:
             "engineering_geometry_sha256": hashlib.sha256(encode(engineering)).hexdigest()}
 
 
+def _finite_float(value: Any) -> float:
+    if isinstance(value, bool):
+        raise TypeError("booleans are not numeric measurements")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("numeric measurements must be finite")
+    return number
+
+
+def _topology_count(value: Any) -> int:
+    number = _finite_float(value)
+    if number < 0 or not number.is_integer():
+        raise ValueError("topology counts must be non-negative integers")
+    return int(number)
+
+
 def _relative_close(expected: float, actual: float, relative_tolerance: float) -> bool:
     tolerance = max(1e-6, abs(expected) * relative_tolerance)
     return abs(expected - actual) <= tolerance
@@ -122,27 +138,28 @@ def _engineering_geometry_errors(
 ) -> list[str]:
     """Compare stable engineering measurements without requiring identical hashes."""
     try:
-        dimensional_tolerance = float(dimensional_tolerance)
-        relative_tolerance = float(relative_tolerance)
+        dimensional_tolerance = _finite_float(dimensional_tolerance)
+        relative_tolerance = _finite_float(relative_tolerance)
         if dimensional_tolerance < 0 or relative_tolerance < 0:
             raise ValueError("tolerances must be non-negative")
 
         errors: list[str] = []
         stored_topology = stored["topology"]
         actual_topology = actual["topology"]
-        if any(stored_topology[key] != actual_topology[key] for key in ("solids", "shells", "faces")):
+        if any(_topology_count(stored_topology[key]) != _topology_count(actual_topology[key])
+               for key in ("solids", "shells", "faces")):
             errors.append("reference STEP 工程拓扑与记录不一致")
 
         if not _relative_close(
-            float(stored["volume_mm3"]),
-            float(actual["volume_mm3"]),
+            _finite_float(stored["volume_mm3"]),
+            _finite_float(actual["volume_mm3"]),
             relative_tolerance,
         ):
             errors.append("reference STEP 工程几何体积超出声明公差")
 
         if "surface_area_mm2" in stored and not _relative_close(
-            float(stored["surface_area_mm2"]),
-            float(actual["surface_area_mm2"]),
+            _finite_float(stored["surface_area_mm2"]),
+            _finite_float(actual["surface_area_mm2"]),
             relative_tolerance,
         ):
             errors.append("reference STEP 工程几何表面积超出声明公差")
@@ -156,7 +173,7 @@ def _engineering_geometry_errors(
             if len(expected) != 3 or len(observed) != 3:
                 raise ValueError("bounding box coordinates must be three-dimensional")
             box_pairs.extend(zip(expected, observed))
-        if any(abs(float(expected) - float(observed)) > dimensional_tolerance
+        if any(abs(_finite_float(expected) - _finite_float(observed)) > dimensional_tolerance
                for expected, observed in box_pairs):
             errors.append("reference STEP 工程几何包围盒超出声明公差")
 
@@ -164,7 +181,7 @@ def _engineering_geometry_errors(
         actual_center = actual["center_of_mass"]
         if len(stored_center) != 3 or len(actual_center) != 3:
             raise ValueError("center of mass must be three-dimensional")
-        if any(abs(float(expected) - float(observed)) > dimensional_tolerance
+        if any(abs(_finite_float(expected) - _finite_float(observed)) > dimensional_tolerance
                for expected, observed in zip(stored_center, actual_center)):
             errors.append("reference STEP 工程几何重心超出声明公差")
         return errors

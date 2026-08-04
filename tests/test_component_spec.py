@@ -1,4 +1,5 @@
 import hashlib
+import json
 import shutil
 from pathlib import Path
 
@@ -115,6 +116,60 @@ def test_malformed_engineering_measurement_is_blocking():
     result = validate_spec(spec, spec_path=path)
 
     assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
+@pytest.mark.parametrize("bad_value", [float("nan"), float("inf"), float("-inf")])
+def test_nonfinite_engineering_measurement_is_blocking(bad_value):
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["center_of_mass"][0] = bad_value
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
+@pytest.mark.parametrize("bad_count", [True, 1.5])
+def test_invalid_engineering_topology_count_is_blocking(bad_count):
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["measured"]["topology"]["solids"] = bad_count
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
+def test_nonfinite_engineering_tolerance_is_blocking():
+    path = ROOT / "component_library" / "deep-groove-ball-bau6201z" / "component.yaml"
+    spec = load_spec(path)
+    spec["validation"]["geometry"]["dimensional_tolerance"] = float("nan")
+
+    result = validate_spec(spec, spec_path=path)
+
+    assert "reference STEP 工程几何测量基准无效" in result["errors"]
+
+
+def test_component_library_gate_reports_geometry_warnings(tmp_path, monkeypatch, capsys):
+    from scripts import validate_component_library as gate
+
+    spec_path = tmp_path / "component_library" / "sample" / "component.yaml"
+    spec_path.parent.mkdir(parents=True)
+    spec_path.write_text("schema_version: '1.3'\n", encoding="utf-8")
+    warning = "reference STEP 精确几何签名不匹配；工程几何仍在声明公差内"
+
+    monkeypatch.setattr(gate, "ROOT", tmp_path)
+    monkeypatch.setattr(gate, "load_spec", lambda _: {"artifacts": {"reference_step": {"file": "reference.step"}}})
+    monkeypatch.setattr(gate, "validate_spec", lambda *args, **kwargs: {"errors": [], "warnings": [warning]})
+    monkeypatch.setattr(gate, "read_step", lambda _: object())
+    monkeypatch.setattr(gate, "BRepCheck_Analyzer", lambda _: type("Analyzer", (), {"IsValid": lambda self: True})())
+    monkeypatch.setattr(gate, "roundtrip_report", lambda _: {"passed": True})
+    monkeypatch.setattr(gate, "build_catalog", lambda _: {"components": [{}]})
+
+    gate.main()
+
+    result = json.loads(capsys.readouterr().out)
+    assert result["warnings"] == [{"spec": str(spec_path), "warnings": [warning]}]
 
 
 def test_generic_step_to_yaml_and_ap242_roundtrip(tmp_path):

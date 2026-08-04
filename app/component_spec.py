@@ -334,13 +334,19 @@ def _artifact_path(spec_path: Path, spec: dict[str, Any]) -> Path:
     return result if result.is_absolute() else spec_path.parent / result
 
 
-def write_shape_step(shape: object, path: Path) -> None:
+def write_shape_step(shape: object, path: Path, application_protocol: str = "AP242") -> None:
     from OCP.IFSelect import IFSelect_RetDone
     from OCP.Interface import Interface_Static
     from OCP.STEPControl import STEPControl_AsIs, STEPControl_Writer
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    Interface_Static.SetCVal_s("write.step.schema", "AP242DIS")
+    # Imported specs use source_preserved when the original protocol is not
+    # asserted. Re-exports use the project's canonical AP242 representation.
+    schemas = {"AP214": "AP214IS", "AP242": "AP242DIS", "SOURCE_PRESERVED": "AP242DIS"}
+    schema = schemas.get(application_protocol.upper())
+    if schema is None:
+        raise ValueError(f"不支持的 STEP 应用协议: {application_protocol}")
+    Interface_Static.SetCVal_s("write.step.schema", schema)
     writer = STEPControl_Writer()
     if writer.Transfer(shape, STEPControl_AsIs) != IFSelect_RetDone or writer.Write(str(path)) != IFSelect_RetDone:
         raise RuntimeError(f"OpenCascade 无法写入 {path}")
@@ -367,14 +373,16 @@ def spec_to_step(spec_path: Path, output: Path, *, verify_checksum: bool = True,
             from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
 
             shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
-        write_shape_step(shape, output)
+        protocol = str(spec.get("geometry", {}).get("output", {}).get("application_protocol", "AP242"))
+        write_shape_step(shape, output, protocol)
     elif placement is not None or force_reexport:
         from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
 
         shape = read_step(source)
         if placement is not None:
             shape = BRepBuilderAPI_Transform(shape, _trsf_from_matrix(placement), True).Shape()
-        write_shape_step(shape, output)
+        protocol = str(spec.get("geometry", {}).get("output", {}).get("application_protocol", "AP242"))
+        write_shape_step(shape, output, protocol)
     elif source.resolve() != output.resolve():
         shutil.copyfile(source, output)
     return inspect_step(output)
@@ -488,35 +496,16 @@ def _port(spec: dict[str, Any], port_id: str) -> dict[str, Any]:
     raise ValueError(f"找不到端口 {port_id}")
 
 
-def assemble(components: list[dict[str, Any]], output: Path) -> dict[str, Any]:
-    """Assemble ComponentSpecs. First component is fixed; later ones mate to it."""
-    from OCP.BRep import BRep_Builder
-    from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
-    from OCP.TopoDS import TopoDS_Compound
+def assemble(
+    components: list[dict[str, Any]],
+    output: Path,
+    *,
+    application_protocol: str = "AP242",
+) -> dict[str, Any]:
+    """Validate and assemble ComponentSpecs through the shared assembly service."""
+    from .assembly import AssemblyManifest, build_assembly
 
-    if not components:
-        raise ValueError("装配至少需要一个组件")
-    loaded: list[tuple[dict[str, Any], object, list[list[float]]]] = []
-    for item in components:
-        spec_path = Path(item["spec"])
-        spec = load_spec(spec_path)
-        shape = read_step(_artifact_path(spec_path, spec))
-        if item.get("mate_to"):
-            target_index = int(item.get("target", 0))
-            fixed_spec, _, fixed_world = loaded[target_index]
-            relation = _matmul(
-                _frame_matrix(_port(fixed_spec, item["mate_to"])["frame"], reverse_axis=True),
-                _inverse_rigid(_frame_matrix(_port(spec, item["port"])["frame"])),
-            )
-            world = _matmul(fixed_world, relation)
-            transform = _trsf_from_matrix(world)
-            shape = BRepBuilderAPI_Transform(shape, transform, True).Shape()
-        else:
-            world = IDENTITY_MATRIX
-        loaded.append((spec, shape, world))
-    compound, builder = TopoDS_Compound(), BRep_Builder()
-    builder.MakeCompound(compound)
-    for _, shape, _ in loaded:
-        builder.Add(compound, shape)
-    write_shape_step(compound, output)
-    return inspect_shape(compound)
+    manifest = AssemblyManifest(application_protocol=application_protocol, components=components)
+    compound, report = build_assembly(manifest)
+    write_shape_step(compound, output, application_protocol)
+    return {**report["quality"]["measured"], "assembly_report": report}

@@ -12,6 +12,7 @@ GENERATOR_VERSIONS = {
     "screw": "2.1.0",
     "coupling": "2.0.0",
     "seal": "2.0.0",
+    "rocket": "1.0.0",
 }
 
 
@@ -67,6 +68,10 @@ def primitives(part: str, p: dict[str, Any]) -> list[dict[str, Any]]:
 def build_shape(part: str, p: dict[str, Any]):
     if part not in GENERATOR_VERSIONS:
         raise ValueError(f"未注册的参数化生成器: {part}")
+    if part == "rocket":
+        from .rocket import build_falcon9_shape
+
+        return build_falcon9_shape(p)
     from OCP.BRep import BRep_Builder
     from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -297,7 +302,13 @@ def _shape_mesh(shape: object) -> dict[str, Any]:
     from OCP.TopExp import TopExp_Explorer
     from OCP.TopLoc import TopLoc_Location
     from OCP.TopoDS import TopoDS
-    BRepMesh_IncrementalMesh(shape, 0.35, False, 0.22, True)
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    box=Bnd_Box();BRepBndLib.Add_s(shape,box)
+    bounds=box.Get();diagonal=math.sqrt(sum((bounds[i+3]-bounds[i])**2 for i in range(3)))
+    # Preserve small-part detail while bounding triangle counts for metre-scale assemblies.
+    deflection=max(0.05,min(5.0,diagonal*0.0002))
+    BRepMesh_IncrementalMesh(shape,deflection,False,0.22,True)
     positions: list[float] = []
     indices: list[int] = []
     explorer=TopExp_Explorer(shape,TopAbs_FACE)

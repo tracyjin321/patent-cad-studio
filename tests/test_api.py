@@ -1,5 +1,6 @@
 import importlib
 from io import BytesIO
+from pathlib import Path
 
 import pytest
 import yaml
@@ -8,12 +9,48 @@ from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 from app import llm
+from app.component_spec import inspect_step
 
 
 main_module = importlib.import_module("app.main")
 
 
-PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal"]
+PARTS = ["bearing", "flange", "valve", "shaft", "gear", "screw", "coupling", "seal", "rocket"]
+
+
+def test_falcon9_prompt_normalizes_official_vehicle_dimensions():
+    parameters = llm.local_parse(
+        "生成猎鹰九号，火箭总高度70米，箭体直径3.66米，整流罩直径5.2米、总长13.1米，安装9台Merlin发动机。",
+        "rocket",
+    )
+    assert parameters["total_height"] == 70000
+    assert parameters["body_diameter"] == 3660
+    assert parameters["fairing_diameter"] == 5200
+    assert parameters["fairing_height"] == 13100
+    assert parameters["engine_count"] == 9
+
+
+def test_history_defaults_to_five_items_with_expand_control():
+    source = (Path(__file__).parents[1] / "static" / "app.js").read_text(encoding="utf-8")
+    assert 'const HISTORY_VISIBLE_LIMIT = 5;' in source
+    assert 'const HISTORY_STORAGE_LIMIT = 50;' in source
+    assert 'state.history.slice(0,HISTORY_VISIBLE_LIMIT)' in source
+    assert 'class="history-more"' in source
+    assert '收起历史记录' in source and '展开更多' in source
+    assert 'history-more-count' in source and 'history-more-chevron' in source
+
+
+def test_3d_viewer_has_a_non_webgl_fallback():
+    source = (Path(__file__).parents[1] / "static" / "model-viewer.js").read_text(encoding="utf-8")
+    assert 'canvas.getContext("webgl2"' in source
+    assert "当前环境无法启用 3D 预览" in source
+    assert "if (!this.available) return" in source
+
+
+def test_mobile_toolbar_keeps_all_export_actions_reachable():
+    source = (Path(__file__).parents[1] / "static" / "model-viewer-fallback.css").read_text(encoding="utf-8")
+    assert "overflow-x: auto" in source
+    assert ".toolbar > div" in source
 
 
 @pytest.mark.asyncio
@@ -384,7 +421,7 @@ async def test_component_library_can_be_searched_and_filtered():
         catalog = await client.get("/api/components")
         bearing = await client.get("/api/components", params={"q": "BAU6201Z", "category": "shaft_support"})
     assert catalog.status_code == 200
-    assert catalog.json()["total"] == 88
+    assert catalog.json()["total"] == 150
     assert len(catalog.json()["categories"]) >= 6
     assert bearing.status_code == 200
     assert [item["id"] for item in bearing.json()["items"]] == ["deep-groove-ball-bau6201z"]
@@ -512,3 +549,79 @@ async def test_step_to_yaml_and_yaml_to_step_api():
         step_response = await client.get(rebuilt.json()["step_url"])
         assert step_response.status_code == 200
         assert step_response.content.startswith(b"ISO-10303-21;")
+
+
+@pytest.mark.asyncio
+async def test_selected_shaft_bearing_and_coupling_are_really_assembled(tmp_path):
+    component_ids = ["precision-shaft-d03-l0050-chamfered", "bearing-608-open-simple", "shaft-coupler-rigid-clamp-d03-d03-simple"]
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/generate", json={"description": "装配精密轴、轴承和刚性联轴器。", "part_type": "shaft", "component_ids": component_ids, "use_ai": False})
+        step = await client.get(response.json()["step_url"])
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert [item["component_id"] for item in data["assembly_report"]["instances"]] == component_ids
+    assert data["quality_report"]["valid_brep"] and data["quality_report"]["interference_free"]
+    assert data["quality_report"]["measured"]["topology"]["solids"] >= 3
+    exported = tmp_path / "shaft-bearing-coupling.step"
+    exported.write_bytes(step.content)
+    assert step.status_code == 200
+    assert inspect_step(exported)["topology"]["solids"] >= 3
+
+
+@pytest.mark.asyncio
+async def test_generation_task_reports_actionable_worker_failure(monkeypatch):
+    async def fake_generate(_request):
+        raise RuntimeError("模拟 worker 退出")
+    monkeypatch.setattr(main_module, "generate", fake_generate)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成测试轴", "part_type": "shaft", "use_ai": False})
+        await __import__("asyncio").sleep(.05)
+        state = await client.get(created.json()["status_url"])
+    assert created.status_code == 202
+    assert state.json()["status"] == "failed"
+    assert "CAD 生成失败" in state.json()["error"]
+    assert state.json()["recoverable"] is True
+
+
+@pytest.mark.asyncio
+async def test_generation_task_can_be_cancelled(monkeypatch):
+    async def slow_generate(_request):
+        await __import__("asyncio").sleep(30)
+    monkeypatch.setattr(main_module, "generate", slow_generate)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成测试轴", "part_type": "shaft", "use_ai": False})
+        cancelled = await client.delete(created.json()["status_url"])
+        await __import__("asyncio").sleep(.01)
+        state = await client.get(created.json()["status_url"])
+    assert cancelled.status_code == 200
+    assert state.json()["status"] == "cancelled"
+
+
+@pytest.mark.asyncio
+async def test_generation_task_timeout_is_actionable(monkeypatch):
+    async def slow_generate(_request):
+        await __import__("asyncio").sleep(30)
+    monkeypatch.setattr(main_module, "generate", slow_generate)
+    monkeypatch.setattr(main_module, "GENERATION_TIMEOUT_SECONDS", .01)
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        created = await client.post("/api/generation-tasks", json={"description": "生成超时测试轴", "part_type": "shaft", "use_ai": False})
+        await __import__("asyncio").sleep(.05)
+        state = await client.get(created.json()["status_url"])
+    assert state.json()["status"] == "failed"
+    assert "生成超时" in state.json()["error"]
+    assert state.json()["recoverable"] is True
+
+
+def test_interrupted_generation_task_is_recovered_with_clear_error(monkeypatch, tmp_path):
+    task_id = "interrupted-task"
+    (tmp_path / f"{task_id}.json").write_text(
+        '{"id":"interrupted-task","status":"running","progress":50}',
+        encoding="utf-8",
+    )
+    recovered = {}
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    monkeypatch.setattr(main_module, "GENERATION_TASKS", recovered)
+    main_module.recover_generation_tasks()
+    assert recovered[task_id]["status"] == "failed"
+    assert "worker 曾中断" in recovered[task_id]["error"]
+    assert recovered[task_id]["recoverable"] is True

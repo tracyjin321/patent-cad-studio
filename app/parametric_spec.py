@@ -68,6 +68,7 @@ def create_parametric_spec(part_type: str, parameters: dict[str, Any], descripti
             "required": True,
             "default": value,
         })
+    application_protocol = "AP214" if part_type == "rocket" else "AP242"
     return {
         "schema_version": "1.3",
         "spec_type": "component",
@@ -122,7 +123,7 @@ def create_parametric_spec(part_type: str, parameters: dict[str, Any], descripti
             }],
             "output": {
                 "format": "STEP",
-                "application_protocol": "AP242",
+                "application_protocol": application_protocol,
                 "preserve_names": True,
                 "preserve_colors": True,
                 "filename_template": f"{component_id}.step",
@@ -155,7 +156,7 @@ def create_parametric_spec(part_type: str, parameters: dict[str, Any], descripti
             },
             "step_roundtrip": {
                 "required": True,
-                "application_protocol": "AP242",
+                "application_protocol": application_protocol,
                 "preserve_product_name": True,
                 "preserve_color": True,
                 "preserve_units": True,
@@ -166,7 +167,7 @@ def create_parametric_spec(part_type: str, parameters: dict[str, Any], descripti
                 "file": "reference.step",
                 "role": "由参数化 YAML 物化的几何基准",
                 "format": "STEP",
-                "application_protocol": "AP242",
+                "application_protocol": application_protocol,
                 "length_unit": "mm",
                 "sha256": None,
             },
@@ -297,7 +298,8 @@ def resolve_parametric_component(
         persisted = load_spec(spec_path)
         shape = build_shape_from_spec(persisted)
         reference = component_dir / persisted["artifacts"]["reference_step"]["file"]
-        write_shape_step(shape, reference)
+        protocol = str(persisted["geometry"]["output"].get("application_protocol", "AP242"))
+        write_shape_step(shape, reference, protocol)
         measured = inspect_shape(shape)
         persisted["identity"]["status"] = "generated"
         persisted["identity"]["updated_at"] = date.today().isoformat()

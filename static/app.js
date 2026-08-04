@@ -3,6 +3,8 @@ import { CadModelViewer } from "/static/model-viewer.js";
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const HISTORY_KEY = "cad-history";
+const HISTORY_VISIBLE_LIMIT = 5;
+const HISTORY_STORAGE_LIMIT = 50;
 const HEALTH_CHECK_INTERVAL = 30000;
 
 function renderServiceStatus(state, message) {
@@ -34,13 +36,13 @@ async function checkServiceHealth(showChecking = false) {
 }
 
 function historySummary(item) {
-  const {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time}=item;
-  return {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,time};
+  const {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,multiviews,quality_score,semantic_assembly,review_status,reference_score,time}=item;
+  return {id,title,part_type,parameters,structural_parameters,compliance,parser,parser_detail,step_url,spec_id,spec_url,generation_source,spec_fingerprint,core_elements,selected_components,multiviews,quality_score,semantic_assembly,review_status,reference_score,time};
 }
 function loadHistory() {
   try {
     const parsed=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-    const summaries=(Array.isArray(parsed)?parsed:[]).slice(0,12).map(historySummary);
+    const summaries=(Array.isArray(parsed)?parsed:[]).slice(0,HISTORY_STORAGE_LIMIT).map(historySummary);
     localStorage.setItem(HISTORY_KEY,JSON.stringify(summaries));
     return summaries;
   } catch(error) {
@@ -50,10 +52,10 @@ function loadHistory() {
   }
 }
 function persistHistory(items) {
-  try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12).map(historySummary)));return true;}
+  try {localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,HISTORY_STORAGE_LIMIT).map(historySummary)));return true;}
   catch(error) {console.warn("历史摘要保存失败",error);return false;}
 }
-const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, components: [], componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory() };
+const state = { part: "bearing", result: null, referenceImage: null, isGenerating: false, zoom: 1, exampleIndex: 0, recommended: new Set(), recommendationSource: "local", recommendationDetail: null, recommendationTimer: null, recommendationController: null, components: [], componentDisposition: null, componentRecommendation: null, componentIndex: new Map(), componentCategories: [], selectedComponentIds: new Set(), componentQueryTimer: null, componentController: null, history: loadHistory(), historyExpanded: false };
 const refreshExamples = [
   "生成深沟球轴承，外径90mm，内径45mm，宽度23mm，包含12个滚珠，用于高速电机转子。",
   "设计调心滚子轴承，外径180mm，内径85mm，宽度41mm，适用于矿山输送机重载支承。",
@@ -74,9 +76,10 @@ const refreshExamples = [
   "设计弹性联轴器，外径95mm，总长130mm，两端轴孔分别为28mm和32mm。",
   "构造伺服电机膜片联轴器，外径68mm，总长82mm，轴孔20mm，包含双膜片组。",
   "生成双唇骨架油封，外径72mm，内径40mm，宽度10mm，包含主密封唇和防尘唇。",
-  "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。"
+  "设计耐高温轴端密封件，外径110mm，内径65mm，宽度16mm，带环形密封槽。",
+  "生成猎鹰九号 Block 5 全箭，火箭总高度70米，箭体直径3.66米，整流罩直径5.2米，配置9台Merlin发动机、4片栅格翼和4条折叠着陆腿。"
 ];
-const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件" };
+const labels = { bearing:"轴承", flange:"法兰", valve:"阀门", shaft:"轴系", gear:"齿轮", screw:"丝杠", coupling:"联轴器", seal:"密封件", rocket:"运载火箭" };
 const elementPatterns = {
   bearing: /轴承|滚珠|滚子|轴瓦|支承座|bearing/i,
   flange: /法兰|法兰盘|连接盘|突缘|flange/i,
@@ -85,9 +88,10 @@ const elementPatterns = {
   gear: /齿轮|齿圈|轮齿|齿数|模数|gear/i,
   screw: /丝杠|丝杆|螺杆|导程|滚珠丝杠|screw/i,
   coupling: /联轴器|联轴节|轴联接|coupling/i,
-  seal: /密封件|密封圈|油封|密封环|密封唇|seal/i
+  seal: /密封件|密封圈|油封|密封环|密封唇|seal/i,
+  rocket: /猎鹰九号|猎鹰9号|Falcon\s*9|运载火箭|火箭/i
 };
-const componentTypeToPart = {bearing:"bearing",shaft:"shaft",hub:"shaft",gear:"gear",pulley:"gear",sprocket:"gear",screw:"screw",nut:"screw",coupling:"coupling",seal:"seal",flange:"flange",valve:"valve"};
+const componentTypeToPart = {bearing:"bearing",shaft:"shaft",hub:"shaft",gear:"gear",pulley:"gear",sprocket:"gear",screw:"screw",nut:"screw",coupling:"coupling",seal:"seal",flange:"flange",valve:"valve",rocket:"rocket"};
 const componentIconPaths = {
   fastener:'<path d="M12 2 7 5v5l3 2v10h4V12l3-2V5Z"/><path d="M8 6h8M10 14h4M10 17h4M10 20h4"/>',
   nut:'<path d="m5 8 4-4h6l4 4v8l-4 4H9l-4-4Z"/><circle cx="12" cy="12" r="3"/>',
@@ -137,7 +141,7 @@ function extractCoreElements(description){clearTimeout(state.recommendationTimer
 function renderComponents(){
   const container=$("#component-groups");container.replaceChildren();
   $("#component-selection-count").textContent=`（可选，${state.selectedComponentIds.size} 已选）`;
-  if(!state.components.length){const empty=document.createElement("p");empty.className="empty-small";empty.textContent="没有找到匹配图元";container.appendChild(empty);return;}
+  if(!state.components.length){const empty=document.createElement("div");empty.className="component-resolution";const message=document.createElement("p");message.className="empty-small";message.textContent=state.componentDisposition==="parametric_generation"?"未命中固定图元，可由参数化规格族生成":"没有找到匹配图元，可创建待补任务进入审核流程";empty.appendChild(message);if($("#component-search").value.trim()){const action=document.createElement("button");action.type="button";action.dataset.createBacklog="true";action.textContent="创建待补图元任务";empty.appendChild(action);}container.appendChild(empty);return;}
   const groups=state.components.reduce((map,item)=>{const list=map.get(item.category)||[];list.push(item);map.set(item.category,list);return map;},new Map());
   for(const [category,components] of groups){
     const group=document.createElement("section");group.className="component-group";
@@ -149,7 +153,7 @@ function renderComponents(){
 }
 async function loadComponents(){
   state.componentController?.abort();const controller=new AbortController();state.componentController=controller;const params=new URLSearchParams();const q=$("#component-search").value.trim(),category=$("#component-category").value;if(q)params.set("q",q);if(category)params.set("category",category);
-  try{const response=await fetch(`/api/components?${params}`,{signal:controller.signal});if(!response.ok)throw new Error(`图元目录加载失败 (${response.status})`);const data=await response.json();state.components=data.items;for(const component of data.items)state.componentIndex.set(component.id,component);if(!state.componentCategories.length){state.componentCategories=data.categories;for(const item of data.categories){const option=document.createElement("option");option.value=item.id;option.textContent=`${item.label} (${item.count})`;$("#component-category").appendChild(option);}}renderComponents();}
+  try{const response=await fetch(`/api/components?${params}`,{signal:controller.signal});if(!response.ok)throw new Error(`图元目录加载失败 (${response.status})`);const data=await response.json();state.components=data.items;state.componentDisposition=data.disposition;state.componentRecommendation=data.recommendation;for(const component of data.items)state.componentIndex.set(component.id,component);if(!state.componentCategories.length){state.componentCategories=data.categories;for(const item of data.categories){const option=document.createElement("option");option.value=item.id;option.textContent=`${item.label} (${item.count})`;$("#component-category").appendChild(option);}}renderComponents();}
   catch(error){if(error.name==="AbortError")return;$("#component-groups").innerHTML='<p class="empty-small">component_library 暂时无法加载</p>';toast(error.message);}
 }
 
@@ -159,15 +163,21 @@ function renderHistory() {
   const el=$("#history");
   if (!state.history.length) { el.innerHTML='<p class="empty-small">暂无生成记录</p>'; return; }
   const sourceLabel=item=>item.parser==="moonshot"?"Kimi K2.6":item.parser==="local"?"本地解析":`智能解析降级${item.parser_detail?`：${item.parser_detail}`:""}`;
-  el.innerHTML=state.history.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}${item.svg&&item.model?"":" · 参数摘要"}</small></div>`).join("");
-  $$(".history-item").forEach(el=>el.onclick=()=>{const item=state.history[Number(el.dataset.index)];if(item.svg&&item.model)showResult(item);else{renderParams(item);setTab("params");toast("该历史记录仅保留参数摘要，请重新生成预览");}});
+  const visible=state.historyExpanded?state.history:state.history.slice(0,HISTORY_VISIBLE_LIMIT),remaining=Math.max(0,state.history.length-HISTORY_VISIBLE_LIMIT);
+  const items=visible.map((item,i)=>`<div class="history-item" data-index="${i}"><strong>${item.title}</strong><small>${item.time} · ${sourceLabel(item)}${item.svg&&item.model?"":" · 参数摘要"}</small></div>`).join("");
+  const more=remaining?`<button type="button" class="history-more" aria-expanded="${state.historyExpanded}"><span class="history-more-label">${state.historyExpanded?"收起历史记录":"展开更多"}</span>${state.historyExpanded?"":`<span class="history-more-count">${remaining}</span>`}<i class="history-more-chevron" aria-hidden="true"></i></button>`:"";
+  el.innerHTML=items+more;
+  el.querySelectorAll(".history-item").forEach(itemEl=>itemEl.onclick=()=>{const item=state.history[Number(itemEl.dataset.index)];if(item.svg&&item.model)showResult(item);else{renderParams(item);setTab("params");toast("该历史记录仅保留参数摘要，请重新生成预览");}});
+  el.querySelector(".history-more")?.addEventListener("click",()=>{state.historyExpanded=!state.historyExpanded;renderHistory();});
 }
 function renderParams(result) {
   const parserText=result.parser==="moonshot"?"Kimi K2.6 智能解析":"本地确定性解析",parserDetail=result.parser==="local-fallback"?`<p>解析说明：${result.parser_detail||"智能解析暂不可用，已自动回退"}</p>`:"";
   const sourceText={generated:"新建 YAML 并物化 STEP",cache:"命中参数化缓存",library:"命中正式图元库"}[result.generation_source]||"旧版直接建模";
   const selectedComponents=result.selected_components||[];const coreText=selectedComponents.length?selectedComponents.map(component=>component.name).join("、"):(result.core_elements||[result.part_type]).map(part=>labels[part]).join("、")+"（语义自动匹配）";
   const documentedParameters={...result.parameters,...(result.structural_parameters||{})};
-  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p><div class="param-grid">${Object.entries(documentedParameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
+  const score=result.quality_score||{},reference=result.reference_score,semantic=result.semantic_assembly;
+  const viewButtons=Object.keys(result.multiviews||{}).map(view=>`<button type="button" class="view-chip" data-view="${view}">${{front:"主视",top:"俯视",side:"侧视",isometric:"轴测"}[view]||view}</button>`).join("");
+  $("#parameter-content").innerHTML=`<h2>${result.title}</h2><p>解析方式：${parserText}</p>${parserDetail}<p>生成规格：${sourceText}${result.spec_id?` · <code>${result.spec_id}</code>`:""}</p><p>核心图元：${coreText}</p>${score.score!=null?`<section class="quality-card"><div><small>装配质量综合评分</small><strong>${score.score}<em>/100 · ${score.grade}</em></strong></div><span class="review-state ${result.review_status||"pending"}">${result.review_status==="approved"?"已通过人工审核":result.review_status==="rejected"?"已驳回":"待人工审核"}</span>${reference?`<p>参考图还原：${reference.score} · 轮廓 ${reference.contour_score} · 特征 ${reference.key_feature_score}</p>`:""}<div class="review-actions"><button data-review="approve">通过审核</button><button data-review="reject">驳回</button></div></section>`:""}${viewButtons?`<div class="view-switcher"><strong>多视图</strong>${viewButtons}</div>`:""}${semantic?`<p>语义装配：${semantic.definitions} 个零件定义 · ${semantic.instances} 个实例 · XCAF/AP242</p>`:""}<div class="param-grid">${Object.entries(documentedParameters).map(([k,v])=>`<div class="param-row"><span>${k.replaceAll("_"," ")}</span><strong>${v}</strong></div>`).join("")}</div><div class="check-list"><h3>合规校验</h3>${result.compliance.map(c=>`<div class="check"><span>${c.name}</span><strong class="${c.passed?"pass":""}">${c.passed?"✓ 通过":"× 未通过"}</strong></div>`).join("")}</div>`;
 }
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
@@ -179,6 +189,19 @@ function showResult(result) {
 }
 function applyZoom(){ const svg=$("#canvas svg"); if(svg) svg.style.transform=`scale(${state.zoom})`; $("#zoom-label").textContent=`${Math.round(state.zoom*100)}%`; }
 function download(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
+async function submitGenerationTask(payload){
+  const created=await fetch("/api/generation-tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  if(!created.ok){const detail=await created.json().catch(()=>({}));throw new Error(detail.detail||`无法创建生成任务（错误码：${created.status}）`);}
+  const task=await created.json();
+  for(;;){
+    await new Promise(resolve=>setTimeout(resolve,500));
+    const response=await fetch(task.status_url,{cache:"no-store"});
+    if(!response.ok)throw new Error(`无法查询生成任务（错误码：${response.status}）`);
+    const state=await response.json();
+    if(state.status==="completed")return state.result;
+    if(["failed","cancelled"].includes(state.status))throw new Error(state.error||"生成任务未完成");
+  }
+}
 async function generate() {
   const description=$("#description").value.trim();
   if(description.length<2){toast("请先输入技术描述");$("#description").focus();return;}
@@ -192,10 +215,8 @@ async function generate() {
   progress.classList.add("show");renderProgress();const timer=setInterval(()=>{const remaining=96-progressValue;progressValue=Math.min(96,progressValue+Math.max(.18,remaining*.022));renderProgress();},120);
   $("#canvas").classList.remove("empty");$("#canvas").innerHTML='<div class="spinner"></div>';
   try {
-    const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked})});
-    if(!response.ok) throw new Error(`附图生成失败（错误码：${response.status}）`);
-    const result=await response.json();clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
-    state.history.unshift(result);state.history=state.history.slice(0,12);renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
+    const result=await submitGenerationTask({description,part_type:primaryPart,core_elements:coreElements,component_ids:[...state.selectedComponentIds],use_ai:$("#use-ai").checked});if(state.referenceImage){const form=new FormData();form.append("file",state.referenceImage);const compared=await fetch(`/api/models/${result.id}/reference-score`,{method:"POST",body:form});if(compared.ok)result.reference_score=await compared.json();}clearInterval(timer);progressValue=100;progress.dataset.stage="4";$$('.cad-phases span').forEach(item=>{item.classList.remove("active");item.classList.add("done")});$("#progress-bar").style.width="100%";$("#progress-percent").textContent="100%";$("#progress-title").textContent="生成完成";$("#progress-detail").textContent="SVG 附图、3D 预览与 STEP 文件已就绪";await new Promise(r=>setTimeout(r,600));result.time=new Date().toLocaleString("zh-CN",{hour12:false});
+    state.history.unshift(result);state.history=state.history.slice(0,HISTORY_STORAGE_LIMIT);state.historyExpanded=false;renderHistory();showResult(result);persistHistory(state.history);toast("附图已生成");
   } catch(error) { $("#canvas").classList.add("empty");$("#canvas").innerHTML=`<div class="placeholder"><p>${error.message}</p><small>请稍后重试；如问题持续，请联系管理员</small></div>`;toast(error.message); }
   finally {clearInterval(timer);progress.classList.remove("show");button.disabled=false;button.classList.remove("is-loading");button.removeAttribute("aria-busy");button.innerHTML='<span>生成附图</span>';state.isGenerating=false;checkServiceHealth();}
 }
@@ -204,7 +225,7 @@ $("#description").oninput=e=>{$("#counter").textContent=`${e.target.value.length
 $("#example").onclick=()=>{const index=state.exampleIndex%refreshExamples.length;$("#description").value=refreshExamples[index];state.exampleIndex=(index+1)%refreshExamples.length;$("#description").dispatchEvent(new Event("input"));};
 $("#clear").onclick=()=>{$("#description").value="";$("#description").dispatchEvent(new Event("input"));};
 $("#component-toggle").onclick=()=>{const open=$("#component-toggle").getAttribute("aria-expanded")==="true";$("#component-toggle").setAttribute("aria-expanded",String(!open));$("#component-panel").hidden=open;};
-$("#component-groups").onclick=e=>{const button=e.target.closest("[data-component-id]");if(!button)return;const id=button.dataset.componentId;if(state.selectedComponentIds.has(id))state.selectedComponentIds.delete(id);else state.selectedComponentIds.add(id);renderComponents();renderRecommendation();};
+$("#component-groups").onclick=async e=>{const backlog=e.target.closest("[data-create-backlog]");if(backlog){const query=$("#component-search").value.trim();backlog.disabled=true;try{const response=await fetch("/api/component-backlog",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({query,description:$("#description").value.trim()||query,source:"component-search"})});const task=await response.json();if(!response.ok)throw new Error(task.detail||"待补任务创建失败");toast(`已创建待补任务 ${task.id}`);backlog.textContent="待补任务已创建";}catch(error){backlog.disabled=false;toast(error.message);}return;}const button=e.target.closest("[data-component-id]");if(!button)return;const id=button.dataset.componentId;if(state.selectedComponentIds.has(id))state.selectedComponentIds.delete(id);else state.selectedComponentIds.add(id);renderComponents();renderRecommendation();};
 $("#component-search").oninput=()=>{clearTimeout(state.componentQueryTimer);state.componentQueryTimer=setTimeout(loadComponents,220);};
 $("#component-category").onchange=loadComponents;
 $("#primary-part").onchange=e=>{state.part=e.target.value;renderPrimaryPartControl(selectedParts());};
@@ -219,7 +240,15 @@ $("#reset").onclick=()=>{state.zoom=1;applyZoom();};
 $("#compliance").onclick=()=>{setTab("params");toast(state.result.compliance.every(c=>c.passed)?"全部合规检查通过":"存在未通过项目");};
 $("#svg").onclick=()=>download(new Blob([state.result.svg],{type:"image/svg+xml"}),`${state.result.part_type}-${state.result.id.slice(0,8)}.svg`);
 $("#png").onclick=()=>{const image=new Image();const blob=new Blob([state.result.svg],{type:"image/svg+xml"});const url=URL.createObjectURL(blob);image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=2480;canvas.height=3508;canvas.getContext("2d").drawImage(image,0,0,2480,3508);canvas.toBlob(png=>download(png,`${state.result.part_type}-${state.result.id.slice(0,8)}.png`));URL.revokeObjectURL(url);};image.src=url;};
-$("#clear-history").onclick=()=>{state.history=[];localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
+$("#clear-history").onclick=()=>{state.history=[];state.historyExpanded=false;localStorage.removeItem(HISTORY_KEY);renderHistory();toast("历史记录已清空");};
+$("#parameter-content").onclick=async event=>{
+  const view=event.target.closest("[data-view]")?.dataset.view;
+  if(view&&state.result?.multiviews?.[view]){$("#canvas").innerHTML=state.result.multiviews[view];setTab("preview");state.zoom=1;applyZoom();return;}
+  const decision=event.target.closest("[data-review]")?.dataset.review;
+  if(!decision||!state.result)return;
+  try{const response=await fetch(`/api/generation-reviews/${state.result.id}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({decision,reviewer:"workspace-reviewer",note:"工作区人工审核"})});const review=await response.json();if(!response.ok)throw new Error(review.detail||"审核提交失败");state.result.review_status=review.status;renderParams(state.result);toast(review.status==="approved"?"已通过人工审核":"已驳回生成结果");}
+  catch(error){toast(error.message);}
+};
 renderHistory();
 renderRecommendation();
 loadComponents();

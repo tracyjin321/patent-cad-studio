@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "name": "Falcon 9 Full Thrust Block 5",
+  "application_protocol": "AP214",
+  "length_unit": "mm",
+  "coordinate_system": {
+    "origin": "engine nozzle lowest plane",
+    "axis": "+Z"
+  },
+  "rules": [
+    "All component STEP files are authored in the shared vehicle datum.",
+    "First stage, grid fins, interstage, second stage, and payload fairing remain independent subassemblies.",
+    "Final output is a single non-fused compound STEP AP214 file.",
+    "Overall envelope height must equal 70000 mm; fairing diameter must equal 5200 mm."
+  ],
+  "components": [
+    {
+      "spec": "../../component_library/falcon9-first-stage/component.yaml"
+    },
+    {
+      "spec": "../../component_library/falcon9-grid-fin-set/component.yaml"
+    },
+    {
+      "spec": "../../component_library/falcon9-interstage/component.yaml"
+    },
+    {
+      "spec": "../../component_library/falcon9-second-stage/component.yaml"
+    },
+    {
+      "spec": "../../component_library/falcon9-payload-fairing/component.yaml"
+    }
+  ]
+}

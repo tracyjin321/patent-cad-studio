@@ -18,6 +18,7 @@ CATEGORY_DEFINITIONS = (
     ("motion", "直线运动", {"motion"}),
     ("structure", "支撑与结构", {"stock", "profile", "hardware"}),
     ("actuation", "动力与执行", {"actuator"}),
+    ("aerospace", "航天器结构", {"rocket"}),
 )
 
 SUBTYPE_LABELS = {
@@ -33,6 +34,8 @@ SUBTYPE_LABELS = {
     "v_slot_extrusion": "V型槽铝型材", "belt_pulley": "皮带轮", "timing_idler": "同步带惰轮",
     "timing_pulley": "同步带轮", "ball_screw": "滚珠丝杠", "lead_screw": "梯形丝杠",
     "ground_shaft": "精密光轴", "shaft_collar": "紧定轴环", "stepped_shaft": "阶梯轴",
+    "first_stage": "一级火箭", "grid_fin_set": "栅格翼组件", "interstage": "级间段",
+    "second_stage": "二级火箭", "payload_fairing": "有效载荷整流罩",
     "round_spacer": "圆柱隔离柱", "threaded_standoff": "六角隔离柱", "roller_chain": "滚子链轮",
     "roller_chain_drive": "滚子链传动轮", "angle_bar": "等边角钢", "plate_blank": "矩形板坯",
 }
@@ -75,6 +78,8 @@ def load_components() -> tuple[dict[str, Any], ...]:
             "category_label": category_label,
             "version": entry.get("version") or identity.get("version"),
             "status": entry.get("status") or identity.get("status"),
+            "standard": identity.get("standard"),
+            "port_types": sorted({str(port.get("type")) for port in spec.get("ports", []) if port.get("type")}),
             "description": identity.get("description"),
             "tags": identity.get("tags") or [],
         })
@@ -82,22 +87,81 @@ def load_components() -> tuple[dict[str, Any], ...]:
 
 
 def query_components(query: str = "", category: str = "") -> dict[str, Any]:
+    return structured_query_components(query=query, category=category)
+
+
+def parse_structured_query(query: str) -> dict[str, Any]:
+    """Extract common engineering designations without inventing dimensions."""
+    text = query.strip()
+    result: dict[str, Any] = {"raw": text, "tokens": re.findall(r"[a-z0-9.]+|[\u3400-\u9fff]+", text.casefold())}
+    metric = re.search(r"\bM\s*(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)", text, re.I)
+    if metric:
+        result.update({"metric_thread": f"M{metric.group(1)}", "diameter_mm": float(metric.group(1)), "length_mm": float(metric.group(2))})
+    bearing = re.search(r"(?<!\d)(6[0-3]\d{2}|60[0-9]|62[0-9]|63[0-9])(?!\d)", text)
+    if bearing:
+        result["bearing_series"] = bearing.group(1)
+    nema = re.search(r"\bNEMA\s*(\d+)\b", text, re.I)
+    if nema:
+        result["nema_frame"] = f"NEMA{nema.group(1)}"
+    dn = re.search(r"\bDN\s*(\d+)\b", text, re.I)
+    if dn:
+        result["nominal_diameter"] = f"DN{dn.group(1)}"
+    return result
+
+
+def structured_query_components(
+    query: str = "", category: str = "", *, component_type: str = "", subtype: str = "",
+    status: str = "", standard: str = "", port_type: str = "", limit: int = 100,
+) -> dict[str, Any]:
     all_components = load_components()
     category_order = {category_id: index for index, (category_id, _, _) in enumerate(CATEGORY_DEFINITIONS)}
+    parsed = parse_structured_query(query)
     needle = query.strip().casefold()
     items = []
     for component in all_components:
         if category and component["category"] != category:
             continue
+        if component_type and component["type"] != component_type:
+            continue
+        if subtype and component.get("subtype") != subtype:
+            continue
+        if status and component.get("status") != status:
+            continue
+        if standard and standard.casefold() not in str(component.get("standard") or "").casefold():
+            continue
+        if port_type and port_type not in component.get("port_types", []):
+            continue
+        fields = {
+            "id": component["id"], "standard": component.get("standard") or "", "name": component["name"],
+            "name_en": component.get("name_en") or "", "subtype": component.get("subtype") or "",
+            "tags": " ".join(component.get("tags") or []), "description": component.get("description") or "",
+            "type": component["type"],
+        }
         searchable = " ".join(str(value) for value in (
             component["id"], component["name"], component.get("name_en") or "",
             component["type"], component.get("subtype") or "",
             component.get("description") or "", *(component.get("tags") or []),
         )).casefold()
-        if needle and needle not in searchable:
+        matched = []
+        score = 0.0
+        if needle:
+            for field, weight in (("id", 1.0), ("standard", .95), ("name", .85), ("name_en", .8), ("subtype", .7), ("tags", .55), ("description", .35), ("type", .3)):
+                value = str(fields[field]).casefold()
+                if needle == value:
+                    score, matched = max(score, weight), [f"{field}:exact"]
+                elif needle in value:
+                    score += weight * .72
+                    matched.append(field)
+            for token in parsed["tokens"]:
+                if token in searchable:
+                    score += .08
+                    matched.append(token)
+        if needle and not matched:
             continue
-        items.append(component)
-    items.sort(key=lambda item: (category_order.get(item["category"], len(category_order)), item["name"].casefold(), item["id"]))
+        item = dict(component)
+        item.update({"score": round(min(score if needle else 1.0, 1.0), 4), "matched": list(dict.fromkeys(matched)), "warnings": []})
+        items.append(item)
+    items.sort(key=lambda item: (-item["score"], category_order.get(item["category"], len(category_order)), item["name"].casefold(), item["id"]))
 
     category_counts = {category_id: 0 for category_id, _, _ in CATEGORY_DEFINITIONS}
     category_counts["other"] = 0
@@ -110,7 +174,9 @@ def query_components(query: str = "", category: str = "") -> dict[str, Any]:
     ]
     if category_counts["other"]:
         categories.append({"id": "other", "label": "其他图元", "count": category_counts["other"]})
-    return {"items": items, "categories": categories, "total": len(all_components), "filtered": len(items)}
+    disposition = "exact_match" if items and items[0]["score"] >= .7 else "candidate_match" if items else "parametric_generation" if any(key in parsed for key in ("metric_thread", "bearing_series", "nema_frame", "nominal_diameter")) else "backlog_required"
+    return {"items": items[:max(1, min(limit, 200))], "categories": categories, "total": len(all_components), "filtered": len(items), "parsed_query": parsed, "disposition": disposition,
+            "recommendation": {"reason": "按 ID、标准号、名称、子类型、标签和描述加权排序", "next_action": disposition}}
 
 
 def components_by_id(component_ids: list[str]) -> list[dict[str, Any]]:

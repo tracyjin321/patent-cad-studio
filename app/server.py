@@ -6,6 +6,8 @@ import os
 
 import uvicorn
 
+from .main import recover_generation_tasks
+
 
 def worker_count() -> int:
     """Use two isolated CAD kernels by default; allow explicit capacity tuning."""
@@ -21,6 +23,7 @@ def worker_count() -> int:
 
 def main() -> None:
     os.environ["CAD_WORKERS"] = str(worker_count())
+    recover_generation_tasks()
     uvicorn.run(
         "app.main:app",
         host=os.getenv("CAD_HOST", "127.0.0.1"),

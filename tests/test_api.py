@@ -662,3 +662,53 @@ def test_interrupted_generation_task_is_recovered_with_clear_error(monkeypatch, 
     assert recovered[task_id]["status"] == "failed"
     assert "worker 曾中断" in recovered[task_id]["error"]
     assert recovered[task_id]["recoverable"] is True
+
+
+def test_generation_task_recovery_replaces_records_atomically(monkeypatch, tmp_path):
+    task_id = "interrupted-task"
+    task_path = tmp_path / f"{task_id}.json"
+    task_path.write_text(
+        '{"id":"interrupted-task","status":"running","progress":50}',
+        encoding="utf-8",
+    )
+    observed_at_replace = []
+    real_replace = main_module.os.replace
+
+    def observe_replace(source, destination):
+        observed_at_replace.append({
+            "old": json.loads(destination.read_text(encoding="utf-8")),
+            "new": json.loads(source.read_text(encoding="utf-8")),
+            "same_directory": source.parent == destination.parent,
+        })
+        real_replace(source, destination)
+
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    monkeypatch.setattr(main_module, "GENERATION_TASKS", {})
+    monkeypatch.setattr(main_module.os, "replace", observe_replace)
+
+    main_module.recover_generation_tasks()
+
+    assert observed_at_replace == [{
+        "old": {"id": task_id, "status": "running", "progress": 50},
+        "new": {
+            "id": task_id,
+            "status": "failed",
+            "progress": 50,
+            "error": "生成 worker 曾中断，请重新提交任务",
+            "recoverable": True,
+        },
+        "same_directory": True,
+    }]
+    assert json.loads(task_path.read_text(encoding="utf-8"))["status"] == "failed"
+
+
+@pytest.mark.parametrize("content", ["[]", '"not-a-record"', "null"])
+def test_generation_task_recovery_skips_non_object_json(monkeypatch, tmp_path, content):
+    (tmp_path / "malformed.json").write_text(content, encoding="utf-8")
+    recovered = {}
+    monkeypatch.setattr(main_module, "TASKS_DIR", tmp_path)
+    monkeypatch.setattr(main_module, "GENERATION_TASKS", recovered)
+
+    main_module.recover_generation_tasks()
+
+    assert recovered == {}

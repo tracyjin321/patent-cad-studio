@@ -1,5 +1,5 @@
 from pathlib import Path
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import contextmanager
 import asyncio
 import fcntl
 import hashlib
@@ -82,35 +82,32 @@ def _read_persisted_task(task_id: str) -> dict[str, object] | None:
         return None
 
 
+def _write_json_atomically(path: Path, record: dict[str, object]) -> None:
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+    os.replace(temporary, path)
+
+
 def _persist_task(task_id: str) -> None:
     path = _task_path(task_id)
     if path is None:
         raise ValueError("生成任务 ID 无效")
     record = {key: value for key, value in GENERATION_TASKS[task_id].items() if key != "runtime_task"}
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    temporary.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
-    os.replace(temporary, path)
+    _write_json_atomically(path, record)
 
 
 def recover_generation_tasks() -> None:
     for path in TASKS_DIR.glob("*.json"):
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(record, dict) or not isinstance(record.get("id"), str):
+                continue
             if record.get("status") in {"queued", "running"}:
                 record.update({"status": "failed", "error": "生成 worker 曾中断，请重新提交任务", "recoverable": True})
-                path.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+                _write_json_atomically(path, record)
             GENERATION_TASKS[str(record["id"])] = record
-        except (OSError, ValueError, KeyError):
+        except (OSError, ValueError, TypeError):
             continue
-
-
-@asynccontextmanager
-async def app_lifespan(_app):
-    recover_generation_tasks()
-    yield
-
-
-app.router.lifespan_context = app_lifespan
 
 
 @contextmanager

@@ -7,6 +7,8 @@ import re
 
 import yaml
 
+from .assembly_templates import match_assembly_template
+
 
 ROOT = Path(__file__).resolve().parent.parent
 LIBRARY = ROOT / "component_library"
@@ -214,12 +216,10 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
         if remaining > 0:
             recommendations.append({"component": index[component_id], "quantity": min(quantity, remaining), "reason": reason})
 
-    # Curated patent assembly with an authoritative multi-solid STEP. Prefer
-    # this exact assembly over independently placing its mentioned children:
-    # the source file preserves the shaft shoulders, circlip grooves and
-    # bearing/gear axial positions that cannot be recovered from nouns alone.
-    if re.search(r"(?:680[.．]9[.．]1[.．]6|齿轮轴组合)", text, re.I):
-        add("gear-shaft-assembly-680-9-1-6", 1, "精确命中齿轮轴组合 680.9.1.6 权威装配 STEP")
+    template = match_assembly_template(text)
+    if template:
+        for component_id, reason in template.components:
+            add(component_id, 1, reason)
 
     if thread and length is not None and re.search(r"内六角圆柱头|圆柱头内六角|ISO\s*4762|GB/?T\s*70\.1", text, re.I):
         size = thread[1:].replace(".", "p")
@@ -243,7 +243,12 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
 
     component_ids = [item["component"]["id"] for item in recommendations for _ in range(item["quantity"])]
     relations = []
-    if len(component_ids) > 1:
+    if template and component_ids == [component_id for component_id, _ in template.components]:
+        relations = [
+            {"source": component_ids[source], "target": component_ids[target], "relation": relation}
+            for source, target, relation in template.relations
+        ]
+    elif len(component_ids) > 1:
         relations = [
             {"source": component_ids[index - 1], "target": component_id, "relation": "按描述顺序相邻装配"}
             for index, component_id in enumerate(component_ids[1:], 1)

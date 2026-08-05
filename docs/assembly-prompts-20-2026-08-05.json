@@ -1,0 +1,25 @@
+[
+  {"id":"ASM-GS-001","family":"gear_shaft","prompt":"生成机械专利附图风格的齿轮轴组合：以阶梯齿轮轴为中心，装配6004-2Z轴承、轴用与孔用弹性挡圈、20/27×10定位套筒、6×6×14 A型平键及带键槽直齿轮，所有回转件同轴。","expected_component_count":7},
+  {"id":"ASM-GS-002","family":"gear_shaft","prompt":"绘制680.9.1.6齿轮轴组合装配图和爆炸图，包含6004轴承、内外弹性挡圈、定位套筒、平键和直齿轮，平键连接轴与键槽。","expected_component_count":7},
+  {"id":"ASM-GS-003","family":"gear_shaft","prompt":"构造一套阶梯齿轮轴传动组件：6004深沟球轴承支承，轴用挡圈与孔用挡圈定位，配置20/27×10套筒、A型平键和带键槽圆柱齿轮。","expected_component_count":7},
+  {"id":"ASM-GS-004","family":"gear_shaft","prompt":"请生成齿轮轴组合的黑白专利装配附图；中心为阶梯齿轮轴，依次安装6004-2Z轴承、两类弹性挡圈、隔套、6×6×14平键与直齿轮。","expected_component_count":7},
+  {"id":"ASM-GS-005","family":"gear_shaft","prompt":"以阶梯齿轮轴为基准建立同轴装配，使用6004轴承、GB/T 894.1轴用挡圈、GB/T 893.1孔用挡圈、定位套筒、平键及键槽直齿轮，并输出爆炸视图。","expected_component_count":7},
+
+  {"id":"ASM-SB-001","family":"shaft_bearing_coupler","prompt":"生成直径3mm精密轴、608深沟球轴承和3mm对3mm刚性夹紧联轴器的同轴装配专利附图。","expected_component_count":3},
+  {"id":"ASM-SB-002","family":"shaft_bearing_coupler","prompt":"设计D3精密光轴组件，轴上安装608轴承，末端由D3/D3刚性联轴器夹紧连接，展示装配和爆炸状态。","expected_component_count":3},
+  {"id":"ASM-SB-003","family":"shaft_bearing_coupler","prompt":"构造一套3 mm输出轴传动装配：配置608深沟球轴承及3-3 mm夹紧联轴器，三件保持同轴。","expected_component_count":3},
+  {"id":"ASM-SB-004","family":"shaft_bearing_coupler","prompt":"绘制φ3精密轴、608轴承、3mm到3mm刚性联轴器组成的微型轴系机械专利图。","expected_component_count":3},
+  {"id":"ASM-SB-005","family":"shaft_bearing_coupler","prompt":"生成3mm光轴支承连接机构，包含608深沟球轴承与刚性联轴器，联轴器规格为3mm对3mm，并标示同轴关系。","expected_component_count":3},
+
+  {"id":"ASM-SC-001","family":"shaft_collar_coupler","prompt":"生成直径3mm精密轴、3mm紧定轴环和刚性联轴器组成的定位轴系，轴环完成轴向限位。","expected_component_count":3},
+  {"id":"ASM-SC-002","family":"shaft_collar_coupler","prompt":"设计D3精密光轴装配，包含D3 shaft collar与夹紧联轴器，要求三件同轴并展示爆炸图。","expected_component_count":3},
+  {"id":"ASM-SC-003","family":"shaft_collar_coupler","prompt":"构造3 mm传动轴、轴用定位环和刚性联轴器的机械专利装配附图。","expected_component_count":3},
+  {"id":"ASM-SC-004","family":"shaft_collar_coupler","prompt":"绘制φ3精密轴组件，在轴端配置3mm轴环及夹紧联轴器，用紧定结构进行轴向定位。","expected_component_count":3},
+  {"id":"ASM-SC-005","family":"shaft_collar_coupler","prompt":"生成3mm光轴、shaft collar和刚性联轴器的三图元同轴组合，并提供装配视图。","expected_component_count":3},
+
+  {"id":"ASM-FS-001","family":"fastener_stack","prompt":"生成6图元M4紧固栈：1个ISO 4762 M4×8内六角圆柱头螺钉、4个M4平垫圈和1个ISO 4032 M4六角螺母，按轴向装配。","expected_component_count":6},
+  {"id":"ASM-FS-002","family":"fastener_stack","prompt":"装配GB/T 70.1 M4×12内六角螺钉1个、M4平垫圈5个、M4六角螺母1个，共7件同轴贴合。","expected_component_count":7},
+  {"id":"ASM-FS-003","family":"fastener_stack","prompt":"需要1件ISO 4762 M4x16内六角圆柱头螺钉、6枚M4 flat washer和1枚M4 hex nut，形成8图元装配。","expected_component_count":8},
+  {"id":"ASM-FS-004","family":"fastener_stack","prompt":"绘制9图元紧固组件：GB/T 70.1 M4*20螺钉1个、M4平垫7个、ISO 4032 M4六角螺母1个。","expected_component_count":9},
+  {"id":"ASM-FS-005","family":"fastener_stack","prompt":"生成10图元M4轴向紧固栈，包含ISO 4762 M4×20内六角螺钉1个、M4平垫圈8个和M4六角螺母1个。","expected_component_count":10}
+]

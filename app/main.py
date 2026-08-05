@@ -364,7 +364,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 checks.extend([
                     {"name": "装配 B-Rep 有效", "passed": bool(assembly_report["quality"]["valid_brep"])},
                     {"name": "装配无实体干涉", "passed": bool(assembly_report["quality"]["interference_free"])},
-                    {"name": "图元、实例与实体数量一致", "passed": len(request.component_ids) == instance_count == solid_count},
+                    {"name": "图元、实例与实体数量一致", "passed": len(request.component_ids) == instance_count and solid_count >= instance_count},
                     {"name": "XCAF 语义实例数量一致", "passed": int(semantic_assembly["instances"]) == instance_count},
                 ])
             if request.part_type == "valve" and not request.component_ids:

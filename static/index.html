@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>专图灵境 · 智能附图生成工作区</title>
   <link rel="stylesheet" href="/static/styles.css?v=20260801-yaml-first">
-  <link rel="stylesheet" href="/static/model-viewer.css?v=20260801-yaml-first">
+  <link rel="stylesheet" href="/static/model-viewer.css?v=20260805-assembly-toggle-v1">
   <link rel="stylesheet" href="/static/model-viewer-fallback.css?v=20260803-webgl-fallback">
   <link rel="stylesheet" href="/static/generate-button.css?v=20260801-professional-loading">
   <link rel="stylesheet" href="/static/violet-theme.css?v=20260801-result-frame">
@@ -82,7 +82,7 @@
         <div class="toolbar-actions"><button id="patent-precheck" disabled><svg class="ui-icon"><use href="#icon-shield-check"></use></svg>专利附图预检</button><a id="yaml" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 YAML</a><a id="step" class="toolbar-link disabled" download><svg class="ui-icon"><use href="#icon-download"></use></svg>下载 STEP</a><button id="png" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 PNG</button><button id="svg" disabled><svg class="ui-icon"><use href="#icon-download"></use></svg>导出 SVG</button></div>
       </div>
       <div id="model" class="panel">
-        <div class="model-stage"><div id="model-component-legend" class="model-component-legend" hidden aria-label="装配图元图例"></div><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
+        <div class="model-stage"><div id="model-component-legend" class="model-component-legend" hidden aria-label="装配图元图例"></div><button id="assembly-view-toggle" class="assembly-view-toggle" type="button" hidden aria-pressed="false">查看展开关系</button><canvas id="model-canvas" aria-label="可旋转的零件三维模型"></canvas><div class="model-help">拖动旋转 · 滚轮缩放 · 双击复位</div></div>
       </div>
       <div id="preview" class="panel active">
         <div id="canvas" class="canvas empty">
@@ -125,6 +125,6 @@
     </article>
   </main>
   <!-- supersedes /static/app.js?v=20260804-large-assemblies -->
-  <script type="module" src="/static/app.js?v=20260804-semantic-assembly-v1&amp;qa=patent-prompts-v1&amp;examples=70-v1"></script>
+  <script type="module" src="/static/app.js?v=20260804-semantic-assembly-v1&amp;assembly=advanced-v1&amp;qa=patent-prompts-v1&amp;examples=70-v1"></script>
 </body>
 </html>

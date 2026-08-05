@@ -1,4 +1,4 @@
-import { CadModelViewer } from "/static/model-viewer.js";
+import { CadModelViewer } from "/static/model-viewer.js?v=20260805-assembly-toggle-v1";
 import { historySummary, updatePatentPrecheckButton } from "/static/history-summary.js?v=20260804-patent-precheck";
 
 const $ = (selector) => document.querySelector(selector);
@@ -198,10 +198,12 @@ function renderParams(result) {
 function showResult(result) {
   state.result=result; $("#canvas").classList.remove("empty"); $("#canvas").innerHTML=result.svg; renderParams(result);
   modelViewer.setModel(result.model); $("#step").href=result.step_url; $("#step").classList.remove("disabled");
+  const assemblyToggle=$("#assembly-view-toggle");assemblyToggle.hidden=(result.model||[]).length<2;assemblyToggle.dataset.mode="assembled";assemblyToggle.setAttribute("aria-pressed","false");assemblyToggle.textContent="查看展开关系";modelViewer.setAssemblyMode("assembled");
   renderModelLegend(result);
   if(result.spec_url){$("#yaml").href=result.spec_url;$("#yaml").classList.remove("disabled");}else{$("#yaml").removeAttribute("href");$("#yaml").classList.add("disabled");}
   ["#png","#svg"].forEach(id=>$(id).disabled=false); state.zoom=1; applyZoom(); setTab("model");
 }
+$("#assembly-view-toggle").onclick=()=>{const button=$("#assembly-view-toggle"),next=button.dataset.mode==="assembled"?"exploded":"assembled";button.dataset.mode=next;button.setAttribute("aria-pressed",String(next==="exploded"));button.textContent=next==="exploded"?"查看装配关系":"查看展开关系";modelViewer.setAssemblyMode(next);};
 function renderModelLegend(result){
   const legend=$("#model-component-legend"),components=result.selected_components||[],models=result.model||[];
   if(!components.length||!models.some(item=>item.component_id)){legend.hidden=true;legend.replaceChildren();return;}

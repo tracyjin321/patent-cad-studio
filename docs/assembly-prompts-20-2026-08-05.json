@@ -1,9 +1,9 @@
 [
-  {"id":"ASM-GS-001","family":"gear_shaft","prompt":"生成机械专利附图风格的齿轮轴组合：以阶梯齿轮轴为中心，装配6004-2Z轴承、轴用与孔用弹性挡圈、20/27×10定位套筒、6×6×14 A型平键及带键槽直齿轮，所有回转件同轴。","expected_component_count":7},
-  {"id":"ASM-GS-002","family":"gear_shaft","prompt":"绘制680.9.1.6齿轮轴组合装配图和爆炸图，包含6004轴承、内外弹性挡圈、定位套筒、平键和直齿轮，平键连接轴与键槽。","expected_component_count":7},
-  {"id":"ASM-GS-003","family":"gear_shaft","prompt":"构造一套阶梯齿轮轴传动组件：6004深沟球轴承支承，轴用挡圈与孔用挡圈定位，配置20/27×10套筒、A型平键和带键槽圆柱齿轮。","expected_component_count":7},
-  {"id":"ASM-GS-004","family":"gear_shaft","prompt":"请生成齿轮轴组合的黑白专利装配附图；中心为阶梯齿轮轴，依次安装6004-2Z轴承、两类弹性挡圈、隔套、6×6×14平键与直齿轮。","expected_component_count":7},
-  {"id":"ASM-GS-005","family":"gear_shaft","prompt":"以阶梯齿轮轴为基准建立同轴装配，使用6004轴承、GB/T 894.1轴用挡圈、GB/T 893.1孔用挡圈、定位套筒、平键及键槽直齿轮，并输出爆炸视图。","expected_component_count":7},
+  {"id":"ASM-GS-001","family":"gear_shaft","prompt":"生成机械专利附图风格的齿轮轴组合：以阶梯齿轮轴为中心，装配6004-2Z轴承、轴用与孔用弹性挡圈、20/27×10定位套筒、6×6×14 A型平键及带键槽直齿轮，所有回转件同轴。","expected_component_count":9},
+  {"id":"ASM-GS-002","family":"gear_shaft","prompt":"绘制680.9.1.6齿轮轴组合装配图和爆炸图，包含6004轴承、内外弹性挡圈、定位套筒、平键和直齿轮，平键连接轴与键槽。","expected_component_count":9},
+  {"id":"ASM-GS-003","family":"gear_shaft","prompt":"构造一套阶梯齿轮轴传动组件：6004深沟球轴承支承，轴用挡圈与孔用挡圈定位，配置20/27×10套筒、A型平键和带键槽圆柱齿轮。","expected_component_count":9},
+  {"id":"ASM-GS-004","family":"gear_shaft","prompt":"请生成齿轮轴组合的黑白专利装配附图；中心为阶梯齿轮轴，依次安装6004-2Z轴承、两类弹性挡圈、隔套、6×6×14平键与直齿轮。","expected_component_count":9},
+  {"id":"ASM-GS-005","family":"gear_shaft","prompt":"以阶梯齿轮轴为基准建立同轴装配，使用6004轴承、GB/T 894.1轴用挡圈、GB/T 893.1孔用挡圈、定位套筒、平键及键槽直齿轮，并输出爆炸视图。","expected_component_count":9},
 
   {"id":"ASM-SB-001","family":"shaft_bearing_coupler","prompt":"生成直径3mm精密轴、608深沟球轴承和3mm对3mm刚性夹紧联轴器的同轴装配专利附图。","expected_component_count":3},
   {"id":"ASM-SB-002","family":"shaft_bearing_coupler","prompt":"设计D3精密光轴组件，轴上安装608轴承，末端由D3/D3刚性联轴器夹紧连接，展示装配和爆炸状态。","expected_component_count":3},

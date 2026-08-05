@@ -6,6 +6,8 @@ Report: .gstack/qa-reports/qa-report-127-0-0-1-2026-08-05-advanced-constraints.m
 
 from pathlib import Path
 
+import pytest
+
 from app.assembly import automatic_manifest, build_assembly
 from app.component_library import recommend_component_instances
 
@@ -19,11 +21,16 @@ def test_gear_shaft_uses_coaxial_assembled_placements_and_declared_contacts():
     manifest = automatic_manifest(ids, ROOT / "component_library", description=PROMPT)
     _, report = build_assembly(manifest)
     assert report["solved_constraints"][0]["type"] == "coaxial_shaft_stack"
-    assert len({str(instance["transform"]) for instance in report["instances"]}) == 7
+    assert len({str(instance["transform"]) for instance in report["instances"]}) == 9
     expected = [pair for pair in report["quality"]["pair_checks"] if pair.get("expected_contact")]
-    assert len(expected) == 5
+    assert len(expected) == 9
     assert report["quality"]["interference_free"] is True
-    assert report["solved_constraints"][0]["exploded_offsets_mm"] == [-55.0, 0.0, -18.0, 18.0, 42.0, 72.0, 96.0]
+    assert report["solved_constraints"][0]["exploded_offsets_mm"] == [0.0, -110.0, -80.0, -50.0, -25.0, 35.0, 60.0, 82.0, 112.0]
+    assert ids.count("bearing-6004-2z-gbt276") == 2
+    assert ids.count("circlip-external-gbt894-1-d20") == 2
+    size = report["quality"]["measured"]["bounding_box"]["size"]
+    reference_size = [48.016108, 88.216108, 47.741082]
+    assert sorted(size) == pytest.approx(sorted(reference_size), abs=0.3)
 
 
 def test_3d_preview_exposes_reversible_assembly_explosion_toggle():

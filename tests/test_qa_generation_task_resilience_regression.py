@@ -30,7 +30,7 @@ async def test_exact_local_assembly_match_does_not_wait_for_model(monkeypatch):
         })
 
     assert response.status_code == 200
-    assert len(response.json()["component_ids"]) == 7
+    assert len(response.json()["component_ids"]) == 9
     assert response.json()["component_ids"][0] == "stepped-gear-shaft-d20-l88-680-9-1-6"
     assert response.json()["parser_detail"] == "本地图元规则精确命中，跳过大模型补充分析"
 

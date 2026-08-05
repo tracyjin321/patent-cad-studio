@@ -232,13 +232,13 @@ def _specialized_layout(component_ids: list[str], description: str) -> tuple[lis
         placements = [
             _translation(),
             _placed(rotate_x_to_y, y=22.0),
-            _placed(rotate_z_to_y, y=18.0, z=-1.3),
-            _placed(rotate_z_to_y, y=32.0, z=19.3),
+            _placed(rotate_z_to_y, y=20.0),
+            _placed(rotate_z_to_y, y=32.5, z=-19.337),
             _placed(rotate_z_to_y, y=42.0),
             _placed(rotate_x_to_y, x=-8.0, y=48.0, z=7.0),
             _placed(rotate_z_to_y, x=-16.65, y=50.0, z=3.0),
         ]
-        return placements, [{"type": "coaxial_shaft_stack", "axis": "Y", "root": 0, "targets": [1, 2, 3, 4, 6], "key_target": 5, "axial_positions_mm": [28.0, 18.5, 32.75, 42.0, 58.0], "expected_contact_pairs": [[0, 2], [0, 5], [0, 6], [1, 3], [5, 6]]}], []
+        return placements, [{"type": "coaxial_shaft_stack", "axis": "Y", "root": 0, "targets": [1, 2, 3, 4, 6], "key_target": 5, "axial_positions_mm": [28.0, 20.5, 33.25, 42.0, 58.0], "exploded_offsets_mm": [-55.0, 0.0, -18.0, 18.0, 42.0, 72.0, 96.0], "expected_contact_pairs": [[0, 2], [0, 5], [0, 6], [1, 3], [5, 6]]}], []
     if len(component_ids) == 2 and all(component_id.startswith("spur-gear-") for component_id in component_ids):
         teeth = [_tooth_count(component_id) for component_id in component_ids]
         modules = [_module(component_id) for component_id in component_ids]

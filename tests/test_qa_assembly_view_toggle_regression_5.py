@@ -23,6 +23,7 @@ def test_gear_shaft_uses_coaxial_assembled_placements_and_declared_contacts():
     expected = [pair for pair in report["quality"]["pair_checks"] if pair.get("expected_contact")]
     assert len(expected) == 5
     assert report["quality"]["interference_free"] is True
+    assert report["solved_constraints"][0]["exploded_offsets_mm"] == [-55.0, 0.0, -18.0, 18.0, 42.0, 72.0, 96.0]
 
 
 def test_3d_preview_exposes_reversible_assembly_explosion_toggle():
@@ -33,3 +34,5 @@ def test_3d_preview_exposes_reversible_assembly_explosion_toggle():
     assert "查看展开关系" in html and "查看装配关系" in app_js
     assert 'setAssemblyMode("assembled")' in app_js
     assert 'mode==="exploded"' in viewer_js
+    assert "object.userData.explodeVector" in viewer_js
+    assert "rank*16" not in viewer_js

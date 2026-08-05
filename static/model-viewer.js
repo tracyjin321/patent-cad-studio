@@ -135,7 +135,7 @@ export class CadModelViewer {
   setModel(model) {
     if (!this.available) return;
     this.group.clear();
-    model.forEach((item,index) => { const object=buildPart(item);object.userData={componentId:item.component_id||null,baseColor:item.color,instanceIndex:index};this.group.add(object); });
+    model.forEach((item,index) => { const object=buildPart(item);object.userData={componentId:item.component_id||null,baseColor:item.color,instanceIndex:index,explodeVector:item.explode_vector||[0,0,index*18]};this.group.add(object); });
     const box = new THREE.Box3().setFromObject(this.group);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -148,10 +148,10 @@ export class CadModelViewer {
   }
   setAssemblyMode(mode) {
     if (!this.available) return;
-    const exploded=mode==="exploded", count=this.group.children.length;
-    this.group.children.forEach((object,index)=>{
-      const rank=index-(count-1)/2;
-      object.position.set(exploded?rank*16:0,exploded?rank*22:0,exploded?(index%2?8:-8):0);
+    const exploded=mode==="exploded";
+    this.group.children.forEach(object=>{
+      const vector=object.userData.explodeVector;
+      object.position.set(exploded?vector[0]:0,exploded?vector[1]:0,exploded?vector[2]:0);
     });
     this.render();
   }

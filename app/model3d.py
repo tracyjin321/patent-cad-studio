@@ -355,6 +355,8 @@ def assembly_to_model(report: dict[str, Any]) -> list[dict[str, Any]]:
 
     result = []
     color_by_component: dict[str, str] = {}
+    constraints = report.get("solved_constraints") or []
+    exploded_offsets = constraints[0].get("exploded_offsets_mm") if constraints else None
     for instance in report.get("instances", []):
         spec_path = Path(instance["spec"])
         spec = load_spec(spec_path)
@@ -363,7 +365,13 @@ def assembly_to_model(report: dict[str, Any]) -> list[dict[str, Any]]:
         component_id = str(instance["component_id"])
         color = color_by_component.setdefault(component_id, COMPONENT_COLORS[len(color_by_component) % len(COMPONENT_COLORS)])
         mesh = _shape_mesh(shape)
-        mesh.update({"color": color, "component_id": component_id, "instance_index": int(instance["index"])})
+        instance_index = int(instance["index"])
+        if exploded_offsets and instance_index < len(exploded_offsets):
+            explode_vector = [0.0, float(exploded_offsets[instance_index]), 0.0]
+        else:
+            rank = instance_index - (len(report.get("instances", [])) - 1) / 2
+            explode_vector = [0.0, 0.0, float(rank * 18.0)]
+        mesh.update({"color": color, "component_id": component_id, "instance_index": instance_index, "explode_vector": explode_vector})
         result.append(mesh)
     if report.get("envelopes"):
         from .assembly import envelope_shape

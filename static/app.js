@@ -1,4 +1,4 @@
-import { CadModelViewer } from "/static/model-viewer.js?v=20260805-assembly-toggle-v1";
+import { CadModelViewer } from "/static/model-viewer.js?v=20260805-axis-explosion-v2";
 import { historySummary, updatePatentPrecheckButton } from "/static/history-summary.js?v=20260804-patent-precheck";
 
 const $ = (selector) => document.querySelector(selector);

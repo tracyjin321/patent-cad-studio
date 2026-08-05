@@ -457,7 +457,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
 
 async def _run_generation_task(task_id: str, request: GenerateRequest) -> None:
     record = GENERATION_TASKS[task_id]
-    record.update({"status": "running", "progress": 10})
+    record.update({"status": "running", "progress": 10, "worker_pid": os.getpid()})
     _persist_task(task_id)
     try:
         result = await asyncio.wait_for(generate(request), timeout=GENERATION_TIMEOUT_SECONDS)
@@ -489,6 +489,15 @@ def get_generation_task(task_id: str) -> dict[str, object]:
     record = _read_persisted_task(task_id)
     if record is None:
         raise HTTPException(status_code=404, detail="生成任务不存在")
+    if record.get("status") == "running" and isinstance(record.get("worker_pid"), int):
+        try:
+            os.kill(int(record["worker_pid"]), 0)
+        except ProcessLookupError:
+            record.update({"status": "failed", "error": "生成 worker 异常退出，请重新提交任务",
+                           "recoverable": True})
+            path = _task_path(task_id)
+            if path is not None:
+                _write_json_atomically(path, record)
     return record
 
 

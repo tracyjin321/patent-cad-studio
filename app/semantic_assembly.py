@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .assembly import AssemblyManifest
+from .assembly import AssemblyManifest, envelope_shape
 from .component_spec import IDENTITY_MATRIX, _artifact_path, _frame_matrix, _inverse_rigid, _matmul, _port, _trsf_from_matrix, load_spec, read_step
 
 
@@ -28,7 +28,9 @@ def write_xcaf_assembly(manifest: AssemblyManifest, output: Path) -> dict[str, A
         spec_path, world = Path(item.spec), IDENTITY_MATRIX
         spec = load_spec(spec_path)
         component_id = item.component_id or spec["identity"]["id"]
-        if item.target is not None:
+        if item.placement is not None:
+            world = item.placement
+        elif item.target is not None:
             target_spec = load_spec(Path(manifest.components[item.target].spec))
             relation = _matmul(_frame_matrix(_port(target_spec, str(item.mate_to))["frame"], reverse_axis=True), _inverse_rigid(_frame_matrix(_port(spec, str(item.port))["frame"])))
             world = _matmul(worlds[item.target], relation)
@@ -41,9 +43,18 @@ def write_xcaf_assembly(manifest: AssemblyManifest, output: Path) -> dict[str, A
         TDataStd_Name.Set_s(instance, TCollection_ExtendedString(f"{component_id}#{index + 1}"))
         tree.append({"instance_id": f"{component_id}#{index + 1}", "definition_id": component_id, "reused_definition": sum(1 for node in tree if node["definition_id"] == component_id) > 0,
                      "parent": "root", "transform": world})
+    virtual_tree = []
+    for index, envelope in enumerate(manifest.envelopes):
+        component_id = str(envelope["component_id"])
+        definition = shape_tool.AddShape(envelope_shape(envelope), False)
+        TDataStd_Name.Set_s(definition, TCollection_ExtendedString(component_id))
+        instance = shape_tool.AddComponent(assembly_label, definition, TopLoc_Location())
+        TDataStd_Name.Set_s(instance, TCollection_ExtendedString(f"{component_id}#{index + 1}"))
+        definitions[component_id] = definition
+        virtual_tree.append({"instance_id": f"{component_id}#{index + 1}", "definition_id": component_id, "parent": "root", "virtual": True})
     shape_tool.UpdateAssemblies()
     output.parent.mkdir(parents=True, exist_ok=True)
     writer = STEPCAFControl_Writer()
     if not writer.Transfer(document) or int(writer.Write(str(output)).value) != 1:
         raise RuntimeError("XCAF AP242 装配导出失败")
-    return {"format": "XCAF/AP242", "root": "Patent CAD Semantic Assembly", "definitions": len(definitions), "instances": len(tree), "tree": tree}
+    return {"format": "XCAF/AP242", "root": "Patent CAD Semantic Assembly", "definitions": len(definitions), "instances": len(tree), "virtual_instances": len(virtual_tree), "tree": tree, "virtual_tree": virtual_tree}

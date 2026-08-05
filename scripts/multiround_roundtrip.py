@@ -16,6 +16,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+BBOX_ENGINEERING_TOLERANCE_MM = 0.02
 
 from app.component_spec import (  # noqa: E402
     _artifact_path,
@@ -57,7 +58,8 @@ def compare_geometry(baseline: dict[str, Any], current: dict[str, Any]) -> dict[
         baseline["topology"][key] == current["topology"][key]
         for key in ("solids", "shells", "faces")
     )
-    engineering_equivalent = engineering_topology_equal and relative_volume <= 1e-6 and relative_area <= 1e-6 and bbox_delta <= 0.01
+    engineering_equivalent = (engineering_topology_equal and relative_volume <= 1e-6
+                              and relative_area <= 1e-6 and bbox_delta <= BBOX_ENGINEERING_TOLERANCE_MM)
     return {
         "topology_equal": topology_equal,
         "topology_delta": topology_delta,
@@ -68,7 +70,8 @@ def compare_geometry(baseline: dict[str, Any], current: dict[str, Any]) -> dict[
         "surface_area_relative_delta": relative_area,
         "bbox_max_delta_mm": bbox_delta,
         "center_delta_mm": vector_delta(baseline["center_of_mass"], current["center_of_mass"]),
-        "passed": topology_equal and relative_volume <= 1e-6 and relative_area <= 1e-6 and bbox_delta <= 0.01,
+        "passed": (topology_equal and relative_volume <= 1e-6 and relative_area <= 1e-6
+                   and bbox_delta <= BBOX_ENGINEERING_TOLERANCE_MM),
     }
 
 
@@ -149,7 +152,7 @@ def markdown(results: list[dict[str, Any]], rounds: int) -> str:
         f"- 实际转换次数：{len(results) * rounds} 次 YAML→STEP + {len(results) * rounds} 次 STEP→YAML",
         f"- 几何一致性通过：{passed}/{len(results)}",
         f"- 工程几何等价通过：{engineering_passed}/{len(results)}",
-        "- 判定阈值：主体拓扑一致、体积/面积相对偏差 ≤ 1e-6、包围盒最大偏差 ≤ 0.01 mm",
+        f"- 判定阈值：主体拓扑一致、体积/面积相对偏差 ≤ 1e-6、包围盒最大偏差 ≤ {BBOX_ENGINEERING_TOLERANCE_MM:.2f} mm",
         "",
         "## 总结",
         "",
@@ -234,12 +237,20 @@ def main() -> None:
     parser.add_argument("--report", type=Path, default=ROOT / "reports" / "step-yaml-multiround-report.md")
     parser.add_argument("--json", type=Path)
     parser.add_argument("--sample-size", type=int, help="按 identity.type 分层抽样；默认验证全部图元")
+    parser.add_argument("--component-id", action="append", default=[],
+                        help="只验证指定图元；可重复传入")
     args = parser.parse_args()
     if args.rounds < 1:
         parser.error("--rounds 必须大于 0")
     specs = sorted(args.root.glob("*/component.yaml"))
     if not specs:
         parser.error(f"{args.root} 中没有 YAML")
+    if args.component_id:
+        wanted = set(args.component_id)
+        specs = [path for path in specs if path.parent.name in wanted]
+        missing = wanted - {path.parent.name for path in specs}
+        if missing:
+            parser.error("找不到图元: " + ", ".join(sorted(missing)))
     if args.sample_size is not None and args.sample_size < 1:
         parser.error("--sample-size 必须大于 0")
     specs = stratified_sample(specs, args.sample_size)

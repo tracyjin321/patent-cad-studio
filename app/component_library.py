@@ -28,7 +28,9 @@ SUBTYPE_LABELS = {
     "countersunk_screw": "沉头内六角螺钉", "extrusion_nut": "型材锤头螺母", "flat_washer": "平垫圈",
     "hex_head_cap_screw": "六角头螺栓", "hex_nut": "六角螺母", "set_screw": "紧定螺钉",
     "socket_head_cap_screw": "圆柱头内六角螺钉", "spring_washer": "弹簧垫圈", "bevel_gear": "锥齿轮",
-    "gear_rack": "齿条", "spur_gear": "直齿圆柱齿轮", "control_knob": "星形旋钮",
+    "gear_rack": "齿条", "spur_gear": "直齿圆柱齿轮", "gear_shaft_assembly": "齿轮轴组合", "control_knob": "星形旋钮",
+    "sleeve": "套筒", "stepped_shaft": "阶梯轴", "internal_retaining_ring": "孔用弹性挡圈",
+    "external_retaining_ring": "轴用弹性挡圈", "parallel_key": "普通平键",
     "extrusion_bracket": "型材电机安装板", "shaft_hub": "夹紧式轮毂", "linear_rail": "直线导轨",
     "lead_screw_nut": "丝杠螺母", "dowel_pin": "圆柱销", "t_slot_extrusion": "T型槽铝型材",
     "v_slot_extrusion": "V型槽铝型材", "belt_pulley": "皮带轮", "timing_idler": "同步带惰轮",
@@ -211,6 +213,13 @@ def recommend_component_instances(description: str, limit: int = 16) -> dict[str
         remaining = limit - sum(item["quantity"] for item in recommendations)
         if remaining > 0:
             recommendations.append({"component": index[component_id], "quantity": min(quantity, remaining), "reason": reason})
+
+    # Curated patent assembly with an authoritative multi-solid STEP. Prefer
+    # this exact assembly over independently placing its mentioned children:
+    # the source file preserves the shaft shoulders, circlip grooves and
+    # bearing/gear axial positions that cannot be recovered from nouns alone.
+    if re.search(r"(?:680[.．]9[.．]1[.．]6|齿轮轴组合)", text, re.I):
+        add("gear-shaft-assembly-680-9-1-6", 1, "精确命中齿轮轴组合 680.9.1.6 权威装配 STEP")
 
     if thread and length is not None and re.search(r"内六角圆柱头|圆柱头内六角|ISO\s*4762|GB/?T\s*70\.1", text, re.I):
         size = thread[1:].replace(".", "p")

@@ -1,0 +1,207 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: stepped-gear-shaft-d20-l88-680-9-1-6
+  name: 阶梯齿轮轴 Φ20×88
+  name_en: Stepped gear shaft 20 x 88
+  type: shaft
+  subtype: stepped_shaft
+  family: transmission-shaft
+  standard: 680.9.1.6-1
+  description: 生成机械专利附图风格的阶梯齿轮轴：主体直径约20 mm、总长约88 mm，包含轴肩、轴承安装段、挡圈槽和纵向平键键槽，各回转段保持同轴。
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-08-05'
+  updated_at: '2026-08-05'
+  status: validated
+  tags:
+  - 齿轮轴
+  - 阶梯轴
+  - 键槽
+  - shaft
+  - 20mm
+  - 88mm
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - 0.0
+  - 44.1
+  - 0.0
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 原始 STEP +Z
+  zero_rotation_definition: 原始 STEP +X
+parameters: []
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: end_a
+  name: 轴向端口 A
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 0.0
+    - -0.002819
+    - 0.0
+    axis:
+    - -0.0
+    - -1.0
+    - -0.0
+    up: &id001
+    - 1.0
+    - 0.0
+    - 0.0
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+- id: end_b
+  name: 轴向端口 B
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 0.0
+    - 88.202819
+    - 0.0
+    axis:
+    - 0.0
+    - 1.0
+    - 0.0
+    up: *id001
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: reference.step
+  output:
+    format: STEP
+    application_protocol: AP242
+    preserve_names: true
+    preserve_colors: true
+    filename_template: stepped-gear-shaft-d20-l88-680-9-1-6.step
+presets:
+- name: reference
+  source_ref: 680.9.1.6-1齿轮轴.stp
+  verification_status: geometry_measured
+  params: {}
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 1
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -10.002819
+        - -0.002819
+        - -10.002819
+        max:
+        - 10.002819
+        - 88.202819
+        - 10.002819
+        size:
+        - 20.005638
+        - 88.205638
+        - 20.005638
+      topology:
+        solids: 1
+        shells: 1
+        faces: 33
+        edges: 174
+        vertices: 348
+        compounds: 0
+      volume_mm3: 24965.373729
+      surface_area_mm2: 6150.702233
+      center_of_mass:
+      - 0.0
+      - 46.971759
+      - -0.084053
+      valid_solid: true
+    signatures:
+      strict_topology_sha256: fe2547b9d5269144b2ffafee9d923ffa170f7a29c164ac91916c092d06a06543
+      engineering_geometry_sha256: 54e103709aa4c4b654406cbe671024bf590d475072bd78adacb918fa99520d62
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: AP242
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+artifacts:
+  reference_step:
+    file: reference.step
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: source_preserved
+    length_unit: mm
+    sha256: 9b2f10a39256d3b8a33d3aa5b0ec4df7de5e19d27777855f3b61043eb49fafcc
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: preview.jpg
+    required: true
+    sha256: null
+provenance:
+  source_type: imported_step
+  standard_refs:
+  - 680.9.1.6-1
+  data_entry_method: step_jpg_curated
+  semantic_recovery: inferred
+  verified_by: null
+  verified_at: null
+  source_material_directory: /Users/didi/Downloads/stp-jpg

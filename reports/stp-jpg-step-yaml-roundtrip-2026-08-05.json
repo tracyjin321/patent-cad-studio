@@ -1,0 +1,2186 @@
+[
+  {
+    "path": "component_library/bearing-6004-2z-gbt276/component.yaml",
+    "id": "bearing-6004-2z-gbt276",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -0.0,
+          -22.730236,
+          -22.730236
+        ],
+        "max": [
+          12.0,
+          22.730236,
+          22.730236
+        ],
+        "size": [
+          12.0,
+          45.460472,
+          45.460472
+        ]
+      },
+      "topology": {
+        "solids": 11,
+        "shells": 11,
+        "faces": 49,
+        "edges": 268,
+        "vertices": 536,
+        "compounds": 1
+      },
+      "volume_mm3": 8162.043312,
+      "surface_area_mm2": 7001.776446,
+      "center_of_mass": [
+        6.0,
+        0.0,
+        -0.0
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "978d1bf94f1e6eaa078618aacbf0f132e17e6532fccde5e0ff2550e78f340f47",
+        "step_bytes": 185014,
+        "yaml_bytes": 4717,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "0ff2eb62f4af023598f5b928f9f4cf88d50313c5131d93a5cc4e43a86f595e95",
+        "step_bytes": 185502,
+        "yaml_bytes": 4717,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "16dc659da4b0d1d42810d430231dc56f36ec5224eae4e2002965f12a56f3cf8f",
+        "step_bytes": 185502,
+        "yaml_bytes": 4717,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "15f69ea24143a7795dfae617fd54242a78299f53dd06e944f0b49edac7182bf8",
+        "step_bytes": 185502,
+        "yaml_bytes": 4717,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "bb7e9f4810814e72ca725ccba68fadc5687615fbe0c940f37a9bf91c1af4076c",
+        "step_bytes": 185502,
+        "yaml_bytes": 4717,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 90382,
+    "step_bytes_final": 185502,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "bearing-6004-2z-gbt276",
+        "name": "深沟球轴承 6004-2Z",
+        "type": "bearing",
+        "subtype": "deep_groove_ball",
+        "family": "deep-groove-ball-bearing"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              -0.0,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              -1.0,
+              -0.0,
+              -0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "bearing-6004-2z-gbt276",
+        "name": "深沟球轴承 6004-2Z",
+        "type": "bearing",
+        "subtype": "deep_groove_ball",
+        "family": "deep-groove-ball-bearing"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              -0.0,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              -1.0,
+              -0.0,
+              -0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              12.0,
+              0.0,
+              0.0
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/circlip-external-gbt894-1-d20/component.yaml",
+    "id": "circlip-external-gbt894-1-d20",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -11.26,
+          -13.885151,
+          -0.0
+        ],
+        "max": [
+          11.26,
+          11.26,
+          1.0
+        ],
+        "size": [
+          22.52,
+          25.145151,
+          1.0
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 16,
+        "edges": 84,
+        "vertices": 168,
+        "compounds": 0
+      },
+      "volume_mm3": 155.986782,
+      "surface_area_mm2": 461.85991,
+      "center_of_mass": [
+        0.0,
+        -0.844234,
+        0.5
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "c0e2d187dfdb9d33b0818197c63ba0c8a61829167763df91ea53713a294bc17a",
+        "step_bytes": 61934,
+        "yaml_bytes": 4680,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "baf6431e0c5b9716c909ee6f28e41f30f7a64df5c6e9345686e8bfd7ac8233f5",
+        "step_bytes": 61953,
+        "yaml_bytes": 4680,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "37c3cd1b54d68f0c388e75d630468e98c31925ce8e9b453d569938460372fdb5",
+        "step_bytes": 61950,
+        "yaml_bytes": 4680,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "6cee11898c466e50001f5ac7247f176f99e5164799f125f9d2565657dc1b6660",
+        "step_bytes": 61953,
+        "yaml_bytes": 4680,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "4ec4cd7d10aac04a0e528d6181303f93fbe861d3c81bb9d8615f9c0ef2edf1bf",
+        "step_bytes": 61952,
+        "yaml_bytes": 4680,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 26268,
+    "step_bytes_final": 61952,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "circlip-external-gbt894-1-d20",
+        "name": "轴用弹性挡圈 20",
+        "type": "fastener",
+        "subtype": "external_retaining_ring",
+        "family": "retaining-ring"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -1.312576,
+              -0.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -1.312576,
+              1.0
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "circlip-external-gbt894-1-d20",
+        "name": "轴用弹性挡圈 20",
+        "type": "fastener",
+        "subtype": "external_retaining_ring",
+        "family": "retaining-ring"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -1.312576,
+              -0.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -1.312576,
+              1.0
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/circlip-internal-gbt893-1-d42/component.yaml",
+    "id": "circlip-internal-gbt893-1-d42",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -22.25,
+          -40.924466,
+          -0.0
+        ],
+        "max": [
+          22.25,
+          2.25,
+          1.5
+        ],
+        "size": [
+          44.5,
+          43.174466,
+          1.5
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 12,
+        "edges": 60,
+        "vertices": 120,
+        "compounds": 0
+      },
+      "volume_mm3": 592.845086,
+      "surface_area_mm2": 1184.686914,
+      "center_of_mass": [
+        -0.0,
+        -16.842798,
+        0.75
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "f3f6664cd51dd51ea6ed482a4b4da8d9142ae3469b9f39c448adb668e3d00407",
+        "step_bytes": 44933,
+        "yaml_bytes": 4688,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "a6973d8a91251faf787f06b01ed06ab9a4b330e273932a1044ce7210d76da769",
+        "step_bytes": 44930,
+        "yaml_bytes": 4688,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "ae351213f91ee13018bd32507f8c045c9cb97f19851e527415926bc416fb8ef7",
+        "step_bytes": 44930,
+        "yaml_bytes": 4688,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "cdc8e95c794862c784655439c53c5fd5ccc2f6b7a364dd58e59fb3738afcc225",
+        "step_bytes": 44930,
+        "yaml_bytes": 4688,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "e136b8ea99006cf41427ae94ff47940b29ae5d531847242b0b91e1b4274fe899",
+        "step_bytes": 44930,
+        "yaml_bytes": 4688,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 20670,
+    "step_bytes_final": 44930,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "circlip-internal-gbt893-1-d42",
+        "name": "孔用弹性挡圈 42",
+        "type": "fastener",
+        "subtype": "internal_retaining_ring",
+        "family": "retaining-ring"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -19.337233,
+              -0.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -19.337233,
+              1.5
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "circlip-internal-gbt893-1-d42",
+        "name": "孔用弹性挡圈 42",
+        "type": "fastener",
+        "subtype": "internal_retaining_ring",
+        "family": "retaining-ring"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -19.337233,
+              -0.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -19.337233,
+              1.5
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/gear-shaft-assembly-680-9-1-6/component.yaml",
+    "id": "gear-shaft-assembly-680-9-1-6",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -24.008054,
+          -0.008054,
+          -23.870541
+        ],
+        "max": [
+          24.008054,
+          88.208054,
+          23.870541
+        ],
+        "size": [
+          48.016108,
+          88.216108,
+          47.741082
+        ]
+      },
+      "topology": {
+        "solids": 29,
+        "shells": 29,
+        "faces": 291,
+        "edges": 1578,
+        "vertices": 3156,
+        "compounds": 1
+      },
+      "volume_mm3": 64024.116839,
+      "surface_area_mm2": 32445.95478,
+      "center_of_mass": [
+        -0.000718,
+        57.006822,
+        -0.053189
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "13bc10d044b906448ab80f6d3b7e9af865057e061e5a7562423341165ac58a60",
+        "step_bytes": 968725,
+        "yaml_bytes": 4876,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.012643000001844484,
+        "volume_relative_delta": 1.9747246234786104e-07,
+        "surface_area_delta_mm2": 0.0023140000012062956,
+        "surface_area_relative_delta": 7.13185978620875e-08,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 1.0000000003174137e-05,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "53f1b85c74ada277557beb9db875ff38ea322a621174fd773e01eceb48081f3b",
+        "step_bytes": 985445,
+        "yaml_bytes": 4876,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.012643000001844484,
+        "volume_relative_delta": 1.9747246234786104e-07,
+        "surface_area_delta_mm2": 0.0023140000012062956,
+        "surface_area_relative_delta": 7.13185978620875e-08,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 1.0000000003174137e-05,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "000f46ec6262563d5e6e807522d48ece95f063b8b397bd1e197dffce4cd42176",
+        "step_bytes": 985475,
+        "yaml_bytes": 4876,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.012643000001844484,
+        "volume_relative_delta": 1.9747246234786104e-07,
+        "surface_area_delta_mm2": 0.0023140000012062956,
+        "surface_area_relative_delta": 7.13185978620875e-08,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 1.0000000003174137e-05,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "7cd2de38ee4578ef7568a65e3c60d0755ee5af922c1e8bff8a438254916de49f",
+        "step_bytes": 985436,
+        "yaml_bytes": 4876,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.012643000001844484,
+        "volume_relative_delta": 1.9747246234786104e-07,
+        "surface_area_delta_mm2": 0.0023140000012062956,
+        "surface_area_relative_delta": 7.13185978620875e-08,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 1.0000000003174137e-05,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "e5fb2c6090ddf1907dc75b7ad376db9b3adb2f691f1ef4310089c8be679ae139",
+        "step_bytes": 985462,
+        "yaml_bytes": 4876,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.012643000001844484,
+        "volume_relative_delta": 1.9747246234786104e-07,
+        "surface_area_delta_mm2": 0.0023140000012062956,
+        "surface_area_relative_delta": 7.13185978620875e-08,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 1.0000000003174137e-05,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 391591,
+    "step_bytes_final": 985462,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "gear-shaft-assembly-680-9-1-6",
+        "name": "齿轮轴组合 680.9.1.6",
+        "type": "gear",
+        "subtype": "gear_shaft_assembly",
+        "family": "power_transmission_assembly"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -0.008054,
+              0.0
+            ],
+            "axis": [
+              -0.0,
+              -1.0,
+              -0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              88.208054,
+              0.0
+            ],
+            "axis": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "gear-shaft-assembly-680-9-1-6",
+        "name": "齿轮轴组合 680.9.1.6",
+        "type": "gear",
+        "subtype": "gear_shaft_assembly",
+        "family": "power_transmission_assembly"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -0.008054,
+              0.0
+            ],
+            "axis": [
+              -0.0,
+              -1.0,
+              -0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              88.208054,
+              0.0
+            ],
+            "axis": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/parallel-key-gbt1096-a6x6x14/component.yaml",
+    "id": "parallel-key-gbt1096-a6x6x14",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -0.0,
+          -3.0,
+          -3.5
+        ],
+        "max": [
+          14.0,
+          3.0,
+          2.5
+        ],
+        "size": [
+          14.0,
+          6.0,
+          6.0
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 14,
+        "edges": 56,
+        "vertices": 112,
+        "compounds": 0
+      },
+      "volume_mm3": 452.204116,
+      "surface_area_mm2": 344.898073,
+      "center_of_mass": [
+        7.0,
+        -0.0,
+        -0.5
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "7b0c5c12ac48f071c4f6d4b60434ee3959c07ac70432c9d3a0e7b3fdd018f897",
+        "step_bytes": 36709,
+        "yaml_bytes": 4632,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "fc38371da3644bea980f77ab37c39e9cd5e2c3a29a75379ae555825655464e8a",
+        "step_bytes": 36711,
+        "yaml_bytes": 4632,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "9e0b889e1263a58502a1fbf3c9ecaba4e361df1dbf4a11f5d56b06021051fbf3",
+        "step_bytes": 36711,
+        "yaml_bytes": 4632,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "a985d43196eccd844c98e9b95ca86a483d3bd929c5563faed3b801cdbd177aef",
+        "step_bytes": 36711,
+        "yaml_bytes": 4632,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "cafd752b3656bd9a0263b836875184e86e022fb6f92b94a2720b300e36f15c31",
+        "step_bytes": 36702,
+        "yaml_bytes": 4632,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 17943,
+    "step_bytes_final": 36702,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "parallel-key-gbt1096-a6x6x14",
+        "name": "普通平键 A型 6×6×14",
+        "type": "fastener",
+        "subtype": "parallel_key",
+        "family": "shaft-key"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              -0.0,
+              0.0,
+              -0.5
+            ],
+            "axis": [
+              -1.0,
+              -0.0,
+              -0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              14.0,
+              0.0,
+              -0.5
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "parallel-key-gbt1096-a6x6x14",
+        "name": "普通平键 A型 6×6×14",
+        "type": "fastener",
+        "subtype": "parallel_key",
+        "family": "shaft-key"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              -0.0,
+              0.0,
+              -0.5
+            ],
+            "axis": [
+              -1.0,
+              -0.0,
+              -0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              14.0,
+              0.0,
+              -0.5
+            ],
+            "axis": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "up": [
+              0.0,
+              1.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/sleeve-d20-d27-l10-680-9-1-3/component.yaml",
+    "id": "sleeve-d20-d27-l10-680-9-1-3",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -13.5,
+          -13.5,
+          -5.0
+        ],
+        "max": [
+          13.5,
+          13.5,
+          5.0
+        ],
+        "size": [
+          27.0,
+          27.0,
+          10.0
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 6,
+        "edges": 20,
+        "vertices": 40,
+        "compounds": 0
+      },
+      "volume_mm3": 2567.990195,
+      "surface_area_mm2": 1957.185136,
+      "center_of_mass": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "f2633c48261da14590cc420120bf396e5d53daf52dc2d3cc9eca197e9f2363c3",
+        "step_bytes": 15543,
+        "yaml_bytes": 4595,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "cd30af285a1a89d741911cb78d7d528ecc1c3f7eaf5d8e7594e11269809aaf6d",
+        "step_bytes": 15549,
+        "yaml_bytes": 4594,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "6456dcdaf9812a7d2123e12f47700b0bd8a53c70b6360764b609febadce76e70",
+        "step_bytes": 15543,
+        "yaml_bytes": 4595,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "88227ce6445ecc30c0ec6b68fd44b39afd9c79c2c7118e8d7a1c3bb4dcddc5c0",
+        "step_bytes": 15549,
+        "yaml_bytes": 4594,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "61261f36e64f3d7e3b56c1673d91bd579422ef9f32be92967c08c35769c8309a",
+        "step_bytes": 15543,
+        "yaml_bytes": 4595,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0,
+        "volume_relative_delta": 0.0,
+        "surface_area_delta_mm2": 0.0,
+        "surface_area_relative_delta": 0.0,
+        "bbox_max_delta_mm": 0.0,
+        "center_delta_mm": 0.0,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 9714,
+    "step_bytes_final": 15543,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "sleeve-d20-d27-l10-680-9-1-3",
+        "name": "套筒 Φ20/Φ27×10",
+        "type": "spacer",
+        "subtype": "sleeve",
+        "family": "shaft-spacer"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              -5.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              5.0
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "sleeve-d20-d27-l10-680-9-1-3",
+        "name": "套筒 Φ20/Φ27×10",
+        "type": "spacer",
+        "subtype": "sleeve",
+        "family": "shaft-spacer"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              -5.0
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              0.0,
+              5.0
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/spur-gear-keyed-bore20-od48-w16-680-9-1-3/component.yaml",
+    "id": "spur-gear-keyed-bore20-od48-w16-680-9-1-3",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -7.223835,
+          -20.984102,
+          -0.008054
+        ],
+        "max": [
+          40.517248,
+          27.032006,
+          16.008054
+        ],
+        "size": [
+          47.741083,
+          48.016108,
+          16.016108
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 96,
+        "edges": 564,
+        "vertices": 1128,
+        "compounds": 1
+      },
+      "volume_mm3": 18809.64585,
+      "surface_area_mm2": 7881.209712,
+      "center_of_mass": [
+        16.47695,
+        3.023952,
+        8.0
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "2a3ebb4a3063439e4ed1e78c73ce595b8d5b38aaf72d131d689c53f6082c1890",
+        "step_bytes": 417953,
+        "yaml_bytes": 4753,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0015999999995983671,
+        "volume_relative_delta": 8.506273921145449e-08,
+        "surface_area_delta_mm2": 0.003687000000354601,
+        "surface_area_relative_delta": 4.6782158261069263e-07,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 9.999999974752427e-07,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "ebf4b03f59f6a4ba8a6f73fdcda509036c3725f8d1595c1ca9dc75939568e995",
+        "step_bytes": 426016,
+        "yaml_bytes": 4753,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0015999999995983671,
+        "volume_relative_delta": 8.506273921145449e-08,
+        "surface_area_delta_mm2": 0.003687000000354601,
+        "surface_area_relative_delta": 4.6782158261069263e-07,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 9.999999974752427e-07,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "aaaa05a640b3696013971aeafdb1ba725ec79d5b1f46e716a642d4c21ad9b07a",
+        "step_bytes": 426008,
+        "yaml_bytes": 4753,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0015999999995983671,
+        "volume_relative_delta": 8.506273921145449e-08,
+        "surface_area_delta_mm2": 0.003687000000354601,
+        "surface_area_relative_delta": 4.6782158261069263e-07,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 9.999999974752427e-07,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "9a63f819d61274c6471dd85e25b975c51ac8a7879dd2192cb1a032684e896230",
+        "step_bytes": 425984,
+        "yaml_bytes": 4753,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0015999999995983671,
+        "volume_relative_delta": 8.506273921145449e-08,
+        "surface_area_delta_mm2": 0.003687000000354601,
+        "surface_area_relative_delta": 4.6782158261069263e-07,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 9.999999974752427e-07,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "c72029a6d57d07d8c33189afb1140b4f4360396848ee948afdd5c78efb77e0e5",
+        "step_bytes": 426008,
+        "yaml_bytes": 4753,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.0015999999995983671,
+        "volume_relative_delta": 8.506273921145449e-08,
+        "surface_area_delta_mm2": 0.003687000000354601,
+        "surface_area_relative_delta": 4.6782158261069263e-07,
+        "bbox_max_delta_mm": 0.016108000000002676,
+        "center_delta_mm": 9.999999974752427e-07,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 161874,
+    "step_bytes_final": 426008,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "spur-gear-keyed-bore20-od48-w16-680-9-1-3",
+        "name": "键槽孔直齿轮 Φ48×16",
+        "type": "gear",
+        "subtype": "spur_gear",
+        "family": "power_transmission"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              16.646707,
+              3.023952,
+              -0.008054
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              16.646707,
+              3.023952,
+              16.008054
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "spur-gear-keyed-bore20-od48-w16-680-9-1-3",
+        "name": "键槽孔直齿轮 Φ48×16",
+        "type": "gear",
+        "subtype": "spur_gear",
+        "family": "power_transmission"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              16.646707,
+              3.023952,
+              -0.008054
+            ],
+            "axis": [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              16.646707,
+              3.023952,
+              16.008054
+            ],
+            "axis": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "path": "component_library/stepped-gear-shaft-d20-l88-680-9-1-6/component.yaml",
+    "id": "stepped-gear-shaft-d20-l88-680-9-1-6",
+    "baseline": {
+      "bounding_box": {
+        "min": [
+          -10.002819,
+          -0.002819,
+          -10.002819
+        ],
+        "max": [
+          10.002819,
+          88.202819,
+          10.002819
+        ],
+        "size": [
+          20.005638,
+          88.205638,
+          20.005638
+        ]
+      },
+      "topology": {
+        "solids": 1,
+        "shells": 1,
+        "faces": 33,
+        "edges": 174,
+        "vertices": 348,
+        "compounds": 0
+      },
+      "volume_mm3": 24965.373729,
+      "surface_area_mm2": 6150.702233,
+      "center_of_mass": [
+        0.0,
+        46.971759,
+        -0.084053
+      ],
+      "valid_solid": true
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "step_sha256": "abeb96706edc3414dda2312d423a511ca0a844e23823b3818c566ddb19c30955",
+        "step_bytes": 175182,
+        "yaml_bytes": 4676,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.009131999999226537,
+        "volume_relative_delta": 3.657866330524315e-07,
+        "surface_area_delta_mm2": 0.0013719999997192645,
+        "surface_area_relative_delta": 2.2306396046262063e-07,
+        "bbox_max_delta_mm": 0.005638000000001142,
+        "center_delta_mm": 1.3000000002705292e-05,
+        "passed": true
+      },
+      {
+        "round": 2,
+        "step_sha256": "f43deac7ad5ed93cf66d9ad4bdf687b4bea9866d9d27723101083b8beeae978f",
+        "step_bytes": 182962,
+        "yaml_bytes": 4676,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.009131999999226537,
+        "volume_relative_delta": 3.657866330524315e-07,
+        "surface_area_delta_mm2": 0.0013719999997192645,
+        "surface_area_relative_delta": 2.2306396046262063e-07,
+        "bbox_max_delta_mm": 0.005638000000001142,
+        "center_delta_mm": 1.3000000002705292e-05,
+        "passed": true
+      },
+      {
+        "round": 3,
+        "step_sha256": "93ad9f7f1428ca1f22e7b36c213f05c08c9b69393384bdbfccfd3e578c4391cd",
+        "step_bytes": 183000,
+        "yaml_bytes": 4676,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.009131999999226537,
+        "volume_relative_delta": 3.657866330524315e-07,
+        "surface_area_delta_mm2": 0.0013719999997192645,
+        "surface_area_relative_delta": 2.2306396046262063e-07,
+        "bbox_max_delta_mm": 0.005638000000001142,
+        "center_delta_mm": 1.3000000002705292e-05,
+        "passed": true
+      },
+      {
+        "round": 4,
+        "step_sha256": "d0452802e376b3edcb53c05e4118a258e34e1b37cde9e9a1ea7ec1c397eabce0",
+        "step_bytes": 182971,
+        "yaml_bytes": 4676,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.009131999999226537,
+        "volume_relative_delta": 3.657866330524315e-07,
+        "surface_area_delta_mm2": 0.0013719999997192645,
+        "surface_area_relative_delta": 2.2306396046262063e-07,
+        "bbox_max_delta_mm": 0.005638000000001142,
+        "center_delta_mm": 1.3000000002705292e-05,
+        "passed": true
+      },
+      {
+        "round": 5,
+        "step_sha256": "b279463ae5883ea823ed4bb63b47db4d2005054b109aa6e2db66dbfc236d4d6f",
+        "step_bytes": 182988,
+        "yaml_bytes": 4676,
+        "yaml_valid": true,
+        "topology_equal": true,
+        "topology_delta": {
+          "solids": 0,
+          "shells": 0,
+          "faces": 0,
+          "edges": 0,
+          "vertices": 0
+        },
+        "engineering_equivalent": true,
+        "volume_delta_mm3": 0.009131999999226537,
+        "volume_relative_delta": 3.657866330524315e-07,
+        "surface_area_delta_mm2": 0.0013719999997192645,
+        "surface_area_relative_delta": 2.2306396046262063e-07,
+        "bbox_max_delta_mm": 0.005638000000001142,
+        "center_delta_mm": 1.3000000002705292e-05,
+        "passed": true
+      }
+    ],
+    "all_geometry_passed": true,
+    "all_engineering_equivalent": true,
+    "all_yaml_valid": true,
+    "step_bytes_original": 56344,
+    "step_bytes_final": 182988,
+    "step_byte_identical": false,
+    "semantic_identity_preserved": true,
+    "semantic_parameters_preserved": true,
+    "semantic_ports_preserved": true,
+    "original_semantics": {
+      "identity": {
+        "id": "stepped-gear-shaft-d20-l88-680-9-1-6",
+        "name": "阶梯齿轮轴 Φ20×88",
+        "type": "shaft",
+        "subtype": "stepped_shaft",
+        "family": "transmission-shaft"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -0.002819,
+              0.0
+            ],
+            "axis": [
+              -0.0,
+              -1.0,
+              -0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              88.202819,
+              0.0
+            ],
+            "axis": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    },
+    "final_semantics": {
+      "identity": {
+        "id": "stepped-gear-shaft-d20-l88-680-9-1-6",
+        "name": "阶梯齿轮轴 Φ20×88",
+        "type": "shaft",
+        "subtype": "stepped_shaft",
+        "family": "transmission-shaft"
+      },
+      "parameters": [],
+      "ports": [
+        {
+          "id": "end_a",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              -0.002819,
+              0.0
+            ],
+            "axis": [
+              -0.0,
+              -1.0,
+              -0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "id": "end_b",
+          "type": "mechanical_interface",
+          "frame": {
+            "origin": [
+              0.0,
+              88.202819,
+              0.0
+            ],
+            "axis": [
+              0.0,
+              1.0,
+              0.0
+            ],
+            "up": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

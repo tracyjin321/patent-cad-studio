@@ -1,0 +1,205 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: parallel-key-gbt1096-a6x6x14
+  name: 普通平键 A型 6×6×14
+  name_en: Parallel key type A 6 x 6 x 14
+  type: fastener
+  subtype: parallel_key
+  family: shaft-key
+  standard: GB/T 1096 A 6×6×14
+  description: 生成机械专利附图风格的A型普通平键，符合GB/T 1096，宽6 mm、高6 mm、长14 mm，两端为圆头，用于20 mm轴与齿轮轮毂的周向连接。
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-08-05'
+  updated_at: '2026-08-05'
+  status: validated
+  tags:
+  - 普通平键
+  - A型平键
+  - parallel key
+  - 6x6x14
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - 7.0
+  - 0.0
+  - -0.5
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 原始 STEP +Z
+  zero_rotation_definition: 原始 STEP +X
+parameters: []
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: end_a
+  name: 轴向端口 A
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - -0.0
+    - 0.0
+    - -0.5
+    axis:
+    - -1.0
+    - -0.0
+    - -0.0
+    up: &id001
+    - 0.0
+    - 1.0
+    - 0.0
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+- id: end_b
+  name: 轴向端口 B
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 14.0
+    - 0.0
+    - -0.5
+    axis:
+    - 1.0
+    - 0.0
+    - 0.0
+    up: *id001
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: reference.step
+  output:
+    format: STEP
+    application_protocol: AP242
+    preserve_names: true
+    preserve_colors: true
+    filename_template: parallel-key-gbt1096-a6x6x14.step
+presets:
+- name: reference
+  source_ref: 键 GB_T 1096 - A 6 x 6 x 14.stp
+  verification_status: geometry_measured
+  params: {}
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 1
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -0.0
+        - -3.0
+        - -3.5
+        max:
+        - 14.0
+        - 3.0
+        - 2.5
+        size:
+        - 14.0
+        - 6.0
+        - 6.0
+      topology:
+        solids: 1
+        shells: 1
+        faces: 14
+        edges: 56
+        vertices: 112
+        compounds: 0
+      volume_mm3: 452.204116
+      surface_area_mm2: 344.898073
+      center_of_mass:
+      - 7.0
+      - -0.0
+      - -0.5
+      valid_solid: true
+    signatures:
+      strict_topology_sha256: 711eea3d01d42c6e9b7d1d975ef9847f5f503ce10bb66a9d3d928b7ce945527e
+      engineering_geometry_sha256: 620e62a811c7deef9c2e3eb811609bf8b954d00df478c927c82ca44c7da6d417
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: AP242
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+artifacts:
+  reference_step:
+    file: reference.step
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: source_preserved
+    length_unit: mm
+    sha256: e357ac69d339ab1ba7d46ca9496cbd0a8f1e28a36b4e078ddcfc4b3dd02bee7c
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: preview.jpg
+    required: true
+    sha256: null
+provenance:
+  source_type: imported_step
+  standard_refs:
+  - GB/T 1096 A 6×6×14
+  data_entry_method: step_jpg_curated
+  semantic_recovery: inferred
+  verified_by: null
+  verified_at: null
+  source_material_directory: /Users/didi/Downloads/stp-jpg

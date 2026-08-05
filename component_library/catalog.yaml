@@ -27,6 +27,15 @@ components:
   spec: bearing-6001-open-simple/component.yaml
   reference_step: bearing-6001-open-simple/reference.step
   source_material_directory: null
+- id: bearing-6004-2z-gbt276
+  name: 深沟球轴承 6004-2Z
+  type: bearing
+  subtype: deep_groove_ball
+  version: 1.0.0
+  status: validated
+  spec: bearing-6004-2z-gbt276/component.yaml
+  reference_step: bearing-6004-2z-gbt276/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: bearing-608-2rs-sealed-simple
   name: 深沟球轴承
   type: bearing
@@ -99,6 +108,24 @@ components:
   spec: button-head-screw-m3-l0008-simple/component.yaml
   reference_step: button-head-screw-m3-l0008-simple/reference.step
   source_material_directory: null
+- id: circlip-external-gbt894-1-d20
+  name: 轴用弹性挡圈 20
+  type: fastener
+  subtype: external_retaining_ring
+  version: 1.0.0
+  status: validated
+  spec: circlip-external-gbt894-1-d20/component.yaml
+  reference_step: circlip-external-gbt894-1-d20/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
+- id: circlip-internal-gbt893-1-d42
+  name: 孔用弹性挡圈 42
+  type: fastener
+  subtype: internal_retaining_ring
+  version: 1.0.0
+  status: validated
+  spec: circlip-internal-gbt893-1-d42/component.yaml
+  reference_step: circlip-internal-gbt893-1-d42/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: clamp-hub-bore5-bc16
   name: 夹紧式轮毂
   type: hub
@@ -729,6 +756,15 @@ components:
   spec: gear-rack-m0-8-l0100/component.yaml
   reference_step: gear-rack-m0-8-l0100/reference.step
   source_material_directory: null
+- id: gear-shaft-assembly-680-9-1-6
+  name: 齿轮轴组合 680.9.1.6
+  type: gear
+  subtype: gear_shaft_assembly
+  version: 1.0.0
+  status: validated
+  spec: gear-shaft-assembly-680-9-1-6/component.yaml
+  reference_step: gear-shaft-assembly-680-9-1-6/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: gt2-pulley-20t-bore5-w6
   name: 同步带轮
   type: pulley
@@ -900,6 +936,15 @@ components:
   spec: oldham-dbu03-d55-d20-e20/component.yaml
   reference_step: oldham-dbu03-d55-d20-e20/reference.step
   source_material_directory: null
+- id: parallel-key-gbt1096-a6x6x14
+  name: 普通平键 A型 6×6×14
+  type: fastener
+  subtype: parallel_key
+  version: 1.0.0
+  status: validated
+  spec: parallel-key-gbt1096-a6x6x14/component.yaml
+  reference_step: parallel-key-gbt1096-a6x6x14/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: plate-blank-50x50x2
   name: 矩形板坯
   type: stock
@@ -1062,6 +1107,15 @@ components:
   spec: shaft-coupler-rigid-clamp-d05-d05-simple/component.yaml
   reference_step: shaft-coupler-rigid-clamp-d05-d05-simple/reference.step
   source_material_directory: null
+- id: sleeve-d20-d27-l10-680-9-1-3
+  name: 套筒 Φ20/Φ27×10
+  type: spacer
+  subtype: sleeve
+  version: 1.0.0
+  status: validated
+  spec: sleeve-d20-d27-l10-680-9-1-3/component.yaml
+  reference_step: sleeve-d20-d27-l10-680-9-1-3/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: socket-head-cap-screw-m2-l0025-simple
   name: 圆柱头内六角螺钉
   type: fastener
@@ -1125,6 +1179,15 @@ components:
   spec: sprocket-25-12t-bore8/component.yaml
   reference_step: sprocket-25-12t-bore8/reference.step
   source_material_directory: null
+- id: spur-gear-keyed-bore20-od48-w16-680-9-1-3
+  name: 键槽孔直齿轮 Φ48×16
+  type: gear
+  subtype: spur_gear
+  version: 1.0.0
+  status: validated
+  spec: spur-gear-keyed-bore20-od48-w16-680-9-1-3/component.yaml
+  reference_step: spur-gear-keyed-bore20-od48-w16-680-9-1-3/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: spur-gear-m1-0-20t-bore5
   name: 直齿圆柱齿轮
   type: gear
@@ -1233,6 +1296,15 @@ components:
   spec: star-knob-m3-d16/component.yaml
   reference_step: star-knob-m3-d16/reference.step
   source_material_directory: null
+- id: stepped-gear-shaft-d20-l88-680-9-1-6
+  name: 阶梯齿轮轴 Φ20×88
+  type: shaft
+  subtype: stepped_shaft
+  version: 1.0.0
+  status: validated
+  spec: stepped-gear-shaft-d20-l88-680-9-1-6/component.yaml
+  reference_step: stepped-gear-shaft-d20-l88-680-9-1-6/reference.step
+  source_material_directory: /Users/didi/Downloads/stp-jpg
 - id: stepped-shaft-mcm01-d30-l70-e45-f45-a20-b20-g18-v18-p12-q12
   name: 二阶形轴
   type: shaft

@@ -1,0 +1,207 @@
+schema_version: '1.3'
+spec_type: component
+identity:
+  id: spur-gear-keyed-bore20-od48-w16-680-9-1-3
+  name: 键槽孔直齿轮 Φ48×16
+  name_en: Keyed-bore spur gear 48 x 16
+  type: gear
+  subtype: spur_gear
+  family: power_transmission
+  standard: 680.9.1.3-2
+  description: 生成机械专利附图风格的直齿圆柱齿轮：外径约48 mm、齿宽16 mm、中心孔20 mm，孔内带普通平键键槽，轮毂与齿圈一体，用于齿轮轴传动。
+  license: 源文件许可见 STEP 元数据
+  version: 1.0.0
+  created_at: '2026-08-05'
+  updated_at: '2026-08-05'
+  status: validated
+  tags:
+  - 直齿轮
+  - 键槽
+  - spur gear
+  - 20mm bore
+  - 48mm OD
+  - 16mm face width
+  default_preset: reference
+  default_color: '#8D9BAB'
+coordinate_system:
+  length_unit: mm
+  angle_unit: deg
+  handedness: right_handed
+  origin:
+  - 16.646707
+  - 3.023952
+  - 8.0
+  x_axis:
+  - 1.0
+  - 0.0
+  - 0.0
+  y_axis:
+  - 0.0
+  - 1.0
+  - 0.0
+  z_axis:
+  - 0.0
+  - 0.0
+  - 1.0
+  origin_definition: STEP 包围盒中心
+  z_axis_definition: 原始 STEP +Z
+  zero_rotation_definition: 原始 STEP +X
+parameters: []
+derived_parameters: []
+constraints:
+  expression_language: CEL
+  rules: []
+ports:
+- id: end_a
+  name: 轴向端口 A
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 16.646707
+    - 3.023952
+    - -0.008054
+    axis:
+    - -0.0
+    - -0.0
+    - -1.0
+    up: &id001
+    - 1.0
+    - 0.0
+    - 0.0
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+- id: end_b
+  name: 轴向端口 B
+  type: mechanical_interface
+  role: mechanical_connection
+  frame:
+    origin:
+    - 16.646707
+    - 3.023952
+    - 16.008054
+    axis:
+    - 0.0
+    - 0.0
+    - 1.0
+    up: *id001
+  interface: {}
+  compatible_with:
+    port_types:
+    - mechanical_interface
+    rules: []
+  allowed_mates:
+  - coincident_concentric
+geometry:
+  representation: reference_brep
+  modeling_kernel: OpenCascade
+  generator:
+    mode: reference_step
+    preferred_engine: OpenCascade
+    engine_version: 7.8.x
+    script_required_for_release: false
+  construction:
+  - id: import_reference
+    operation: import_step
+    source: reference.step
+  output:
+    format: STEP
+    application_protocol: AP242
+    preserve_names: true
+    preserve_colors: true
+    filename_template: spur-gear-keyed-bore20-od48-w16-680-9-1-3.step
+presets:
+- name: reference
+  source_ref: 680.9.1.3-2齿轮1.stp
+  verification_status: geometry_measured
+  params: {}
+validation:
+  parameter_validation:
+    required_parameters_complete: true
+    enum_validation: true
+    constraint_validation: true
+  topology:
+    expected_body_count: 1
+    solid_required: true
+    closed_shell_required: true
+    manifold_required: true
+    self_intersection_allowed: false
+  geometry:
+    dimensional_tolerance: 0.01
+    angular_tolerance: 0.1
+    positive_volume_required: true
+    measured:
+      bounding_box:
+        min:
+        - -7.223835
+        - -20.984102
+        - -0.008054
+        max:
+        - 40.517248
+        - 27.032006
+        - 16.008054
+        size:
+        - 47.741083
+        - 48.016108
+        - 16.016108
+      topology:
+        solids: 1
+        shells: 1
+        faces: 96
+        edges: 564
+        vertices: 1128
+        compounds: 1
+      volume_mm3: 18809.64585
+      surface_area_mm2: 7881.209712
+      center_of_mass:
+      - 16.47695
+      - 3.023952
+      - 8.0
+      valid_solid: true
+    signatures:
+      strict_topology_sha256: 00cf3338ba8d4cfad55db10ae8d7f75697bc9abe6bf50cf864fdf4bdf775da3a
+      engineering_geometry_sha256: a5093231213a8c180fad820d50d184364fa3c3f191e15d9e35ef6d47ead31289
+  ports:
+    validate_frame_orthogonality: true
+    validate_axis_normalized: true
+    validate_origin_on_interface: true
+  step_roundtrip:
+    required: true
+    application_protocol: AP242
+    preserve_product_name: true
+    preserve_color: true
+    preserve_units: true
+artifacts:
+  reference_step:
+    file: reference.step
+    role: 固定规格几何与往返转换基准
+    format: STEP
+    application_protocol: source_preserved
+    length_unit: mm
+    sha256: 33361f56a9c510d01a7155a3e5e963f895d9fd8cb6d21a58baf7e432fa14d86b
+  generator_source:
+    file: null
+    required: false
+    sha256: null
+  preview_model:
+    file: null
+    required: false
+    sha256: null
+  thumbnail:
+    file: preview.jpg
+    required: true
+    sha256: null
+provenance:
+  source_type: imported_step
+  standard_refs:
+  - 680.9.1.3-2
+  data_entry_method: step_jpg_curated
+  semantic_recovery: inferred
+  verified_by: null
+  verified_at: null
+  source_material_directory: /Users/didi/Downloads/stp-jpg

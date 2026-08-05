@@ -365,4 +365,10 @@ def assembly_to_model(report: dict[str, Any]) -> list[dict[str, Any]]:
         mesh = _shape_mesh(shape)
         mesh.update({"color": color, "component_id": component_id, "instance_index": int(instance["index"])})
         result.append(mesh)
+    if report.get("envelopes"):
+        from .assembly import envelope_shape
+        for offset, envelope in enumerate(report["envelopes"], len(result)):
+            mesh = _shape_mesh(envelope_shape(envelope))
+            mesh.update({"color": "#303846", "component_id": envelope["component_id"], "instance_index": offset})
+            result.append(mesh)
     return result

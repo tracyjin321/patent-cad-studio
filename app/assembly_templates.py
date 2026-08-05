@@ -19,6 +19,45 @@ class AssemblyTemplate:
 
 ASSEMBLY_TEMPLATES = (
     AssemblyTemplate(
+        id="spur-gear-mesh-20-40",
+        required_patterns=(r"(?:模数\s*1|m\s*=?\s*1)", r"20\s*齿", r"40\s*齿", r"(?:啮合|中心距)"),
+        components=(
+            ("spur-gear-m1-0-20t-bore5", "模数 1、20 齿主动轮"),
+            ("spur-gear-m1-0-40t-bore8", "模数 1、40 齿从动轮"),
+        ),
+        relations=((0, 1, "按节圆外啮合，中心距 30 mm"),),
+    ),
+    AssemblyTemplate(
+        id="gt2-belt-envelope",
+        required_patterns=(r"GT2|同步带", r"20\s*齿", r"40\s*齿", r"(?:包络|张紧|中心距|同步带)"),
+        components=(
+            ("gt2-pulley-20t-bore5-w6", "GT2 20 齿主动同步带轮"),
+            ("gt2-pulley-40t-bore8-w6", "GT2 40 齿从动同步带轮"),
+            ("gt2-smooth-idler-bore5-w6", "GT2 光面张紧惰轮"),
+        ),
+        relations=((0, 1, "两带轮中心距 80 mm"), (1, 2, "惰轮压紧闭合同步带包络")),
+    ),
+    AssemblyTemplate(
+        id="roller-chain-envelope",
+        required_patterns=(r"(?:25号|25\s*号|roller\s*chain)", r"(?:链轮|sprocket)", r"(?:链条|包络|闭合)"),
+        components=(
+            ("sprocket-25-12t-bore5", "25 号 12 齿主动链轮"),
+            ("sprocket-25-12t-bore8", "25 号 12 齿从动链轮"),
+        ),
+        relations=((0, 1, "两链轮中心距 100 mm并生成闭合链条包络"),),
+    ),
+    AssemblyTemplate(
+        id="spatial-branch-drive",
+        required_patterns=(r"空间分支", r"NEMA\s*17|步进电机", r"安装板", r"联轴器|同步带轮"),
+        components=(
+            ("motor-mount-plate-nema17-to-2020-simple", "空间分支装配基准安装板"),
+            ("stepper-motor-nema17-l0020-single-shaft", "Z 向步进电机分支"),
+            ("shaft-coupler-rigid-clamp-d05-d05-simple", "X 向联轴器分支"),
+            ("gt2-pulley-20t-bore5-w6", "Y 向同步带轮分支"),
+        ),
+        relations=((0, 1, "安装板到电机 Z 向分支"), (0, 2, "安装板到联轴器 X 向分支"), (0, 3, "安装板到带轮 Y 向分支")),
+    ),
+    AssemblyTemplate(
         id="gear-shaft-680-9-1-6",
         required_patterns=(
             r"(?:680[.．]9[.．]1[.．]6|齿轮轴组合|阶梯齿轮轴)",

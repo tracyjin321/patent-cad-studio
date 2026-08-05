@@ -304,7 +304,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         with CAD_KERNEL_LOCK, cad_resource_slot(request.part_type, parameters):
             assembly_report = None
             if request.component_ids:
-                manifest = automatic_manifest(request.component_ids, ROOT / "component_library")
+                manifest = automatic_manifest(request.component_ids, ROOT / "component_library", description=request.description)
                 cache_key = hashlib.sha256(manifest.model_dump_json().encode()).hexdigest()
                 cache_step, cache_report = ASSEMBLY_CACHE / f"{cache_key}.step", ASSEMBLY_CACHE / f"{cache_key}.json"
                 if cache_step.is_file() and cache_report.is_file():

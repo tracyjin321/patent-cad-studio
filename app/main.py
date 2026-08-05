@@ -198,6 +198,12 @@ async def recommend(request: RecommendRequest) -> RecommendResponse:
 @app.post("/api/component-recommendations", response_model=ComponentRecommendationResponse)
 async def recommend_components(request: ComponentRecommendationRequest) -> dict[str, object]:
     deterministic = recommend_component_instances(request.description, request.limit)
+    # Exact local matches are already executable and should never wait on the
+    # optional model analysis. Keeping this endpoint fast also prevents the UI
+    # from submitting an empty component list while a long model call is pending.
+    if deterministic["component_ids"]:
+        deterministic["parser_detail"] = "本地图元规则精确命中，跳过大模型补充分析"
+        return deterministic
     catalog = list(structured_query_components(limit=200)["items"])
     analysis, parser, detail = await analyze_component_assembly(request.description, catalog, request.use_ai)
     if analysis:

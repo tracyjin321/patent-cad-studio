@@ -16,10 +16,11 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-BBOX_ENGINEERING_TOLERANCE_MM = 0.02
 
 from app.component_spec import (  # noqa: E402
+    _engineering_geometry_comparison,
     _artifact_path,
+    _geometry_tolerances,
     inspect_step,
     load_spec,
     spec_to_step,
@@ -36,7 +37,13 @@ def vector_delta(left: list[float], right: list[float]) -> float:
     return math.sqrt(sum((float(a) - float(b)) ** 2 for a, b in zip(left, right)))
 
 
-def compare_geometry(baseline: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+def compare_geometry(
+    baseline: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    dimensional_tolerance: float,
+    relative_tolerance: float,
+) -> dict[str, Any]:
     volume = abs(current["volume_mm3"] - baseline["volume_mm3"])
     relative_volume = volume / max(abs(baseline["volume_mm3"]), 1e-12)
     area = abs(current["surface_area_mm2"] - baseline["surface_area_mm2"])
@@ -54,12 +61,14 @@ def compare_geometry(baseline: dict[str, Any], current: dict[str, Any]) -> dict[
         baseline["topology"][key] == current["topology"][key]
         for key in ("solids", "shells", "faces", "edges", "vertices")
     )
-    engineering_topology_equal = all(
-        baseline["topology"][key] == current["topology"][key]
-        for key in ("solids", "shells", "faces")
+    engineering_comparison = _engineering_geometry_comparison(
+        baseline,
+        current,
+        dimensional_tolerance=dimensional_tolerance,
+        relative_tolerance=relative_tolerance,
     )
-    engineering_equivalent = (engineering_topology_equal and relative_volume <= 1e-6
-                              and relative_area <= 1e-6 and bbox_delta <= BBOX_ENGINEERING_TOLERANCE_MM)
+    engineering_errors = engineering_comparison["errors"]
+    engineering_equivalent = not engineering_errors
     return {
         "topology_equal": topology_equal,
         "topology_delta": topology_delta,
@@ -70,8 +79,8 @@ def compare_geometry(baseline: dict[str, Any], current: dict[str, Any]) -> dict[
         "surface_area_relative_delta": relative_area,
         "bbox_max_delta_mm": bbox_delta,
         "center_delta_mm": vector_delta(baseline["center_of_mass"], current["center_of_mass"]),
-        "passed": (topology_equal and relative_volume <= 1e-6 and relative_area <= 1e-6
-                   and bbox_delta <= BBOX_ENGINEERING_TOLERANCE_MM),
+        "engineering_errors": engineering_errors,
+        "passed": topology_equal and engineering_equivalent,
     }
 
 
@@ -88,8 +97,12 @@ def semantic_snapshot(spec: dict[str, Any]) -> dict[str, Any]:
 
 def run_one(spec_path: Path, rounds: int, work: Path) -> dict[str, Any]:
     original_spec = load_spec(spec_path)
+    geometry_validation = original_spec.get("validation", {}).get("geometry", {})
+    dimensional_tolerance_value, relative_tolerance_value = _geometry_tolerances(geometry_validation)
+    dimensional_tolerance = float(dimensional_tolerance_value)
+    relative_tolerance = float(relative_tolerance_value)
     source = _artifact_path(spec_path, original_spec)
-    baseline = inspect_step(source)
+    baseline = inspect_step(source, stable_bounds=True)
     baseline_semantics = semantic_snapshot(original_spec)
     identity = {
         key: str(value) for key in ("id", "name", "name_en", "type", "subtype", "family")
@@ -103,11 +116,17 @@ def run_one(spec_path: Path, rounds: int, work: Path) -> dict[str, Any]:
     for number in range(1, rounds + 1):
         step_output = part_dir / f"round-{number}.step"
         yaml_output = part_dir / f"round-{number}.yaml"
-        geometry = spec_to_step(current_spec, step_output, force_reexport=True)
+        spec_to_step(current_spec, step_output, force_reexport=True)
+        geometry = inspect_step(step_output, stable_bounds=True)
         last_spec = step_to_spec(step_output, yaml_output, identity=identity, copy_reference=False,
                                  source_spec_path=current_spec)
         validation = validate_spec(last_spec, spec_path=yaml_output)
-        comparison = compare_geometry(baseline, geometry)
+        comparison = compare_geometry(
+            baseline,
+            geometry,
+            dimensional_tolerance=dimensional_tolerance,
+            relative_tolerance=relative_tolerance,
+        )
         round_results.append({
             "round": number,
             "step_sha256": sha256(step_output),
@@ -122,6 +141,8 @@ def run_one(spec_path: Path, rounds: int, work: Path) -> dict[str, Any]:
         "path": str(spec_path.relative_to(ROOT)),
         "id": original_spec["identity"]["id"],
         "baseline": baseline,
+        "dimensional_tolerance_mm": dimensional_tolerance,
+        "relative_tolerance": relative_tolerance,
         "rounds": round_results,
         "all_geometry_passed": all(item["passed"] for item in round_results),
         "all_engineering_equivalent": all(item["engineering_equivalent"] for item in round_results),
@@ -152,7 +173,7 @@ def markdown(results: list[dict[str, Any]], rounds: int) -> str:
         f"- 实际转换次数：{len(results) * rounds} 次 YAML→STEP + {len(results) * rounds} 次 STEP→YAML",
         f"- 几何一致性通过：{passed}/{len(results)}",
         f"- 工程几何等价通过：{engineering_passed}/{len(results)}",
-        f"- 判定阈值：主体拓扑一致、体积/面积相对偏差 ≤ 1e-6、包围盒最大偏差 ≤ {BBOX_ENGINEERING_TOLERANCE_MM:.2f} mm",
+        "- 判定阈值：主体拓扑、体积、面积、包围盒和重心均使用各图元 ComponentSpec 声明的工程公差",
         "",
         "## 总结",
         "",

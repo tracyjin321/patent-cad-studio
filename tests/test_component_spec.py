@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from app.component_spec import dump_spec, geometry_signatures, inspect_step, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
+from app.component_spec import dump_spec, geometry_signatures, inspect_shape, inspect_step, load_spec, roundtrip_report, spec_to_step, step_to_spec, validate_spec
 from app.parametric_spec import resolve_parametric_component
 from scripts.rebuild_component_catalog import build_catalog
 
@@ -45,6 +45,98 @@ def test_component_catalog_is_current():
     catalog_path = ROOT / "component_library" / "catalog.yaml"
     actual = yaml.safe_load(catalog_path.read_text(encoding="utf-8"))
     assert actual == build_catalog(catalog_path.parent)
+
+
+def test_inspect_shape_bounds_ignore_shape_tolerance_padding():
+    from OCP.BRep import BRep_Builder
+    from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
+    from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE, TopAbs_VERTEX
+    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopoDS import TopoDS
+
+    shape = BRepPrimAPI_MakeBox(10.0, 20.0, 30.0).Shape()
+    builder = BRep_Builder()
+    for kind, cast, update in (
+        (TopAbs_VERTEX, TopoDS.Vertex_s, builder.UpdateVertex),
+        (TopAbs_EDGE, TopoDS.Edge_s, builder.UpdateEdge),
+        (TopAbs_FACE, TopoDS.Face_s, builder.UpdateFace),
+    ):
+        explorer = TopExp_Explorer(shape, kind)
+        while explorer.More():
+            update(cast(explorer.Current()), 0.1)
+            explorer.Next()
+
+    assert inspect_shape(shape, stable_bounds=True)["bounding_box"] == {
+        "min": [-0.0, -0.0, -0.0],
+        "max": [10.0, 20.0, 30.0],
+        "size": [10.0, 20.0, 30.0],
+    }
+
+
+@pytest.mark.parametrize("component_id", [
+    "gear-shaft-assembly-680-9-1-6",
+    "spur-gear-keyed-bore20-od48-w16-680-9-1-3",
+])
+def test_imported_gear_roundtrip_ignores_step_tolerance_padding(component_id):
+    spec_path = ROOT / "component_library" / component_id / "component.yaml"
+
+    report = roundtrip_report(spec_path)
+
+    assert report["passed"], report
+
+
+def _roundtrip_measurement(*, volume=100.0, center=None):
+    return {
+        "bounding_box": {"min": [0.0, 0.0, 0.0], "max": [1.0, 1.0, 1.0], "size": [1.0, 1.0, 1.0]},
+        "topology": {"solids": 1, "shells": 1, "faces": 6},
+        "volume_mm3": volume,
+        "surface_area_mm2": 6.0,
+        "center_of_mass": center or [0.5, 0.5, 0.5],
+    }
+
+
+def test_roundtrip_report_uses_canonical_relative_tolerance(tmp_path, monkeypatch):
+    from app import component_spec
+
+    spec_path = tmp_path / "component.yaml"
+    spec_path.write_text(
+        "schema_version: '1.3'\n"
+        "validation:\n  geometry:\n    dimensional_tolerance: 0.01\n    relative_tolerance: 0.01\n"
+        "artifacts:\n  reference_step:\n    file: reference.step\n",
+        encoding="utf-8",
+    )
+    measurements = iter([_roundtrip_measurement(), _roundtrip_measurement(volume=100.5)])
+    monkeypatch.setattr(component_spec, "inspect_step", lambda *args, **kwargs: next(measurements))
+    monkeypatch.setattr(component_spec, "spec_to_step", lambda *args, **kwargs: None)
+
+    report = component_spec.roundtrip_report(spec_path, tmp_path / "roundtrip.step")
+
+    assert report["passed"]
+    assert all(report["checks"].values())
+
+
+def test_roundtrip_report_checks_explain_blocking_center_drift(tmp_path, monkeypatch):
+    from app import component_spec
+
+    spec_path = tmp_path / "component.yaml"
+    spec_path.write_text(
+        "schema_version: '1.3'\n"
+        "validation:\n  geometry:\n    dimensional_tolerance: 0.01\n"
+        "artifacts:\n  reference_step:\n    file: reference.step\n",
+        encoding="utf-8",
+    )
+    measurements = iter([
+        _roundtrip_measurement(),
+        _roundtrip_measurement(center=[0.52, 0.5, 0.5]),
+    ])
+    monkeypatch.setattr(component_spec, "inspect_step", lambda *args, **kwargs: next(measurements))
+    monkeypatch.setattr(component_spec, "spec_to_step", lambda *args, **kwargs: None)
+
+    report = component_spec.roundtrip_report(spec_path, tmp_path / "roundtrip.step")
+
+    assert not report["passed"]
+    assert not report["checks"]["center_of_mass"]
+    assert report["passed"] == all(report["checks"].values())
 
 
 def test_stale_exact_geometry_hash_is_warning_when_engineering_geometry_matches():

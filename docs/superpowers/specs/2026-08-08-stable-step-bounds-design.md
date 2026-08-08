@@ -25,8 +25,9 @@ the report and CI to disagree.
    with `BRepBndLib.AddOptimal_s(..., useTriangulation=False,
    useShapeTolerance=False)`. This measures underlying geometry without STEP
    tolerance padding.
-2. Make `inspect_shape()` use that stable bound. Volume, surface area,
-   topology, and center-of-mass behavior remain unchanged.
+2. Expose the stable bound through an explicit `stable_bounds=True` measurement
+   mode. Keep the default tolerance-aware measurement unchanged because the
+   existing component library records that historical convention.
 3. Add one shared engineering-measurement comparator in
    `app/component_spec.py`. Both stored-reference validation and STEP
    round-trip validation use it, so topology, volume, surface area, bounds,
@@ -36,12 +37,13 @@ the report and CI to disagree.
 5. Keep `dimensional_tolerance: 0.01` and relative tolerance `1e-6`. Do not add
    fixture-specific exceptions or globally loosen validation.
 
-## Data migration
+## Data compatibility
 
 The checked-in YAML measurements were produced with tolerance-expanded bounds.
-After the measurement algorithm changes, regenerate only measured geometry and
-signatures whose canonical values changed. Review the resulting diff to ensure
-topology, volume, surface area, and center of mass did not change unexpectedly.
+An audit found that changing the global default would force an unrelated
+rebaseline across most of the component library. Therefore stored measurements
+and signatures remain unchanged; only re-export equivalence checks opt into
+stable bounds for both sides of the comparison.
 
 ## Testing
 

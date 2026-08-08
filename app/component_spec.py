@@ -44,7 +44,22 @@ def read_step(path: Path):
     return reader.OneShape()
 
 
-def inspect_shape(shape: object) -> dict[str, Any]:
+def _stable_bounding_box(shape: object) -> dict[str, list[float]]:
+    """Measure underlying geometry without STEP entity-tolerance padding."""
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+
+    box = Bnd_Box()
+    BRepBndLib.AddOptimal_s(shape, box, False, False)
+    bounds = [round(float(value), 6) for value in box.Get()]
+    return {
+        "min": bounds[:3],
+        "max": bounds[3:],
+        "size": [round(bounds[index + 3] - bounds[index], 6) for index in range(3)],
+    }
+
+
+def inspect_shape(shape: object, *, stable_bounds: bool = False) -> dict[str, Any]:
     from OCP.BRep import BRep_Tool
     from OCP.BRepGProp import BRepGProp
     from OCP.Bnd import Bnd_Box
@@ -53,9 +68,6 @@ def inspect_shape(shape: object) -> dict[str, Any]:
     from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_EDGE, TopAbs_FACE, TopAbs_SHELL, TopAbs_SOLID, TopAbs_VERTEX
     from OCP.TopExp import TopExp_Explorer
 
-    box = Bnd_Box()
-    BRepBndLib.Add_s(shape, box)
-    bounds = [round(float(value), 6) for value in box.Get()]
     counts = {}
     for name, kind in (("solids", TopAbs_SOLID), ("shells", TopAbs_SHELL), ("faces", TopAbs_FACE),
                        ("edges", TopAbs_EDGE), ("vertices", TopAbs_VERTEX), ("compounds", TopAbs_COMPOUND)):
@@ -70,11 +82,18 @@ def inspect_shape(shape: object) -> dict[str, Any]:
     surface_props = GProp_GProps()
     BRepGProp.SurfaceProperties_s(shape, surface_props)
     valid = not bool(BRep_Tool.IsClosed_s(shape)) if counts["solids"] == 0 else True
-    return {
-        "bounding_box": {
+    if stable_bounds:
+        bounding_box = _stable_bounding_box(shape)
+    else:
+        box = Bnd_Box()
+        BRepBndLib.Add_s(shape, box)
+        bounds = [round(float(value), 6) for value in box.Get()]
+        bounding_box = {
             "min": bounds[:3], "max": bounds[3:],
-            "size": [round(bounds[i + 3] - bounds[i], 6) for i in range(3)],
-        },
+            "size": [round(bounds[index + 3] - bounds[index], 6) for index in range(3)],
+        }
+    return {
+        "bounding_box": bounding_box,
         "topology": counts,
         "volume_mm3": round(float(props.Mass()), 6),
         "surface_area_mm2": round(float(surface_props.Mass()), 6),
@@ -83,8 +102,8 @@ def inspect_shape(shape: object) -> dict[str, Any]:
     }
 
 
-def inspect_step(path: Path) -> dict[str, Any]:
-    return inspect_shape(read_step(path))
+def inspect_step(path: Path, *, stable_bounds: bool = False) -> dict[str, Any]:
+    return inspect_shape(read_step(path), stable_bounds=stable_bounds)
 
 
 def geometry_signatures(measured: dict[str, Any]) -> dict[str, str]:
@@ -132,6 +151,91 @@ def _relative_close(expected: float, actual: float, relative_tolerance: float) -
     return abs(expected - actual) <= tolerance
 
 
+def _geometry_tolerances(geometry_validation: dict[str, Any]) -> tuple[Any, Any]:
+    """Resolve the canonical tolerances, retaining the legacy relative key as a fallback."""
+    return (
+        geometry_validation.get("dimensional_tolerance", 0.01),
+        geometry_validation.get(
+            "relative_tolerance",
+            geometry_validation.get("volume_relative_tolerance", 1e-6),
+        ),
+    )
+
+
+def _engineering_geometry_comparison(
+    stored: dict[str, Any],
+    actual: dict[str, Any],
+    *,
+    dimensional_tolerance: float,
+    relative_tolerance: float,
+) -> dict[str, Any]:
+    """Return named engineering checks and their user-facing validation errors."""
+    try:
+        dimensional_tolerance = _finite_float(dimensional_tolerance)
+        relative_tolerance = _finite_float(relative_tolerance)
+        if dimensional_tolerance < 0 or relative_tolerance < 0:
+            raise ValueError("tolerances must be non-negative")
+
+        stored_topology = stored["topology"]
+        actual_topology = actual["topology"]
+        checks = {
+            f"{key[:-1]}_count": (
+                _topology_count(stored_topology[key]) == _topology_count(actual_topology[key])
+            )
+            for key in ("solids", "shells", "faces")
+        }
+        checks["volume"] = _relative_close(
+            _finite_float(stored["volume_mm3"]), _finite_float(actual["volume_mm3"]), relative_tolerance
+        )
+        checks["surface_area"] = (
+            "surface_area_mm2" not in stored
+            or _relative_close(
+                _finite_float(stored["surface_area_mm2"]),
+                _finite_float(actual["surface_area_mm2"]),
+                relative_tolerance,
+            )
+        )
+
+        stored_box = stored["bounding_box"]
+        actual_box = actual["bounding_box"]
+        for section in ("min", "max", "size"):
+            expected = stored_box[section]
+            observed = actual_box[section]
+            if len(expected) != 3 or len(observed) != 3:
+                raise ValueError("bounding box coordinates must be three-dimensional")
+            checks[f"bounding_box_{section}"] = all(
+                abs(_finite_float(left) - _finite_float(right)) <= dimensional_tolerance
+                for left, right in zip(expected, observed)
+            )
+
+        stored_center = stored["center_of_mass"]
+        actual_center = actual["center_of_mass"]
+        if len(stored_center) != 3 or len(actual_center) != 3:
+            raise ValueError("center of mass must be three-dimensional")
+        checks["center_of_mass"] = all(
+            abs(_finite_float(expected) - _finite_float(observed)) <= dimensional_tolerance
+            for expected, observed in zip(stored_center, actual_center)
+        )
+
+        errors: list[str] = []
+        if not all(checks[key] for key in ("solid_count", "shell_count", "face_count")):
+            errors.append("reference STEP 工程拓扑与记录不一致")
+        if not checks["volume"]:
+            errors.append("reference STEP 工程几何体积超出声明公差")
+        if not checks["surface_area"]:
+            errors.append("reference STEP 工程几何表面积超出声明公差")
+        if not all(checks[f"bounding_box_{section}"] for section in ("min", "max", "size")):
+            errors.append("reference STEP 工程几何包围盒超出声明公差")
+        if not checks["center_of_mass"]:
+            errors.append("reference STEP 工程几何重心超出声明公差")
+        return {"checks": checks, "errors": errors}
+    except (KeyError, TypeError, ValueError):
+        return {
+            "checks": {"measurements_valid": False},
+            "errors": ["reference STEP 工程几何测量基准无效"],
+        }
+
+
 def _engineering_geometry_errors(
     stored: dict[str, Any],
     actual: dict[str, Any],
@@ -140,56 +244,12 @@ def _engineering_geometry_errors(
     relative_tolerance: float,
 ) -> list[str]:
     """Compare stable engineering measurements without requiring identical hashes."""
-    try:
-        dimensional_tolerance = _finite_float(dimensional_tolerance)
-        relative_tolerance = _finite_float(relative_tolerance)
-        if dimensional_tolerance < 0 or relative_tolerance < 0:
-            raise ValueError("tolerances must be non-negative")
-
-        errors: list[str] = []
-        stored_topology = stored["topology"]
-        actual_topology = actual["topology"]
-        if any(_topology_count(stored_topology[key]) != _topology_count(actual_topology[key])
-               for key in ("solids", "shells", "faces")):
-            errors.append("reference STEP 工程拓扑与记录不一致")
-
-        if not _relative_close(
-            _finite_float(stored["volume_mm3"]),
-            _finite_float(actual["volume_mm3"]),
-            relative_tolerance,
-        ):
-            errors.append("reference STEP 工程几何体积超出声明公差")
-
-        if "surface_area_mm2" in stored and not _relative_close(
-            _finite_float(stored["surface_area_mm2"]),
-            _finite_float(actual["surface_area_mm2"]),
-            relative_tolerance,
-        ):
-            errors.append("reference STEP 工程几何表面积超出声明公差")
-
-        stored_box = stored["bounding_box"]
-        actual_box = actual["bounding_box"]
-        box_pairs: list[tuple[Any, Any]] = []
-        for section in ("min", "max", "size"):
-            expected = stored_box[section]
-            observed = actual_box[section]
-            if len(expected) != 3 or len(observed) != 3:
-                raise ValueError("bounding box coordinates must be three-dimensional")
-            box_pairs.extend(zip(expected, observed))
-        if any(abs(_finite_float(expected) - _finite_float(observed)) > dimensional_tolerance
-               for expected, observed in box_pairs):
-            errors.append("reference STEP 工程几何包围盒超出声明公差")
-
-        stored_center = stored["center_of_mass"]
-        actual_center = actual["center_of_mass"]
-        if len(stored_center) != 3 or len(actual_center) != 3:
-            raise ValueError("center of mass must be three-dimensional")
-        if any(abs(_finite_float(expected) - _finite_float(observed)) > dimensional_tolerance
-               for expected, observed in zip(stored_center, actual_center)):
-            errors.append("reference STEP 工程几何重心超出声明公差")
-        return errors
-    except (KeyError, TypeError, ValueError):
-        return ["reference STEP 工程几何测量基准无效"]
+    return _engineering_geometry_comparison(
+        stored,
+        actual,
+        dimensional_tolerance=dimensional_tolerance,
+        relative_tolerance=relative_tolerance,
+    )["errors"]
 
 
 def load_spec(path: Path) -> dict[str, Any]:
@@ -255,11 +315,12 @@ def validate_spec(spec: dict[str, Any], *, spec_path: Path | None = None) -> dic
             stored_signatures = geometry_validation.get("signatures")
             if stored_measured is not None:
                 actual_measured = inspect_step(source)
+                dimensional_tolerance, relative_tolerance = _geometry_tolerances(geometry_validation)
                 engineering_errors = _engineering_geometry_errors(
                     stored_measured,
                     actual_measured,
-                    dimensional_tolerance=geometry_validation.get("dimensional_tolerance", 0.01),
-                    relative_tolerance=geometry_validation.get("relative_tolerance", 1e-6),
+                    dimensional_tolerance=dimensional_tolerance,
+                    relative_tolerance=relative_tolerance,
                 )
                 errors.extend(engineering_errors)
                 if (not engineering_errors and stored_signatures
@@ -492,31 +553,35 @@ def roundtrip_report(spec_path: Path, output: Path | None = None) -> dict[str, A
 
     spec = load_spec(spec_path)
     source = _artifact_path(spec_path, spec)
-    original = inspect_step(source)
+    original = inspect_step(source, stable_bounds=True)
     if output is None:
         with tempfile.TemporaryDirectory(prefix="component-roundtrip-") as directory:
             target = Path(directory) / "roundtrip.step"
-            rebuilt = spec_to_step(spec_path, target, force_reexport=True)
+            spec_to_step(spec_path, target, force_reexport=True)
+            rebuilt = inspect_step(target, stable_bounds=True)
     else:
-        rebuilt = spec_to_step(spec_path, output, force_reexport=True)
-    tolerance = float(spec.get("validation", {}).get("geometry", {}).get("dimensional_tolerance", 0.01))
+        spec_to_step(spec_path, output, force_reexport=True)
+        rebuilt = inspect_step(output, stable_bounds=True)
+    geometry_validation = spec.get("validation", {}).get("geometry", {})
+    tolerance_value, relative_tolerance_value = _geometry_tolerances(geometry_validation)
+    tolerance = _finite_float(tolerance_value)
     # STEP writers may re-approximate analytic/B-spline surfaces. A ppm-level
     # relative tolerance catches real geometry changes without rejecting that
     # harmless serialization noise (notably on the imported Oldham coupling).
-    volume_relative_tolerance = float(
-        spec.get("validation", {}).get("geometry", {}).get("volume_relative_tolerance", 1e-6)
-    )
+    volume_relative_tolerance = _finite_float(relative_tolerance_value)
     volume_tolerance = max(1e-6, abs(original["volume_mm3"]) * volume_relative_tolerance)
     area_tolerance = max(1e-6, abs(original["surface_area_mm2"]) * volume_relative_tolerance)
     size_delta = [abs(a - b) for a, b in zip(original["bounding_box"]["size"], rebuilt["bounding_box"]["size"])]
-    checks = {
-        "solid_count": original["topology"]["solids"] == rebuilt["topology"]["solids"],
-        "face_count": original["topology"]["faces"] == rebuilt["topology"]["faces"],
-        "volume": abs(original["volume_mm3"] - rebuilt["volume_mm3"]) <= volume_tolerance,
-        "surface_area": abs(original["surface_area_mm2"] - rebuilt["surface_area_mm2"]) <= area_tolerance,
-        "bounding_box_size": all(delta <= tolerance for delta in size_delta),
-    }
-    return {"passed": all(checks.values()), "checks": checks, "size_delta_mm": size_delta,
+    comparison = _engineering_geometry_comparison(
+        original,
+        rebuilt,
+        dimensional_tolerance=tolerance,
+        relative_tolerance=volume_relative_tolerance,
+    )
+    checks = comparison["checks"]
+    engineering_errors = comparison["errors"]
+    return {"passed": not engineering_errors, "checks": checks, "engineering_errors": engineering_errors,
+            "size_delta_mm": size_delta,
             "volume_delta_mm3": abs(original["volume_mm3"] - rebuilt["volume_mm3"]),
             "volume_tolerance_mm3": volume_tolerance,
             "surface_area_delta_mm2": abs(original["surface_area_mm2"] - rebuilt["surface_area_mm2"]),
